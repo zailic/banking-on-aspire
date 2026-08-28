@@ -1,3 +1,9 @@
 go 1.26.5
 
-use ./services/accounts
+use (
+	./platform
+	./services/accounts
+	./services/accounts-legacy
+	./services/contacts
+	./services/users
+)

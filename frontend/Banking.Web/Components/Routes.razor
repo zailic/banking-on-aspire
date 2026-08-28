@@ -1,0 +1,17 @@
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <LayoutView Layout="typeof(Layout.MainLayout)">
+                    <section class="auth-panel">
+                        <p class="eyebrow">Secure banking workspace</p>
+                        <h1>Sign in to continue</h1>
+                        <p>Your profile and beneficiaries remain behind the server-side BFF.</p>
+                        <a class="primary-action" href="/authentication/login?returnUrl=/">Sign in with Keycloak</a>
+                    </section>
+                </LayoutView>
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

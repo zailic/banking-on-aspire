@@ -431,8 +431,67 @@
           "attributes": {}
         },
         {
+          "id": "e5df32d2-c7de-4b2e-a50c-f073cdf30477",
+          "name": "accounts.create",
+          "description": "Create bank accounts for active users",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "bfd3fd48-91e5-4b78-9b7d-469f2da06a17",
+          "name": "contacts.write",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
           "id": "7bed9ced-911b-48db-957c-9ec18ae4bca2",
           "name": "transactions.withdraw.create",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "c074244a-82e1-4235-a542-a7d51c897b53",
+          "name": "users.profile.write",
+          "description": "",
+          "composite": true,
+          "composites": {
+            "client": {
+              "banking-on-aspire-app": [
+                "users.profile.read"
+              ]
+            }
+          },
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {
+            "attribute1": [
+              "true"
+            ],
+            "attribute2": [
+              "true"
+            ]
+          }
+        },
+        {
+          "id": "e41b587a-3664-48c7-9d38-dfa91720a9e1",
+          "name": "contacts.read",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "661f98cb-67eb-4c2c-9240-f42c0be89714",
+          "name": "users.profile.read",
           "description": "",
           "composite": false,
           "clientRole": true,
@@ -462,7 +521,8 @@
       "realmRoles": [],
       "clientRoles": {
         "banking-on-aspire-app": [
-          "accounts.close"
+          "accounts.close",
+          "accounts.create"
         ]
       }
     },
@@ -481,6 +541,24 @@
       }
     },
     {
+      "id": "ef3f148a-07b5-4c13-a616-af357c72bff6",
+      "name": "BankingUser",
+      "description": "",
+      "path": "/BankingUser",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "banking-on-aspire-app": [
+          "accounts.balance.read",
+          "contacts.write",
+          "users.profile.write",
+          "contacts.read",
+          "users.profile.read"
+        ]
+      }
+    },
+    {
       "id": "eb3721f3-e888-4668-809b-a712b5a77cbd",
       "name": "TransactionTrade",
       "description": "",
@@ -492,6 +570,34 @@
         "banking-on-aspire-app": [
           "transactions.deposit.create",
           "transactions.withdraw.create"
+        ]
+      }
+    },
+    {
+      "id": "2446da08-3ed6-466e-9767-bfd839f4867c",
+      "name": "UserProfileRW",
+      "description": "",
+      "path": "/UserProfileRW",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "banking-on-aspire-app": [
+          "users.profile.write"
+        ]
+      }
+    },
+    {
+      "id": "27d407fd-1b2c-402b-a6e3-99f01b9b6520",
+      "name": "UserProfileRead",
+      "description": "",
+      "path": "/UserProfileRead",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "banking-on-aspire-app": [
+          "users.profile.read"
         ]
       }
     }
@@ -721,19 +827,20 @@
       "clientId": "banking-on-aspire-app",
       "name": "",
       "description": "",
-      "rootUrl": "",
-      "adminUrl": "",
-      "baseUrl": "",
+      "rootUrl": "https://localhost:7443",
+      "adminUrl": "https://localhost:7443",
+      "baseUrl": "/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        ""
+        "https://localhost:7443/signout-callback-oidc",
+        "https://localhost:7443/signin-oidc"
       ],
       "webOrigins": [
-        ""
+        "https://localhost:7443"
       ],
       "notBefore": 0,
       "bearerOnly": false,

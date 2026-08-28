@@ -6,20 +6,20 @@ Purpose: map concepts from Bank of Anthos to banking-on-aspire, a stack centered
 
 | Bank of Anthos concept | Banking-on-Aspire target | Technology focus | Notes |
 |---|---|---|---|
-| Frontend + BFF | API gateway/BFF layer (future) | Aspire resource graph, Dapr service invocation | Start with thin proxy and auth propagation |
-| Users service | Identity and profile boundary | Keycloak + lightweight profile service | Keep identity source of truth in Keycloak |
+| Frontend + BFF | API gateway/BFF layer (next) | Aspire resource graph, token propagation | Start with one thin authenticated vertical slice |
+| Users service | Identity and profile boundary (implemented) | Keycloak + PostgreSQL profile service | Keep identity source of truth in Keycloak |
 | Ledger/transactions | Transaction history read service | Dapr pub/sub + state store | Build read model from emitted domain events |
-| Accounts service | Existing bank account service | Dapr actors + state | Preserve actor model and enrich with idempotency |
-| Contacts service | Beneficiaries context | Dapr state + APIs | Useful for authz and ownership rules |
+| Accounts service | Legacy command/actor flow | Persistence selected from domain requirements | Keep the current actor implementation only as a learning reference until modernization |
+| Contacts service | Beneficiaries context (implemented) | gRPC + PostgreSQL | Proto RBAC and `sub`-based ownership are enforced |
 | Platform/deploy setup | Environment model | Radius environments and recipes | Separate local orchestration from deploy topology |
 
 ## Recommended Port Order
 
 1. Baseline and observability first.
-2. Identity hardening with Keycloak scopes.
-3. Event stream for account domain actions.
-4. Transaction read model extraction.
-5. Beneficiaries context extraction.
+2. Identity hardening with Keycloak client-role permissions.
+3. Users and beneficiaries contexts with canonical resource ownership.
+4. Thin frontend/BFF vertical slice.
+5. Event stream for account domain actions and transaction read model extraction.
 6. Radius environment templates for deployment.
 
 ## Role Model Aligned to Existing Flows
@@ -33,7 +33,9 @@ Purpose: map concepts from Bank of Anthos to banking-on-aspire, a stack centered
 
 Design notes:
 - Transaction roles are operation-scoped (`transactions.*`) and separate from account lifecycle roles (`accounts.*`).
-- Ownership constraints are still enforced from `preferred_username` to account ID mapping in the API.
+- Users and Contacts enforce ownership from immutable `sub` to canonical user
+  resources. Only the legacy Accounts flow still uses `preferred_username` to
+  account ID mapping.
 
 ## Non-goals for initial phase
 

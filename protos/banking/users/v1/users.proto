@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package banking.users.v1;
+
+import "banking/auth/v1/authorization.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Banking.Contracts.Users.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1;usersv1";
+
+// Manages application profiles linked to authenticated Keycloak identities.
+service UsersService {
+  // Gets one application user profile.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/v1/{name=users/*}"};
+    option (banking.auth.v1.authorization) = {required_permissions: "users.profile.read"};
+  }
+
+  // Resolves the caller's Keycloak identity to a local profile, creating it on
+  // first use. The authenticated token is the only identity input.
+  rpc GetOrCreateCurrentUser(GetOrCreateCurrentUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/v1/users:resolveCurrent"
+      body: "*"
+    };
+    option (banking.auth.v1.authorization) = {
+      required_permissions: [
+        "users.profile.write",
+        "users.profile.read"
+      ]
+    };
+  }
+}
+
+// An application user profile linked to a Keycloak identity.
+message User {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/User"
+    pattern: "users/{user}"
+    singular: "user"
+    plural: "users"
+  };
+
+  // Canonical resource name, for example users/01k3example.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Immutable OpenID Connect subject issued by Keycloak.
+  string keycloak_subject = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Username projected from the authenticated identity.
+  string username = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // User-facing name projected from the authenticated identity.
+  string display_name = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Email projected from the authenticated identity, when present.
+  string email = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Application lifecycle status; this is distinct from Keycloak login state.
+  UserStatus status = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the local profile was created.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the local profile was last synchronized.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag used for optimistic concurrency control in future updates.
+  string etag = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Application lifecycle state for a user profile.
+enum UserStatus {
+  // The status has not been specified.
+  USER_STATUS_UNSPECIFIED = 0;
+
+  // The user may use the application normally.
+  USER_STATUS_ACTIVE = 1;
+
+  // Application access has been temporarily suspended.
+  USER_STATUS_SUSPENDED = 2;
+
+  // The banking relationship has been closed without deleting audit data.
+  USER_STATUS_CLOSED = 3;
+}
+
+// Request message for GetUser.
+message GetUserRequest {
+  // User resource name in the form users/{user}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/User"
+  ];
+}
+
+// Request message for GetOrCreateCurrentUser.
+message GetOrCreateCurrentUserRequest {}

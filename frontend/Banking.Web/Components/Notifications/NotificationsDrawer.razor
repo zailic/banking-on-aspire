@@ -1,0 +1,9 @@
+<section class="notifications-empty">
+    <FluentIcon Value="@NotificationIcon()" />
+    <h3>You're all caught up</h3>
+    <p>Account activity and incoming-payment notifications will appear here.</p>
+</section>
+
+@code {
+    private static Icon NotificationIcon() => new Icons.Regular.Size32.Alert();
+}

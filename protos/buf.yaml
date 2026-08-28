@@ -1,0 +1,20 @@
+version: v2
+
+modules:
+  - path: .
+
+deps:
+  - buf.build/googleapis/googleapis
+
+lint:
+  use:
+    - STANDARD
+  # GAIP standard methods return the resource itself and google.protobuf.Empty.
+  # Wrapper responses would violate AIP-121 and AIP-131 through AIP-135.
+  except:
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    - RPC_RESPONSE_STANDARD_NAME
+
+breaking:
+  use:
+    - FILE

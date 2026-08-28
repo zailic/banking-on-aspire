@@ -11,15 +11,21 @@ A developer should be able to run the project locally without relying on ad hoc 
 - The local startup command must be simple and explicit.
 - The smoke script must exercise a realistic account flow with authentication.
 - The runbook must include expected outcomes and troubleshooting hints.
+- Authentication smoke credentials must live in the AppHost-scoped Aspire secret
+  store rather than repository `.env` files.
 
 ## Design Overview
 - The developer runs the AppHost from the repository root.
 - The smoke script calls the balance/deposit/withdraw sequence with a bearer token.
+- `make smoke-auth` starts or reuses Aspire, waits for resources, discovers
+  endpoints, obtains a real Keycloak token, and exercises authentication, RBAC,
+  and ownership behavior.
 - The expected balance progression is documented so the flow can be verified by eye.
 
 ## Acceptance Criteria
 - A developer can run the local start commands from the repository root.
 - The smoke script can be executed with a valid token and a known account identifier.
+- The auth gate rejects missing/invalid tokens, missing permissions, and cross-user access.
 - The runbook explains how to recover from common issues such as Keycloak readiness and Dapr runtime dependencies.
 
 ## Implementation Tasks
@@ -27,9 +33,11 @@ A developer should be able to run the project locally without relying on ad hoc 
 - Exercise the smoke script with a real token and capture the observed balance transitions.
 - Add explicit success and failure expectations to the smoke documentation.
 - Record troubleshooting steps for Keycloak readiness and Dapr-related startup issues.
+- [x] Add the automated `make smoke-auth` gate and Aspire secret-store setup.
 
 ## Operational Notes
 - The smoke script expects TOKEN and BASE_URL environment variables.
+- The auth gate reads `SmokeAuth:Keycloak:*` through `aspire secret get`.
 - The baseline flow should be run after Keycloak is available and the service is reachable.
 - Command output should be captured as evidence for future milestones.
 

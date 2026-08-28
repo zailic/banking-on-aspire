@@ -15,11 +15,13 @@ This document consolidates the current planning, onboarding, and operational not
 - [03-local-development-and-smoke.md](03-local-development-and-smoke.md)
 
 ## Status
-- Current state: baseline documentation has been migrated into an OpenSpec-style structure.
-- The specs now include scope, requirements, design, acceptance criteria, open questions, and implementation tasks.
+- M0, M1, and M2 are complete; domain decomposition is in progress with Users
+  and Contacts running independently.
+- The specs include boundaries, requirements, design, acceptance criteria,
+  resolved questions, and implementation tasks.
 
-## Implementation Backlog
-1. Validate the local Aspire startup path end to end.
-2. Capture the current Keycloak/token flow as a reproducible runbook step.
-3. Exercise the smoke flow with a real token and record the observed outcomes.
+## Next Implementation Backlog
+1. Add the first authenticated frontend/BFF vertical slice.
+2. Modernize Accounts around protobuf contracts, `sub` ownership, and explicit persistence.
+3. Introduce an account event and idempotent Transactions read-model consumer.
 4. Keep the OpenSpec documents updated as each milestone is implemented.

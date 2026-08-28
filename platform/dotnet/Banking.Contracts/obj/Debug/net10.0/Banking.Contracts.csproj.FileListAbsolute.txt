@@ -1,0 +1,12 @@
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.csproj.AssemblyReference.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.AssemblyInfoInputs.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.AssemblyInfo.cs
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.csproj.CoreCompileInputs.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/bin/Debug/net10.0/Banking.Contracts.deps.json
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/bin/Debug/net10.0/Banking.Contracts.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/bin/Debug/net10.0/Banking.Contracts.pdb
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/refint/Banking.Contracts.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/Banking.Contracts.pdb
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.Contracts/obj/Debug/net10.0/ref/Banking.Contracts.dll

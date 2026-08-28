@@ -1,0 +1,53 @@
+@using System.Security.Claims
+@inject IJSRuntime JS
+
+<div class="user-menu">
+<FluentButton Class="user-menu-trigger" Appearance="ButtonAppearance.Transparent" Title="Account menu" OnClick="ToggleMenu">
+    <FluentAvatar Name="@DisplayName" />
+    <span class="user-menu-copy"><strong>@DisplayName</strong><small>@Email</small></span>
+    <FluentIcon Value="@ChevronIcon()" />
+</FluentButton>
+
+@if (menuOpen)
+{
+    <div class="user-menu-popover" role="menu">
+        <button type="button" role="menuitem" @onclick="OpenProfileAsync"><FluentIcon Value="@ProfileIcon()" />View profile</button>
+        <div class="menu-separator"></div>
+        <span class="menu-label">Theme</span>
+        <button type="button" role="menuitemradio" aria-checked="@(theme == "light")" @onclick="SetLightThemeAsync">Light <span>@Check("light")</span></button>
+        <button type="button" role="menuitemradio" aria-checked="@(theme == "dark")" @onclick="SetDarkThemeAsync">Dark <span>@Check("dark")</span></button>
+        <button type="button" role="menuitemradio" aria-checked="@(theme == "system")" @onclick="SetSystemThemeAsync">System <span>@Check("system")</span></button>
+        <div class="menu-separator"></div>
+        <button type="button" role="menuitem" @onclick="SignOutAsync"><FluentIcon Value="@SignOutIcon()" />Sign out</button>
+    </div>
+}
+</div>
+
+<form id="user-menu-logout" method="post" action="/authentication/logout" hidden><AntiforgeryToken /></form>
+
+@code {
+    [Parameter, EditorRequired] public ClaimsPrincipal User { get; set; } = default!;
+    private string theme = "system";
+    private bool menuOpen;
+    private string DisplayName => User.FindFirstValue("name") ?? User.Identity?.Name ?? "Account";
+    private string Email => User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue("email") ?? "Signed in";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        theme = await JS.InvokeAsync<string>("BankingWeb.getTheme");
+        StateHasChanged();
+    }
+
+    private void ToggleMenu() => menuOpen = !menuOpen;
+    private string Check(string mode) => theme == mode ? "✓" : string.Empty;
+    private async Task SetThemeAsync(string mode) { theme = mode; menuOpen = false; await JS.InvokeVoidAsync("BankingWeb.setTheme", mode); }
+    private Task SetLightThemeAsync() => SetThemeAsync("light");
+    private Task SetDarkThemeAsync() => SetThemeAsync("dark");
+    private Task SetSystemThemeAsync() => SetThemeAsync("system");
+    private async Task OpenProfileAsync() { menuOpen = false; await JS.InvokeVoidAsync("BankingWeb.navigate", "/#profile"); }
+    private Task SignOutAsync() => JS.InvokeVoidAsync("BankingWeb.submitForm", "user-menu-logout").AsTask();
+    private static Icon ChevronIcon() => new Icons.Regular.Size16.ChevronDown();
+    private static Icon ProfileIcon() => new Icons.Regular.Size20.Person();
+    private static Icon SignOutIcon() => new Icons.Regular.Size20.SignOut();
+}

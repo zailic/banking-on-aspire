@@ -1,0 +1,12 @@
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/bin/Debug/net10.0/Banking.ServiceDefaults.deps.json
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/bin/Debug/net10.0/Banking.ServiceDefaults.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/bin/Debug/net10.0/Banking.ServiceDefaults.pdb
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.csproj.AssemblyReference.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.AssemblyInfoInputs.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.AssemblyInfo.cs
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.csproj.CoreCompileInputs.cache
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/refint/Banking.ServiceDefaults.dll
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/Banking.ServiceDefaults.pdb
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/platform/dotnet/Banking.ServiceDefaults/obj/Debug/net10.0/ref/Banking.ServiceDefaults.dll

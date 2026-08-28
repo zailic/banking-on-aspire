@@ -1,0 +1,16 @@
+<nav class="app-navigation" aria-label="Main navigation">
+    <a class="app-logo" href="/" aria-label="Banking on Aspire home">BA</a>
+    <div class="primary-appbar">
+        <NavLink class="nav-action" href="/" Match="NavLinkMatch.All" title="Overview"><FluentIcon Value="OverviewIcon()" /><span>Overview</span></NavLink>
+        <NavLink class="nav-action" href="/#beneficiaries" title="Beneficiaries"><FluentIcon Value="BeneficiariesIcon()" /><span>Contacts</span></NavLink>
+    </div>
+    <div class="utility-appbar">
+        <NavLink class="nav-action" href="/#profile" title="Profile"><FluentIcon Value="ProfileIcon()" /><span>Profile</span></NavLink>
+    </div>
+</nav>
+
+@code {
+    private static Icon OverviewIcon() => new Icons.Regular.Size20.Home();
+    private static Icon BeneficiariesIcon() => new Icons.Regular.Size20.People();
+    private static Icon ProfileIcon() => new Icons.Regular.Size20.Person();
+}

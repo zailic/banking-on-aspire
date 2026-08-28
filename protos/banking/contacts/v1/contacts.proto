@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+package banking.contacts.v1;
+
+import "banking/auth/v1/authorization.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Banking.Contracts.Contacts.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1;contactsv1";
+// Identifies the user resource owned by the Users service.
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/User"
+  pattern: "users/{user}"
+};
+// Identifies an account managed by the internal accounts service.
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/Account"
+  pattern: "accounts/{account}"
+};
+
+// Manages beneficiaries saved by a banking user.
+service ContactsService {
+  // Lists the contacts owned by a user.
+  rpc ListContacts(ListContactsRequest) returns (ListContactsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=users/*}/contacts"};
+    option (banking.auth.v1.authorization) = {required_permissions: "contacts.read"};
+  }
+
+  // Gets one saved contact.
+  rpc GetContact(GetContactRequest) returns (Contact) {
+    option (google.api.http) = {get: "/v1/{name=users/*/contacts/*}"};
+    option (banking.auth.v1.authorization) = {required_permissions: "contacts.read"};
+  }
+
+  // Saves a new contact under a user.
+  rpc CreateContact(CreateContactRequest) returns (Contact) {
+    option (google.api.http) = {
+      post: "/v1/{parent=users/*}/contacts"
+      body: "contact"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "contacts.write"};
+  }
+
+  // Updates mutable contact fields such as the display name or destination.
+  rpc UpdateContact(UpdateContactRequest) returns (Contact) {
+    option (google.api.http) = {
+      patch: "/v1/{contact.name=users/*/contacts/*}"
+      body: "contact"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "contacts.write"};
+  }
+
+  // Deletes a saved contact.
+  rpc DeleteContact(DeleteContactRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=users/*/contacts/*}"};
+    option (banking.auth.v1.authorization) = {required_permissions: "contacts.write"};
+  }
+}
+
+// A beneficiary saved by a banking user.
+message Contact {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/Contact"
+    pattern: "users/{user}/contacts/{contact}"
+    singular: "contact"
+    plural: "contacts"
+  };
+
+  // Canonical resource name, for example users/alice/contacts/electric-company.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // User-facing label shown in payment and deposit forms.
+  string display_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Exactly one destination must be supplied.
+  oneof destination {
+    // Canonical account resource name for a beneficiary within this bank.
+    string internal_account = 3 [(google.api.resource_reference).type = "banking-on-aspire.dev/Account"];
+
+    // Banking coordinates for a beneficiary outside this bank.
+    ExternalBankAccount external_account = 4;
+  }
+
+  // Time when the contact was created.
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the contact was last modified.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag used for optimistic concurrency control.
+  string etag = 7;
+}
+
+// Banking coordinates for an account not managed by the local accounts service.
+message ExternalBankAccount {
+  // Routing number used to identify the beneficiary's financial institution.
+  string routing_number = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Account number at the external financial institution.
+  string account_number = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for ListContacts.
+message ListContactsRequest {
+  // User that owns the contacts, in the form users/{user}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).child_type = "banking-on-aspire.dev/Contact"
+  ];
+
+  // Maximum number of contacts to return.
+  int32 page_size = 2;
+
+  // Token from a previous ListContacts response.
+  string page_token = 3;
+}
+
+// Response message for ListContacts.
+message ListContactsResponse {
+  // Contacts owned by the requested user.
+  repeated Contact contacts = 1;
+
+  // Token for retrieving the next page, or empty when no page remains.
+  string next_page_token = 2;
+}
+
+// Request message for GetContact.
+message GetContactRequest {
+  // Contact resource name in the form users/{user}/contacts/{contact}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Contact"
+  ];
+}
+
+// Request message for CreateContact.
+message CreateContactRequest {
+  // User that will own the contact, in the form users/{user}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).child_type = "banking-on-aspire.dev/Contact"
+  ];
+
+  // Contact to create. The name field is ignored.
+  Contact contact = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Client-selected contact identifier used as the final resource-name segment.
+  string contact_id = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for UpdateContact.
+message UpdateContactRequest {
+  // Contact containing the desired values. Its name is required.
+  Contact contact = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Fields to update.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Request message for DeleteContact.
+message DeleteContactRequest {
+  // Contact resource name in the form users/{user}/contacts/{contact}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Contact"
+  ];
+
+  // Optional entity tag used to reject deletion of a stale representation.
+  string etag = 2;
+}

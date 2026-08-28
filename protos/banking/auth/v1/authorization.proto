@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package banking.auth.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option csharp_namespace = "Banking.Contracts.Auth.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1;authv1";
+
+// AuthorizationPolicy declares the permissions required to call an RPC.
+// Permissions are sourced from resource_access[client_id].roles in the access token.
+message AuthorizationPolicy {
+  // Permissions the caller must have. Every listed permission is required.
+  // An empty list means that any authenticated caller is allowed.
+  repeated string required_permissions = 1;
+
+  // Allows the RPC to be invoked without an authenticated identity.
+  bool allow_unauthenticated = 2;
+}
+
+extend google.protobuf.MethodOptions {
+  // Authorization policy enforced by the server interceptor.
+  AuthorizationPolicy authorization = 51000;
+}

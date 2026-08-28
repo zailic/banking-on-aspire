@@ -1,0 +1,308 @@
+@page "/"
+@attribute [Authorize]
+@inject BankingDashboardService DashboardService
+@inject IDialogService DialogService
+
+<PageTitle>Overview · Banking on Aspire</PageTitle>
+
+@if (_success is not null)
+{
+    <FluentMessageBar Intent="MessageBarIntent.Success">@_success</FluentMessageBar>
+}
+else if (_error is not null)
+{
+    <FluentMessageBar Intent="MessageBarIntent.Error">
+        @_error
+        @if (_reauthenticationRequired)
+        {
+            <a class="message-action" href="/authentication/login?returnUrl=/">Sign in again</a>
+        }
+    </FluentMessageBar>
+}
+else if (_dashboard is null)
+{
+    <div class="loading">
+        <FluentSpinner /> Loading your banking workspace…
+    </div>
+}
+else
+{
+    <section class="dashboard-heading">
+        <div>
+            <p class="eyebrow">Overview</p>
+            <h1>Good to see you, @FirstName</h1>
+            <p>Here's what's happening in your banking workspace.</p>
+        </div>
+        <div class="dashboard-actions">
+            <AuthorizeView Policy="AccountsCreate">
+                <Authorized>
+                    <FluentButton Appearance="ButtonAppearance.Subtle" IconStart="@AccountsIcon()"
+                                  OnClick="OpenAccountDialogAsync">
+                        Open account
+                    </FluentButton>
+                </Authorized>
+            </AuthorizeView>
+            <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@AddIcon()" OnClick="OpenContactDialogAsync">
+                Add beneficiary
+            </FluentButton>
+        </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Workspace summary">
+        <FluentCard class="summary-card">
+            <div class="summary-icon">
+                <FluentIcon Value="@ProfileIcon()" />
+            </div>
+            <div><span>Profile status</span><strong>@ProfileStatus</strong><small>@_dashboard.User.Email</small></div>
+        </FluentCard>
+        <FluentCard class="summary-card">
+            <div class="summary-icon">
+                <FluentIcon Value="@ContactsIcon()" />
+            </div>
+            <div>
+                <span>Beneficiaries</span><strong>@_dashboard.Contacts.Count</strong><small>@InternalContacts internal ·
+                @ExternalContacts external</small>
+            </div>
+        </FluentCard>
+        <FluentCard class="summary-card">
+            <div class="summary-icon">
+                <FluentIcon Value="@AccountsIcon()" />
+            </div>
+            <div>
+                <span>Accounts</span><strong>@_dashboard.Accounts.Count</strong><small>@OpenAccounts open · @ClosedAccounts
+                closed</small>
+            </div>
+        </FluentCard>
+    </section>
+
+    <section class="dashboard-grid">
+        <FluentCard class="dashboard-panel accounts-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Accounts</h2>
+                    <p>Your balances and account details.</p>
+                </div>
+            </div>
+            @if (_dashboard.Accounts.Count == 0)
+            {
+                <div class="panel-empty compact-empty">
+                    <div class="empty-icon">
+                        <FluentIcon Value="@AccountsIcon()" />
+                    </div>
+                    <strong>No accounts yet</strong>
+                    <span>An administrator can open your first account.</span>
+                </div>
+            }
+            else
+            {
+                <FluentDataGrid Items="@Accounts" Class="accounts-grid"
+                                GridTemplateColumns="minmax(180px, 1.3fr) minmax(130px, .8fr) minmax(140px, .9fr) 90px" MultiLine="true">
+                    <TemplateColumn Title="Account">
+                        <div class="account-identity">
+                            <strong>@context.DisplayName</strong>
+                            <span>@MaskedAccountNumber(context.AccountNumber)</span>
+                        </div>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Type"><span>@AccountTypeLabel(context)</span></TemplateColumn>
+                    <TemplateColumn Title="Available"><strong class="account-balance">@AvailableBalance(context)</strong>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Status"><span class="status-badge">@AccountStatusLabel(context)</span>
+                    </TemplateColumn>
+                </FluentDataGrid>
+            }
+        </FluentCard>
+
+        <FluentCard class="dashboard-panel activity-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Recent activity</h2>
+                    <p>Your latest transactions and transfers.</p>
+                </div>
+            </div>
+            <div class="panel-empty compact-empty">
+                <div class="empty-icon">
+                    <FluentIcon Value="@ActivityIcon()" />
+                </div>
+                <strong>No activity available</strong>
+                <span>Transactions will appear once the ledger service is connected.</span>
+            </div>
+        </FluentCard>
+
+        <FluentCard class="dashboard-panel beneficiaries-panel" id="beneficiaries">
+            <div class="panel-heading">
+                <div>
+                    <h2>Beneficiaries</h2>
+                    <p>People and accounts you can transfer money to.</p>
+                </div>
+                <FluentButton Appearance="ButtonAppearance.Subtle" IconStart="@AddIcon()" OnClick="OpenContactDialogAsync">
+                    Add</FluentButton>
+            </div>
+
+            @if (_dashboard.Contacts.Count == 0)
+            {
+                <div class="panel-empty">
+                    <strong>No beneficiaries saved</strong><span>Add one to prepare your first
+                        transfer.</span>
+                </div>
+            }
+            else
+            {
+                <FluentDataGrid Items="@Contacts" Class="beneficiaries-grid"
+                                GridTemplateColumns="minmax(180px, 1fr) minmax(220px, 1.2fr) 110px" MultiLine="true">
+                    <PropertyColumn Property="@(contact => contact.DisplayName)" Title="Name" Sortable="true" />
+                    <TemplateColumn Title="Destination"><span class="destination">@Destination(context)</span></TemplateColumn>
+                    <TemplateColumn Title="Type"><span class="contact-type">@ContactType(context)</span></TemplateColumn>
+                </FluentDataGrid>
+            }
+        </FluentCard>
+
+        <FluentCard class="dashboard-panel profile-panel" id="profile">
+            <div class="panel-heading">
+                <div>
+                    <h2>Your profile</h2>
+                    <p>Identity information for this workspace.</p>
+                </div>
+            </div>
+            <dl>
+                <dt>Name</dt>
+                <dd>@DisplayName</dd>
+                <dt>Username</dt>
+                <dd>@_dashboard.User.Username</dd>
+                <dt>Status</dt>
+                <dd><span class="status-badge">@ProfileStatus</span></dd>
+                <dt>Profile ID</dt>
+                <dd class="profile-id">@_dashboard.User.Name</dd>
+            </dl>
+        </FluentCard>
+    </section>
+}
+
+@code {
+    private BankingDashboard? _dashboard;
+    private string? _error;
+    private string? _success;
+    private bool _reauthenticationRequired;
+
+    private string DisplayName => string.IsNullOrWhiteSpace(_dashboard?.User.DisplayName)
+        ? _dashboard?.User.Username ?? "customer"
+        : _dashboard.User.DisplayName;
+    private string FirstName => DisplayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+DisplayName;
+    private string ProfileStatus => _dashboard!.User.Status.ToString().Replace("UserStatus", "");
+    private int InternalContacts => _dashboard!.Contacts.Count(contact => contact.DestinationCase ==
+Contact.DestinationOneofCase.InternalAccount);
+    private int ExternalContacts => _dashboard!.Contacts.Count - InternalContacts;
+    private int OpenAccounts => _dashboard!.Accounts.Count(account => account.Status == AccountStatus.Open);
+    private int ClosedAccounts => _dashboard!.Accounts.Count(account => account.Status == AccountStatus.Closed);
+    private IQueryable<Account> Accounts => _dashboard!.Accounts.AsQueryable();
+    private IQueryable<Contact> Contacts => _dashboard!.Contacts.AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _dashboard = await DashboardService.LoadAsync(); }
+        catch (ReauthenticationRequiredException exception)
+        {
+            _reauthenticationRequired = true;
+            _error = exception.Message;
+        }
+        catch (Exception exception) { _error = $"We couldn't load your banking workspace: {exception.Message}"; }
+    }
+
+    private async Task OpenContactDialogAsync()
+    {
+        _error = null;
+        _success = null;
+        _reauthenticationRequired = false;
+        var model = new CreateContactCommand();
+        var result = await DialogService.ShowDialogAsync<AddContactDialog>(options =>
+        {
+            options.Modal = true;
+            options.Header.Title = "Add beneficiary";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Size = DialogSize.Medium;
+            options.Parameters.Add(nameof(AddContactDialog.Model), model);
+        });
+
+        if (!result.Cancelled && result.Value is Contact created)
+        {
+            _dashboard = await DashboardService.LoadAsync();
+            _success = $"Beneficiary {created.DisplayName} was added.";
+        }
+    }
+
+    private async Task OpenAccountDialogAsync()
+    {
+        _error = null;
+        _success = null;
+        _reauthenticationRequired = false;
+        var model = new CreateAccountCommand { Owner = _dashboard!.User.Name };
+        var result = await DialogService.ShowDialogAsync<CreateAccountDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+
+            options.Header.Title = "Open account";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+
+            options.Parameters.Add(nameof(CreateAccountDialog.Model), model);
+        });
+
+        if (!result.Cancelled && result.Value is Account created)
+        {
+            _dashboard = await DashboardService.LoadAsync();
+            _success = $"Account {created.DisplayName} was opened. Number: {created.AccountNumber}.";
+        }
+    }
+
+    private static string MaskedAccountNumber(string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(accountNumber)) return "Number unavailable";
+        var visibleLength = Math.Min(4, accountNumber.Length);
+        return $"•••• {accountNumber[^visibleLength..]}";
+    }
+
+    private static string AvailableBalance(Account account)
+    {
+        if (account.AvailableBalance is null) return $"0.00 {account.CurrencyCode}";
+        var amount = account.AvailableBalance.Units + account.AvailableBalance.Nanos / 1_000_000_000m;
+        var currency = string.IsNullOrWhiteSpace(account.AvailableBalance.CurrencyCode)
+            ? account.CurrencyCode
+            : account.AvailableBalance.CurrencyCode;
+        return $"{amount:N2} {currency}";
+    }
+
+    private static string AccountTypeLabel(Account account) => account.Type switch
+    {
+        AccountType.Checking => "Checking",
+        AccountType.Savings => "Savings",
+        _ => "Unknown"
+    };
+
+    private static string AccountStatusLabel(Account account) => account.Status switch
+    {
+        AccountStatus.Open => "Open",
+        AccountStatus.Frozen => "Frozen",
+        AccountStatus.Closed => "Closed",
+        _ => "Unknown"
+    };
+
+    private static string Destination(Contact contact) => contact.DestinationCase switch
+    {
+        Contact.DestinationOneofCase.InternalAccount => contact.InternalAccount,
+        Contact.DestinationOneofCase.ExternalAccount =>
+            $"External · ••••{contact.ExternalAccount.AccountNumber[^Math.Min(4, contact.ExternalAccount.AccountNumber.Length)..]}",
+        _ => "Destination unavailable"
+    };
+
+    private static string ContactType(Contact contact) => contact.DestinationCase ==
+Contact.DestinationOneofCase.InternalAccount ? "Internal" : "External";
+    private static Icon AddIcon() => new Icons.Regular.Size20.Add();
+    private static Icon ProfileIcon() => new Icons.Regular.Size24.Person();
+    private static Icon ContactsIcon() => new Icons.Regular.Size24.People();
+    private static Icon AccountsIcon() => new Icons.Regular.Size24.Wallet();
+    private static Icon ActivityIcon() => new Icons.Regular.Size24.ArrowTrendingLines();
+}

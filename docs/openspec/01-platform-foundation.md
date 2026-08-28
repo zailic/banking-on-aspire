@@ -30,14 +30,17 @@ The repository already contains a functional service and supporting domain code,
 - The baseline flow can be documented and exercised with a repeatable smoke script.
 
 ## Implementation Tasks
-- Wire the AppHost so the Go service and Keycloak can be started together from one entry point.
-- Validate startup and shutdown with Aspire commands and record the evidence.
-- Keep the platform notes aligned with the current runtime reality, including any external dependencies.
-- Revisit Redis and statestore wiring once the actor runtime and global instance strategy are clearer.
+- [x] Wire the AppHost so the Go services and Keycloak start from one entry point.
+- [x] Validate startup and shutdown with Aspire commands and record the evidence.
+- [x] Keep only infrastructure with a current runtime consumer in the AppHost graph.
+- [x] Remove Redis and statestore from the default graph after the persistence
+  experiment; reintroducing either requires a concrete owner and use case.
 
-## Open Questions
-- Should Redis and statestore be added to the AppHost immediately, or should they remain external for the current milestone?
-- Which Dapr capabilities should be enabled first once the local runtime is stable?
+## Resolved Questions
+- Redis and statestore are not default dependencies. They return only when a
+  bounded context explicitly owns their persistence semantics.
+- Dapr pub/sub is the next candidate, tied to a concrete account event and an
+  idempotent Transactions consumer.
 
 ## Source Notes
 This spec consolidates content from the milestone plan, sprint backlog, and ADR goals documents.

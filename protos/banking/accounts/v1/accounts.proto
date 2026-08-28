@@ -1,0 +1,192 @@
+syntax = "proto3";
+
+package banking.accounts.v1;
+
+import "banking/auth/v1/authorization.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/money.proto";
+
+option csharp_namespace = "Banking.Contracts.Accounts.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1";
+// Identifies the user resource owned by the Users service.
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/User"
+  pattern: "users/{user}"
+};
+
+// Manages bank accounts owned by application users.
+service AccountsService {
+  // Creates an empty account for an active application user.
+  rpc CreateAccount(CreateAccountRequest) returns (Account) {
+    option (google.api.http) = {
+      post: "/v1/{parent=users/*}/accounts"
+      body: "account"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "accounts.create"};
+  }
+
+  // Lists the accounts owned by a user.
+  rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=users/*}/accounts"};
+    option (banking.auth.v1.authorization) = {required_permissions: "accounts.balance.read"};
+  }
+
+  // Gets one account, including its current available balance.
+  rpc GetAccount(GetAccountRequest) returns (Account) {
+    option (google.api.http) = {get: "/v1/{name=accounts/*}"};
+    option (banking.auth.v1.authorization) = {required_permissions: "accounts.balance.read"};
+  }
+
+  // Permanently closes an account while retaining its audit history.
+  rpc CloseAccount(CloseAccountRequest) returns (Account) {
+    option (google.api.http) = {
+      post: "/v1/{name=accounts/*}:close"
+      body: "*"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "accounts.close"};
+  }
+}
+
+// A bank account owned by one application user.
+message Account {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/Account"
+    pattern: "accounts/{account}"
+    singular: "account"
+    plural: "accounts"
+  };
+
+  // Canonical resource name, for example accounts/01k3example.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Canonical name of the user that owns the account.
+  string owner = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/User"
+  ];
+
+  // User-facing account label, for example Everyday account.
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Product category associated with the account.
+  AccountType type = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // Current account lifecycle state.
+  AccountStatus status = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Funds currently available for transactions.
+  google.type.Money available_balance = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the account was opened.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the account was last modified.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Entity tag used for optimistic concurrency control.
+  string etag = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Immutable bank-facing account number used when addressing transfers.
+  // Internal services should prefer the canonical resource name when possible.
+  string account_number = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // ISO 4217 currency code used by this account, for example EUR.
+  string currency_code = 11 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+}
+
+// Request message for CreateAccount.
+message CreateAccountRequest {
+  // User that will own the account, in the form users/{user}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/User"
+  ];
+
+  // Account attributes supplied by the administrator. Server-managed fields
+  // such as owner, status, balance, account number and timestamps are ignored.
+  Account account = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional stable identifier. When omitted, the server generates one.
+  string account_id = 3;
+}
+
+// Product category for an account.
+enum AccountType {
+  // The account type has not been specified.
+  ACCOUNT_TYPE_UNSPECIFIED = 0;
+
+  // Account intended for everyday payments and deposits.
+  ACCOUNT_TYPE_CHECKING = 1;
+
+  // Account intended for holding savings.
+  ACCOUNT_TYPE_SAVINGS = 2;
+}
+
+// Lifecycle state for an account.
+enum AccountStatus {
+  // The account status has not been specified.
+  ACCOUNT_STATUS_UNSPECIFIED = 0;
+
+  // The account may be used normally.
+  ACCOUNT_STATUS_OPEN = 1;
+
+  // The account is temporarily restricted from transactions.
+  ACCOUNT_STATUS_FROZEN = 2;
+
+  // The account has been permanently closed.
+  ACCOUNT_STATUS_CLOSED = 3;
+}
+
+// Request message for ListAccounts.
+message ListAccountsRequest {
+  // User that owns the accounts, in the form users/{user}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/User"
+  ];
+
+  // Maximum number of accounts to return.
+  int32 page_size = 2;
+
+  // Token from a previous ListAccounts response.
+  string page_token = 3;
+}
+
+// Response message for ListAccounts.
+message ListAccountsResponse {
+  // Accounts owned by the requested user.
+  repeated Account accounts = 1;
+
+  // Token for retrieving the next page, or empty when no page remains.
+  string next_page_token = 2;
+}
+
+// Request message for GetAccount.
+message GetAccountRequest {
+  // Account resource name in the form accounts/{account}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+}
+
+// Request message for CloseAccount.
+message CloseAccountRequest {
+  // Account resource name in the form accounts/{account}.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+
+  // Optional entity tag used to reject a stale close request.
+  string etag = 2;
+}

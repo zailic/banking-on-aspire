@@ -1,0 +1,152 @@
+@inherits FluentDialogInstance
+@inject BankingDashboardService DashboardService
+
+<FluentDialogBody FixedHeaderFooter="true">
+    <TitleTemplate>
+        Add beneficiary
+    </TitleTemplate>
+
+    <ChildContent>
+        @if (_error is not null)
+        {
+            <FluentMessageBar Intent="MessageBarIntent.Error">
+                @_error
+                @if (_reauthenticationRequired)
+                {
+                    <a class="message-action" href="/authentication/login?returnUrl=/">Sign in again</a>
+                }
+            </FluentMessageBar>
+        }
+
+        <EditForm Model="Model" OnValidSubmit="SubmitAsync" FormName="add-contact">
+            <DataAnnotationsValidator />
+
+            <FluentStack Orientation="Orientation.Vertical" Width="100%" VerticalGap="16px">
+                <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                    <FluentTextInput @bind-Value="Model.DisplayName"
+                                     Class="dialog-form-control"
+                                     Label="Display name"
+                                     Required="true"
+                                     Autofocus="true" />
+                    <ValidationMessage For="() => Model.DisplayName" />
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                    <FluentSelect TOption="ContactDestinationOption"
+                                  TValue="ContactDestinationType"
+                                  Class="dialog-form-control"
+                                  Items="DestinationOptions"
+                                  @bind-Value="Model.DestinationType"
+                                  OptionText="@(option => option.Label)"
+                                  OptionValue="@(option => option.Value)"
+                                  Label="Destination" />
+                </FluentStack>
+
+                @if (Model.DestinationType == ContactDestinationType.Internal)
+                {
+                    <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                        <FluentTextInput @bind-Value="Model.InternalAccount"
+                                         Class="dialog-form-control"
+                                         Label="Account resource"
+                                         Placeholder="accounts/checking-01"
+                                         Required="true" />
+                        <ValidationMessage For="() => Model.InternalAccount" />
+                    </FluentStack>
+                }
+                else
+                {
+                    <FluentStack Width="100%" HorizontalGap="12px" VerticalGap="12px" Wrap="true">
+                        <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                            <FluentTextInput @bind-Value="Model.RoutingNumber"
+                                             Class="dialog-form-control"
+                                             Label="Routing number"
+                                             Required="true"
+                                             Autocomplete="off" />
+                            <ValidationMessage For="() => Model.RoutingNumber" />
+                        </FluentStack>
+
+                        <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                            <FluentTextInput @bind-Value="Model.AccountNumber"
+                                             Class="dialog-form-control"
+                                             Label="Account number"
+                                             Required="true"
+                                             Autocomplete="off" />
+                            <ValidationMessage For="() => Model.AccountNumber" />
+                        </FluentStack>
+                    </FluentStack>
+                }
+
+                <FluentStack Width="100%"
+                             HorizontalAlignment="HorizontalAlignment.End"
+                             HorizontalGap="12px"
+                             Wrap="true">
+                    <FluentButton Type="ButtonType.Button"
+                                  Appearance="ButtonAppearance.Subtle"
+                                  Disabled="_saving"
+                                  OnClick="CancelAsync">Cancel</FluentButton>
+                    <FluentButton Type="ButtonType.Submit"
+                                  Appearance="ButtonAppearance.Primary"
+                                  Disabled="_saving">
+                        @(_saving ? "Saving…" : "Save beneficiary+++")
+                    </FluentButton>
+                </FluentStack>
+            </FluentStack>
+        </EditForm>
+    </ChildContent>
+</FluentDialogBody>
+
+@code {
+    [Parameter, EditorRequired]
+    public CreateContactCommand Model { get; set; } = default!;
+
+    private static readonly ContactDestinationOption[] DestinationOptions =
+    [
+        new(ContactDestinationType.Internal, "Internal account"),
+        new(ContactDestinationType.External, "External bank account")
+    ];
+
+    private bool _saving;
+    private string? _error;
+    private bool _reauthenticationRequired;
+
+    private async Task SubmitAsync()
+    {
+        _saving = true;
+        _error = null;
+        _reauthenticationRequired = false;
+        try
+        {
+            var created = await DashboardService.CreateContactAsync(Model);
+            await DialogInstance.CloseAsync(DialogResult.Ok(created));
+        }
+        catch (ReauthenticationRequiredException exception)
+        {
+            _reauthenticationRequired = true;
+            _error = exception.Message;
+        }
+        catch (Grpc.Core.RpcException exception)
+        {
+            _error = exception.StatusCode switch
+            {
+                Grpc.Core.StatusCode.PermissionDenied => "You don't have permission to add beneficiaries.",
+                Grpc.Core.StatusCode.InvalidArgument => exception.Status.Detail,
+                Grpc.Core.StatusCode.AlreadyExists => "A beneficiary with this identifier already exists.",
+                _ => "The beneficiary could not be saved. Please try again."
+            };
+        }
+        catch (Exception exception)
+        {
+            _error = $"The beneficiary could not be saved: {exception.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private Task CancelAsync() => DialogInstance.CloseAsync(DialogResult.Cancel());
+
+    protected override Task OnActionClickedAsync(bool isPrimary) => Task.CompletedTask;
+
+    private sealed record ContactDestinationOption(ContactDestinationType Value, string Label);
+}

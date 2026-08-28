@@ -1,0 +1,20 @@
+version: v2
+clean: true
+
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.36.12
+    out: ../platform/gen/go
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc/go:v1.6.2
+    out: ../platform/gen/go
+    opt:
+      - paths=source_relative
+  - remote: buf.build/protocolbuffers/csharp:v33.5
+    out: ../platform/gen/csharp
+    opt:
+      - base_namespace=Banking.Contracts
+  - remote: buf.build/grpc/csharp:v1.76.0
+    out: ../platform/gen/csharp
+    opt:
+      - base_namespace=Banking.Contracts

@@ -1,6 +1,7 @@
-﻿#:package Aspire.Hosting.Keycloak@13.4.6-preview.1.26319.6
-#:sdk Aspire.AppHost.Sdk@13.4.6
-#:package Aspire.Hosting.Redis@13.4.3
+﻿#:property AspireUseCliBundle=true
+#:package Aspire.Hosting.Keycloak@13.5.3-preview.1.26425.3
+#:sdk Aspire.AppHost.Sdk@13.5.3
+#:package Aspire.Hosting.PostgreSQL@13.5.3
 #:package CommunityToolkit.Aspire.Hosting.Dapr@13.2.1-beta.532
 
 using System.Net.Http.Headers;
@@ -9,16 +10,56 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Aspire.Hosting.ApplicationModel;
 
+#pragma warning disable ASPIRECSHARPAPPS001
+
 var builder = DistributedApplication.CreateBuilder(args);
+var bankingWebClientSecret = builder.AddParameter("banking-web-client-secret", secret: true);
 var realmDirectory = Path.GetFullPath("dev/keycloak");
 const string developmentRealm = "banking-on-aspire";
 var realmFile = Path.Combine(realmDirectory, $"{developmentRealm}-realm.json");
 
-// Keep the AppHost minimal for now: actors rely on an external global instance,
-// so Redis/statestore wiring is intentionally deferred.
 var keycloak = builder.AddKeycloak("keycloak", port: 8081)
+    // Local services share the localhost cookie namespace even when their ports
+    // differ. Allow Keycloak to accept and clean up legacy development cookies.
+    .WithEnvironment("QUARKUS_HTTP_LIMITS_MAX_HEADER_SIZE", "64K")
+    .WithEnvironment("QUARKUS_HTTP_LIMITS_MAX_HEADER_LIST_SIZE", "65536")
     .WithDataVolume()
-    .WithRealmImport(realmDirectory); 
+    .WithRealmImport(realmDirectory);
+
+var postgres = builder.AddPostgres("postgres")
+    .WithDataVolume();
+var usersDb = postgres.AddDatabase("usersdb");
+
+var contactsMigrations = builder.AddExecutable(
+        "contacts-migrations",
+        "go",
+        "services/contacts",
+        "run",
+        "-buildvcs=false",
+        "./cmd/contactsmigrate")
+    .WithReference(usersDb)
+    .WaitFor(usersDb);
+
+var usersMigrations = builder.AddExecutable(
+        "users-migrations",
+        "go",
+        "services/users",
+        "run",
+        "-buildvcs=false",
+        "./cmd/usersmigrate")
+    .WithReference(usersDb)
+    .WaitFor(usersDb);
+
+var accountsMigrations = builder.AddExecutable(
+        "accounts-migrations",
+        "go",
+        "services/accounts",
+        "run",
+        "-buildvcs=false",
+        "./cmd/accountsmigrate")
+    .WithReference(usersDb)
+    .WaitFor(usersDb)
+    .WaitForCompletion(usersMigrations);
 
 keycloak
     .WithCommand(
@@ -49,9 +90,9 @@ keycloak
         });
 
 builder.AddExecutable(
-        "banking-on-aspire",
+        "accounts-legacy",
         "go",
-        "services/accounts",
+        "services/accounts-legacy",
         "run",
         "-buildvcs=false",
         "./cmd/accounts")
@@ -59,7 +100,7 @@ builder.AddExecutable(
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
         {
-            AppId = "banking-on-aspire",
+            AppId = "accounts-legacy",
             AppPort = 8080,
             AppProtocol = "http",
             DaprHttpPort = 3500
@@ -74,6 +115,99 @@ builder.AddExecutable(
     )
     .WithReference(keycloak)
     .WaitFor(keycloak);
+
+var accounts = builder.AddExecutable(
+        "accounts",
+        "go",
+        "services/accounts",
+        "run",
+        "-buildvcs=false",
+        "./cmd/accounts")
+    .WithEnvironment("ACCOUNTS_PORT", "8085")
+    .WithEndpoint(
+        targetPort: 8085,
+        scheme: "grpc",
+        name: "grpc",
+        isExternal: true)
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
+        {
+            AppId = "accounts",
+            AppPort = 8085,
+            AppProtocol = "grpc"
+        }))
+    .WithReference(usersDb)
+    .WaitFor(usersDb)
+    .WaitForCompletion(accountsMigrations)
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
+
+var contacts = builder.AddExecutable(
+        "contacts",
+        "go",
+        "services/contacts",
+        "run",
+        "-buildvcs=false",
+        "./cmd/contacts")
+    .WithEnvironment("CONTACTS_PORT", "8083")
+    .WithEndpoint(
+        targetPort: 8083,
+        scheme: "grpc",
+        name: "grpc",
+        isExternal: true)
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
+        {
+            AppId = "contacts",
+            AppPort = 8083,
+            AppProtocol = "grpc"
+        }))
+    .WithReference(usersDb)
+    .WaitFor(usersDb)
+    .WaitForCompletion(contactsMigrations)
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
+
+var users = builder.AddExecutable(
+        "users",
+        "go",
+        "services/users",
+        "run",
+        "-buildvcs=false",
+        "./cmd/users")
+    .WithEnvironment("USERS_PORT", "8084")
+    .WithEndpoint(
+        targetPort: 8084,
+        scheme: "grpc",
+        name: "grpc",
+        isExternal: true)
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
+        {
+            AppId = "users",
+            AppPort = 8084,
+            AppProtocol = "grpc"
+        }))
+    .WithReference(usersDb)
+    .WaitFor(usersDb)
+    .WaitForCompletion(usersMigrations)
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
+
+builder.AddCSharpApp("banking-web", "frontend/Banking.Web/Banking.Web.csproj")
+    .WithHttpsEndpoint(port: 7443, name: "https")
+    .WithExternalHttpEndpoints()
+    .WithEnvironment("Authentication__KeycloakBaseUrl", keycloak.GetEndpoint("http"))
+    .WithEnvironment("Authentication__ClientSecret", bankingWebClientSecret)
+    .WithEnvironment("ASPNETCORE_FORWARDEDHEADERS_ENABLED", "true")
+    .WithEnvironment("Backend__UsersUrl", users.GetEndpoint("grpc"))
+    .WithEnvironment("Backend__ContactsUrl", contacts.GetEndpoint("grpc"))
+    .WithEnvironment("Backend__AccountsUrl", accounts.GetEndpoint("grpc"))
+    .WithReference(keycloak)
+    .WaitFor(keycloak)
+    .WaitFor(users)
+    .WaitFor(contacts)
+    .WaitFor(accounts);
 
 builder.Build().Run();
 

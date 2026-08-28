@@ -2,58 +2,67 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"net"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
-	"dev.local/banking-on-aspire/services/accounts/actors"
-	"dev.local/banking-on-aspire/services/accounts/infra/server"
-	daprd "github.com/dapr/go-sdk/service/http"
-	"github.com/go-chi/chi/v5"
+	"dev.local/banking-on-aspire/platform/auth/keycloak"
+	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
+	"dev.local/banking-on-aspire/services/accounts/internal/accountservice"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-const (
-	keycloakClientID = "banking-on-aspire-app"
-	keycloakRealmURL = "/realms/banking-on-aspire"
-)
+const keycloakClientID = "banking-on-aspire-app"
 
-func resolveKeycloakIssuerURL() string {
-	serviceURL := strings.TrimSpace(os.Getenv("KEYCLOAK_HTTP"))
-	if serviceURL == "" {
-		panic("KEYCLOAK_HTTP environment variable is not set")
+func required(name string) string {
+	value := strings.TrimSpace(os.Getenv(name))
+	if value == "" {
+		slog.Error("required environment variable is not configured", "environment", name)
+		os.Exit(1)
 	}
-	return strings.TrimRight(serviceURL, "/") + keycloakRealmURL
+	return value
 }
-
 func main() {
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{})))
-
-	ctx, cancel := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGTERM,
-	)
-	defer cancel()
-
-	bankAccountServer := server.NewBankAccountServer(ctx, resolveKeycloakIssuerURL(), keycloakClientID)
-	mux := chi.NewMux()
-	mux.Mount("/", bankAccountServer.Handler())
-
-	service := daprd.NewServiceWithMux(":8080", mux)
-	service.RegisterActorImplFactoryContext(actors.BankAccountServiceFactory)
-
-	go func() {
-		slog.Info("starting dapr service", "address", ":8080", "actor_type", actors.BankAccountActorType)
-		if err := service.Start(); err != nil {
-			slog.Error("failed to start dapr service", "error", err)
-			os.Exit(1)
-		}
-	}()
-
-	<-ctx.Done()
-	if err := service.Stop(); err != nil {
-		slog.Warn("failed to stop dapr service cleanly", "error", err)
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	repo, err := accountrepo.OpenPostgres(ctx, required("USERSDB_URI"))
+	if err != nil {
+		logger.Error("failed to initialize accounts repository", "error", err)
+		os.Exit(1)
+	}
+	defer repo.Close()
+	verifier, err := keycloak.NewTokenVerifier(ctx, strings.TrimRight(required("KEYCLOAK_HTTP"), "/")+"/realms/banking-on-aspire", keycloakClientID)
+	if err != nil {
+		logger.Error("failed to initialize Keycloak verifier", "error", err)
+		os.Exit(1)
+	}
+	port := strings.TrimSpace(os.Getenv("ACCOUNTS_PORT"))
+	if port == "" {
+		port = "8085"
+	}
+	listener, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		logger.Error("failed to listen", "error", err)
+		os.Exit(1)
+	}
+	server := grpc.NewServer(grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)))
+	accountsv1.RegisterAccountsServiceServer(server, accountservice.New(repo, repo))
+	healthServer := health.NewServer()
+	healthv1.RegisterHealthServer(server, healthServer)
+	healthServer.SetServingStatus("", healthv1.HealthCheckResponse_SERVING)
+	go func() { <-ctx.Done(); healthServer.Shutdown(); server.GracefulStop() }()
+	logger.Info("starting accounts gRPC service", "port", port)
+	if err := server.Serve(listener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		logger.Error("accounts service stopped unexpectedly", "error", err)
+		os.Exit(1)
 	}
 }

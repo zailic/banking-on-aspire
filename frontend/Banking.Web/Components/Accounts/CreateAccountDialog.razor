@@ -1,0 +1,151 @@
+@inherits FluentDialogInstance
+@inject BankingDashboardService DashboardService
+
+<FluentDialogBody FixedHeaderFooter="true">
+    <TitleTemplate>
+        Open account
+    </TitleTemplate>
+
+    <ChildContent>
+        @if (_error is not null)
+        {
+            <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+        }
+
+        <EditForm Model="Model" OnValidSubmit="SubmitAsync" FormName="create-account">
+            <DataAnnotationsValidator />
+
+            <FluentStack Orientation="Orientation.Vertical" Width="100%" VerticalGap="16px">
+                <FluentStack Width="100%" HorizontalGap="12px" VerticalGap="12px" Wrap="true">
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                         <FluentTextInput @bind-Value="Model.AccountId"
+                                          Class="dialog-form-control"
+                                          Label="Account ID (optional)"
+                                          Placeholder="Generated automatically"/>
+                    <ValidationMessage For="() => Model.AccountId" />
+
+                    </FluentStack>
+
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                        <FluentTextInput @bind-Value="Model.DisplayName"
+                                         Class="dialog-form-control"
+                                         Label="Display name"
+                                         Placeholder="Everyday account"
+                                         Required="true" 
+                                         />
+                        <ValidationMessage For="() => Model.DisplayName" />
+                    </FluentStack>
+                </FluentStack>
+
+                <FluentStack Width="100%" HorizontalGap="12px" VerticalGap="12px" Wrap="true">
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                        <FluentSelect TOption="AccountTypeOption"
+                                      TValue="AccountType"
+                                      Class="dialog-form-control"
+                                      Items="AccountTypes"
+                                      @bind-Value="Model.Type"
+                                      OptionText="@(option => option.Label)"
+                                      OptionValue="@(option => option.Value)"
+                                      Label="Account type"/>
+                    </FluentStack>
+
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                        <FluentTextInput @bind-Value="Model.CurrencyCode"
+                                         Class="dialog-form-control"
+                                         Label="Currency"
+                                         Placeholder="RON"
+                                         Required="true"
+                                         Maxlength="3" 
+                                         />
+                        <ValidationMessage For="() => Model.CurrencyCode" />
+                    </FluentStack>
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                    <FluentTextInput @bind-Value="Model.Owner"
+                                        Class="dialog-form-control"
+                                        Label="Account owner"
+                                        Placeholder="users/alice"
+                                        Required="true"
+                                        Autofocus="true" 
+                                        />
+                    <ValidationMessage For="() => Model.Owner" />
+                </FluentStack>
+
+                <FluentMessageBar Intent="MessageBarIntent.Info">
+                    The account number is generated securely and the initial balance is always zero.
+                </FluentMessageBar>
+
+                <FluentStack Width="100%"
+                             HorizontalAlignment="HorizontalAlignment.End"
+                             HorizontalGap="12px"
+                             Wrap="true">
+                    <FluentButton Type="ButtonType.Button"
+                                  Appearance="ButtonAppearance.Subtle"
+                                  Disabled="_saving"
+                                  OnClick="CancelAsync">Cancel</FluentButton>
+                    <FluentButton Type="ButtonType.Submit"
+                                  Appearance="ButtonAppearance.Primary"
+                                  Disabled="_saving">
+                        @(_saving ? "Opening…" : "Open account")
+                    </FluentButton>
+                </FluentStack>
+            </FluentStack>
+        </EditForm>
+    </ChildContent>
+</FluentDialogBody>
+
+@code {
+    [Parameter, EditorRequired]
+    public CreateAccountCommand Model { get; set; } = default!;
+
+    private static readonly AccountTypeOption[] AccountTypes =
+    [
+        new(AccountType.Checking, "Checking"),
+        new(AccountType.Savings, "Savings")
+    ];
+
+    private bool _saving;
+    private string? _error;
+
+
+    private async Task SubmitAsync()
+    {
+        _saving = true;
+        _error = null;
+        try
+        {
+            var created = await DashboardService.CreateAccountAsync(Model);
+            await DialogInstance.CloseAsync(DialogResult.Ok(created));
+        }
+        catch (ReauthenticationRequiredException exception)
+        {
+            _error = exception.Message;
+        }
+        catch (Grpc.Core.RpcException exception)
+        {
+            _error = exception.StatusCode switch
+            {
+                Grpc.Core.StatusCode.PermissionDenied => "You don't have permission to open accounts.",
+                Grpc.Core.StatusCode.NotFound => "The selected owner is not an active banking user.",
+                Grpc.Core.StatusCode.InvalidArgument => exception.Status.Detail,
+                Grpc.Core.StatusCode.AlreadyExists => "An account with this ID already exists.",
+                _ => "The account could not be opened. Please try again."
+            };
+        }
+        catch (Exception exception)
+        {
+            _error = $"The account could not be opened: {exception.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private Task CancelAsync() => DialogInstance.CloseAsync(DialogResult.Cancel());
+
+    protected override Task OnActionClickedAsync(bool isPrimary) => Task.CompletedTask;
+
+    private sealed record AccountTypeOption(AccountType Value, string Label);
+}

@@ -7,7 +7,7 @@ Configure Keycloak so the bank account API can enforce role-based authorization.
 This runbook aligns with the current service assumptions from code:
 - Realm path suffix: /realms/banking-on-aspire
 - Client ID expected by verifier: banking-on-aspire-app
-- Roles checked in client roles: accounts.balance.read, transactions.deposit.create, transactions.withdraw.create, accounts.close
+- Roles checked in client roles: accounts.balance.read, accounts.create, transactions.deposit.create, transactions.withdraw.create, accounts.close, users.profile.read, users.profile.write, contacts.read, contacts.write
 - Preferred username used for account ownership mapping: ionut
 
 Naming note:
@@ -49,30 +49,40 @@ Current ownership mapping:
      5. Enable **Add to access token**, then save.
 4. In client roles, create:
    - accounts.balance.read
+   - accounts.create
    - transactions.deposit.create
    - transactions.withdraw.create
    - accounts.close
+   - users.profile.read
+   - users.profile.write
+   - contacts.read
+   - contacts.write
 5. Create test user:
    - Username: ionut
    - Set a password and mark non-temporary
-6. Assign all required client roles from banking-on-aspire-app to user ionut.
+6. Assign the BankingUser group and any required account/transaction groups to user ionut.
 
 ## Token Retrieval for Smoke Tests
 
-Set these environment variables:
+Store the smoke credentials in the AppHost's local Aspire secret store:
 
 ```bash
-export KEYCLOAK_BASE_URL="http://localhost:8080"
-export KEYCLOAK_REALM="banking-on-aspire"
-export KEYCLOAK_CLIENT_ID="banking-on-aspire-app"
-export KEYCLOAK_CLIENT_SECRET="<client-secret>"
-export KEYCLOAK_USER="local-dev"
-export KEYCLOAK_PASSWORD="<user-password>"
+aspire secret set 'SmokeAuth:Keycloak:Username' 'local-dev' --apphost apphost.cs
+aspire secret set 'SmokeAuth:Keycloak:Password' '<user-password>' --apphost apphost.cs
+aspire secret set 'SmokeAuth:Keycloak:ClientSecret' '<client-secret>' --apphost apphost.cs
 ```
 
-Request token:
+`make smoke-auth` retrieves these values with `aspire secret get`; it does not
+load credentials from `.env` files. For a manual token request, read them into
+the current shell without printing them:
 
 ```bash
+KEYCLOAK_USER=$(aspire secret get 'SmokeAuth:Keycloak:Username' --apphost apphost.cs --non-interactive)
+KEYCLOAK_PASSWORD=$(aspire secret get 'SmokeAuth:Keycloak:Password' --apphost apphost.cs --non-interactive)
+KEYCLOAK_CLIENT_SECRET=$(aspire secret get 'SmokeAuth:Keycloak:ClientSecret' --apphost apphost.cs --non-interactive)
+KEYCLOAK_BASE_URL="http://localhost:8080"
+KEYCLOAK_REALM="banking-on-aspire"
+KEYCLOAK_CLIENT_ID="banking-on-aspire-app"
 TOKEN=$(curl -kfsS -X POST "${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
@@ -111,6 +121,7 @@ TOKEN="$TOKEN" BASE_URL="http://localhost:8082" scripts/smoke-baseline.sh
 
 | Endpoint | Method | Required role | Notes |
 |---|---|---|---|
+| /v1/users/{user}/accounts | POST | accounts.create | Administrative account creation with a zero initial balance |
 | /accounts/{accounts}/balance | GET | accounts.balance.read | Maps to Bank of Anthos-style balance inquiry flow |
 | /accounts/{accounts}/deposit | POST | transactions.deposit.create | Maps to cash-in transaction flow |
 | /accounts/{accounts}/withdraw | POST | transactions.withdraw.create | Maps to cash-out/payment initiation flow |

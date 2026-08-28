@@ -1,0 +1,36 @@
+@inject IDialogService DialogService
+
+<header class="app-header">
+    <div class="app-heading">
+        <span class="app-heading-title">Banking on Aspire</span>
+        <span class="app-heading-context">Personal workspace</span>
+    </div>
+    <div class="header-actions">
+        <AuthorizeView>
+            <Authorized Context="auth">
+                <div class="notification-action">
+                    <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="NotificationIcon()" IconOnly="true" Title="Notifications" OnClick="OpenNotificationsAsync" />
+                    <span class="notification-count" aria-label="No unread notifications">0</span>
+                </div>
+                <UserMenu User="auth.User" />
+            </Authorized>
+            <NotAuthorized>
+                <FluentAnchorButton Appearance="ButtonAppearance.Primary" Href="/authentication/login">Sign in</FluentAnchorButton>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</header>
+
+@code {
+    private static Icon NotificationIcon() => new Icons.Regular.Size20.Alert();
+
+    private async Task OpenNotificationsAsync()
+    {
+        await DialogService.ShowDrawerAsync<NotificationsDrawer>(options =>
+        {
+            options.Header.Title = "Notifications";
+            options.Alignment = DialogAlignment.End;
+            options.Size = DialogSize.Small;
+        });
+    }
+}

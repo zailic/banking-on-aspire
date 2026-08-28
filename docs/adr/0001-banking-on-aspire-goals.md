@@ -15,7 +15,7 @@ Adopt an incremental migration strategy with milestone-based delivery.
 Core platform choices:
 - Aspire for local orchestration and resource graph visibility.
 - Dapr for service invocation, actors, state, and pub/sub.
-- Keycloak for identity, authentication, and scope-based authorization.
+- Keycloak for identity, authentication, and client-role permissions.
 - Radius for environment modeling and deployment recipes.
 - OpenTelemetry for traces, metrics, and logs.
 

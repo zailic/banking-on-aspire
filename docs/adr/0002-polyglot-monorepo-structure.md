@@ -19,7 +19,7 @@ runnable after every increment.
 
 Use four top-level source boundaries:
 
-- `App/` for user-facing applications, initially `Banking.Web`.
+- `frontend/` for user-facing applications, initially `Banking.Web`.
 - `platform/` for reusable middleware, observability, shared contracts, and generated
   artifacts. Business behavior remains in the owning service.
 - `protos/` for versioned protobuf source definitions designed around Google AIP
