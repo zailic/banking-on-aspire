@@ -26,16 +26,24 @@ type Service struct {
 	contactsv1.UnimplementedContactsServiceServer
 	repository contactrepo.Repository
 	users      contactrepo.UserResolver
+	accounts   AccountValidator
 }
 
-func New(repository contactrepo.Repository, users contactrepo.UserResolver) *Service {
+type AccountValidator interface {
+	ValidateInternalAccount(context.Context, string) error
+}
+
+func New(repository contactrepo.Repository, users contactrepo.UserResolver, accounts AccountValidator) *Service {
 	if repository == nil {
 		panic("contacts repository is required")
 	}
 	if users == nil {
 		panic("contacts user resolver is required")
 	}
-	return &Service{repository: repository, users: users}
+	if accounts == nil {
+		panic("contacts account validator is required")
+	}
+	return &Service{repository: repository, users: users, accounts: accounts}
 }
 
 func (s *Service) ListContacts(ctx context.Context, req *contactsv1.ListContactsRequest) (*contactsv1.ListContactsResponse, error) {
@@ -48,7 +56,6 @@ func (s *Service) ListContacts(ctx context.Context, req *contactsv1.ListContacts
 	if err := s.authorizeParent(ctx, req.GetParent()); err != nil {
 		return nil, err
 	}
-
 	pageSize := int(req.GetPageSize())
 	if pageSize == 0 {
 		pageSize = defaultPageSize
@@ -104,6 +111,9 @@ func (s *Service) CreateContact(ctx context.Context, req *contactsv1.CreateConta
 	if err := s.authorizeParent(ctx, req.GetParent()); err != nil {
 		return nil, err
 	}
+	if err := s.validateInternalAccount(ctx, req.GetContact()); err != nil {
+		return nil, err
+	}
 
 	contact := cloneContact(req.GetContact())
 	contact.Name = req.GetParent() + "/contacts/" + req.GetContactId()
@@ -135,12 +145,14 @@ func (s *Service) UpdateContact(ctx context.Context, req *contactsv1.UpdateConta
 	}
 
 	updated := cloneContact(current)
+	destinationChanged := false
 	for _, path := range req.GetUpdateMask().GetPaths() {
 		switch path {
 		case "display_name":
 			updated.DisplayName = req.GetContact().GetDisplayName()
 		case "internal_account", "external_account", "destination":
 			updated.Destination = req.GetContact().GetDestination()
+			destinationChanged = true
 		default:
 			return nil, status.Errorf(codes.InvalidArgument, "field %q cannot be updated", path)
 		}
@@ -148,12 +160,37 @@ func (s *Service) UpdateContact(ctx context.Context, req *contactsv1.UpdateConta
 	if err := validateContact(updated); err != nil {
 		return nil, err
 	}
+	if destinationChanged {
+		if err := s.validateInternalAccount(ctx, updated); err != nil {
+			return nil, err
+		}
+	}
 	updated.UpdateTime = timestamppb.Now()
 	updated.Etag = newEtag()
 	if err := s.repository.Update(ctx, updated, req.GetContact().GetEtag()); err != nil {
 		return nil, repositoryError(err)
 	}
 	return updated, nil
+}
+
+func (s *Service) validateInternalAccount(ctx context.Context, contact *contactsv1.Contact) error {
+	account := contact.GetInternalAccount()
+	if account == "" {
+		return nil
+	}
+	if err := s.accounts.ValidateInternalAccount(ctx, account); err != nil {
+		switch status.Code(err) {
+		case codes.NotFound:
+			return status.Error(codes.InvalidArgument, "internal account does not exist")
+		case codes.PermissionDenied:
+			return status.Error(codes.InvalidArgument, "internal account is not available to the authenticated user")
+		case codes.Unauthenticated:
+			return status.Error(codes.Unauthenticated, "account validation requires an authenticated identity")
+		default:
+			return status.Error(codes.Unavailable, "internal account could not be validated")
+		}
+	}
+	return nil
 }
 
 func (s *Service) DeleteContact(ctx context.Context, req *contactsv1.DeleteContactRequest) (*emptypb.Empty, error) {

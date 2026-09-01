@@ -42,7 +42,7 @@ proto-check: tools
 	@cd protos && $(BUF) build
 
 test:
-	@go test ./platform/... ./services/accounts/... ./services/accounts-legacy/... ./services/contacts/... ./services/users/...
+	@go test ./platform/... ./services/accounts/... ./services/accounts-legacy/... ./services/contacts/... ./services/transactions/... ./services/users/...
 
 check: proto-check test
 

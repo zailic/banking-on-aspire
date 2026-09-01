@@ -393,6 +393,19 @@ dd {
 .account-identity span { color: var(--colorNeutralForeground3); font-size: 12px; letter-spacing: .04em; }
 .account-balance { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .activity-panel { grid-column: 3; min-height: 242px; }
+.activity-list { display: grid; }
+.activity-item { min-width: 0; padding: 12px 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--colorNeutralStroke2); }
+.activity-item:last-child { border-bottom: 0; }
+.activity-direction { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; }
+.activity-direction.debit { color: var(--colorPaletteRedForeground1); background: var(--colorPaletteRedBackground1); }
+.activity-direction.credit { color: var(--colorPaletteGreenForeground1); background: var(--colorPaletteGreenBackground1); }
+.activity-copy, .activity-amount { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.activity-copy strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.activity-copy span, .activity-amount span { color: var(--colorNeutralForeground3); font-size: 10px; }
+.activity-amount { align-items: flex-end; text-align: right; }
+.activity-amount strong { font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.activity-amount.debit strong { color: var(--colorPaletteRedForeground1); }
+.activity-amount.credit strong { color: var(--colorPaletteGreenForeground1); }
 .beneficiaries-panel { grid-column: 2 / span 2; }
 .profile-panel { grid-column: 1; grid-row: 2; }
 .panel-empty { min-height: 180px; padding: 24px; display: grid; place-items: center; align-content: center; gap: 5px; text-align: center; }

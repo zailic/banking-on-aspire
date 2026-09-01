@@ -34,6 +34,22 @@ else
             <p>Here's what's happening in your banking workspace.</p>
         </div>
         <div class="dashboard-actions">
+            <AuthorizeView Policy="AccountsDeposit">
+                <Authorized>
+                    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@DepositIcon()"
+                                  Disabled="@(OpenAccounts == 0)" OnClick="OpenDepositDialogAsync">
+                        Add funds
+                    </FluentButton>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="PaymentsSend">
+                <Authorized>
+                    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@SendIcon()"
+                                  Disabled="@(!CanSendPayment)" OnClick="OpenPaymentDialogAsync">
+                        Send payment
+                    </FluentButton>
+                </Authorized>
+            </AuthorizeView>
             <AuthorizeView Policy="AccountsCreate">
                 <Authorized>
                     <FluentButton Appearance="ButtonAppearance.Subtle" IconStart="@AccountsIcon()"
@@ -42,7 +58,7 @@ else
                     </FluentButton>
                 </Authorized>
             </AuthorizeView>
-            <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@AddIcon()" OnClick="OpenContactDialogAsync">
+            <FluentButton Appearance="ButtonAppearance.Subtle" IconStart="@AddIcon()" OnClick="OpenContactDialogAsync">
                 Add beneficiary
             </FluentButton>
         </div>
@@ -119,13 +135,37 @@ else
                     <p>Your latest transactions and transfers.</p>
                 </div>
             </div>
-            <div class="panel-empty compact-empty">
-                <div class="empty-icon">
-                    <FluentIcon Value="@ActivityIcon()" />
+            @if (_dashboard.Transactions.Count == 0)
+            {
+                <div class="panel-empty compact-empty">
+                    <div class="empty-icon">
+                        <FluentIcon Value="@ActivityIcon()" />
+                    </div>
+                    <strong>No activity yet</strong>
+                    <span>Your completed payments will appear here.</span>
                 </div>
-                <strong>No activity available</strong>
-                <span>Transactions will appear once the ledger service is connected.</span>
-            </div>
+            }
+            else
+            {
+                <div class="activity-list">
+                    @foreach (var transaction in _dashboard.Transactions)
+                    {
+                        <div class="activity-item">
+                            <div class="activity-direction @DirectionClass(transaction)">
+                                <FluentIcon Value="@DirectionIcon(transaction)" />
+                            </div>
+                            <div class="activity-copy">
+                                <strong>@TransactionTitle(transaction)</strong>
+                                <span>@TransactionSubtitle(transaction)</span>
+                            </div>
+                            <div class="activity-amount @DirectionClass(transaction)">
+                                <strong>@TransactionAmount(transaction)</strong>
+                                <span>@TransactionTime(transaction)</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </FluentCard>
 
         <FluentCard class="dashboard-panel beneficiaries-panel" id="beneficiaries">
@@ -194,6 +234,8 @@ Contact.DestinationOneofCase.InternalAccount);
     private int ExternalContacts => _dashboard!.Contacts.Count - InternalContacts;
     private int OpenAccounts => _dashboard!.Accounts.Count(account => account.Status == AccountStatus.Open);
     private int ClosedAccounts => _dashboard!.Accounts.Count(account => account.Status == AccountStatus.Closed);
+    private bool CanSendPayment => _dashboard!.Accounts.Any(account => account.Status == AccountStatus.Open)
+        && _dashboard.Contacts.Count > 0;
     private IQueryable<Account> Accounts => _dashboard!.Accounts.AsQueryable();
     private IQueryable<Contact> Contacts => _dashboard!.Contacts.AsQueryable();
 
@@ -223,6 +265,7 @@ Contact.DestinationOneofCase.InternalAccount);
             options.Footer.SecondaryAction.Visible = false;
             options.Size = DialogSize.Medium;
             options.Parameters.Add(nameof(AddContactDialog.Model), model);
+            options.Header.CloseAction.OnClickAsync = async(dialog) => await dialog.CloseAsync(DialogResult.Cancel());
         });
 
         if (!result.Cancelled && result.Value is Contact created)
@@ -247,7 +290,7 @@ Contact.DestinationOneofCase.InternalAccount);
             options.Header.CloseAction.Visible = true;
             options.Footer.PrimaryAction.Visible = false;
             options.Footer.SecondaryAction.Visible = false;
-
+            options.Header.CloseAction.OnClickAsync = async(dialog) => await dialog.CloseAsync(DialogResult.Cancel());
             options.Parameters.Add(nameof(CreateAccountDialog.Model), model);
         });
 
@@ -255,6 +298,89 @@ Contact.DestinationOneofCase.InternalAccount);
         {
             _dashboard = await DashboardService.LoadAsync();
             _success = $"Account {created.DisplayName} was opened. Number: {created.AccountNumber}.";
+        }
+    }
+
+    private async Task OpenPaymentDialogAsync()
+    {
+        _error = null;
+        _success = null;
+        _reauthenticationRequired = false;
+        var accounts = _dashboard!.Accounts
+            .Where(account => account.Status == AccountStatus.Open)
+            .Select(account => new PaymentAccountOption(
+                account.Name,
+                $"{account.DisplayName} · {AvailableBalance(account)}",
+                account.CurrencyCode))
+            .ToArray();
+        var beneficiaries = _dashboard.Contacts
+            .Select(contact => new PaymentBeneficiaryOption(contact.Name, $"{contact.DisplayName} · {Destination(contact)}"))
+            .ToArray();
+        if (accounts.Length == 0 || beneficiaries.Length == 0) return;
+
+        var model = new SendPaymentCommand
+        {
+            SourceAccount = accounts[0].Name,
+            Beneficiary = beneficiaries[0].Name,
+            CurrencyCode = accounts[0].CurrencyCode
+        };
+        var result = await DialogService.ShowDialogAsync<SendPaymentDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+            options.Header.Title = "Send payment";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Parameters.Add(nameof(SendPaymentDialog.Model), model);
+            options.Parameters.Add(nameof(SendPaymentDialog.Accounts), accounts);
+            options.Parameters.Add(nameof(SendPaymentDialog.Beneficiaries), beneficiaries);
+            options.Header.CloseAction.OnClickAsync = async(dialog) => await dialog.CloseAsync(DialogResult.Cancel());
+        });
+
+        if (!result.Cancelled && result.Value is Payment payment)
+        {
+            _dashboard = await DashboardService.LoadAsync();
+            _success = $"Payment {FormatMoney(payment.Amount)} was sent successfully.";
+        }
+    }
+
+    private async Task OpenDepositDialogAsync()
+    {
+        _error = null;
+        _success = null;
+        _reauthenticationRequired = false;
+        var accounts = _dashboard!.Accounts
+            .Where(account => account.Status == AccountStatus.Open)
+            .Select(account => new PaymentAccountOption(
+                account.Name,
+                $"{account.DisplayName} · {AvailableBalance(account)}",
+                account.CurrencyCode))
+            .ToArray();
+        if (accounts.Length == 0) return;
+
+        var model = new DepositFundsCommand
+        {
+            Account = accounts[0].Name,
+            CurrencyCode = accounts[0].CurrencyCode
+        };
+        var result = await DialogService.ShowDialogAsync<DepositFundsDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+            options.Header.Title = "Add funds";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Parameters.Add(nameof(DepositFundsDialog.Model), model);
+            options.Parameters.Add(nameof(DepositFundsDialog.Accounts), accounts);
+            options.Header.CloseAction.OnClickAsync = async(dialog) => await dialog.CloseAsync(DialogResult.Cancel());
+        });
+
+        if (!result.Cancelled && result.Value is Deposit deposit)
+        {
+            _dashboard = await DashboardService.LoadAsync();
+            _success = $"{FormatMoney(deposit.Amount)} was added to the account.";
         }
     }
 
@@ -300,7 +426,32 @@ Contact.DestinationOneofCase.InternalAccount);
 
     private static string ContactType(Contact contact) => contact.DestinationCase ==
 Contact.DestinationOneofCase.InternalAccount ? "Internal" : "External";
+    private string TransactionTitle(Transaction transaction)
+    {
+        if (!string.IsNullOrWhiteSpace(transaction.Reference)) return transaction.Reference;
+        var contact = _dashboard!.Contacts.FirstOrDefault(item => item.Name == transaction.Counterparty);
+        return contact?.DisplayName ?? (transaction.Direction == TransactionDirection.Credit ? "Payment received" : "Payment sent");
+    }
+    private static string TransactionSubtitle(Transaction transaction) =>
+        transaction.Direction == TransactionDirection.Credit ? "Incoming payment" : "Outgoing payment";
+    private static string TransactionAmount(Transaction transaction) =>
+        $"{(transaction.Direction == TransactionDirection.Credit ? "+" : "−")}{FormatMoney(transaction.Amount)}";
+    private static string FormatMoney(Google.Type.Money? money)
+    {
+        if (money is null) return "0.00";
+        var amount = money.Units + money.Nanos / 1_000_000_000m;
+        return $"{amount:N2} {money.CurrencyCode}";
+    }
+    private static string TransactionTime(Transaction transaction) =>
+        transaction.CreateTime?.ToDateTime().ToLocalTime().ToString("dd MMM, HH:mm") ?? "";
+    private static string DirectionClass(Transaction transaction) =>
+        transaction.Direction == TransactionDirection.Credit ? "credit" : "debit";
+    private static Icon DirectionIcon(Transaction transaction) => transaction.Direction == TransactionDirection.Credit
+        ? new Icons.Regular.Size20.ArrowDown()
+        : new Icons.Regular.Size20.ArrowUp();
     private static Icon AddIcon() => new Icons.Regular.Size20.Add();
+    private static Icon DepositIcon() => new Icons.Regular.Size20.ArrowDownload();
+    private static Icon SendIcon() => new Icons.Regular.Size20.Send();
     private static Icon ProfileIcon() => new Icons.Regular.Size24.Person();
     private static Icon ContactsIcon() => new Icons.Regular.Size24.People();
     private static Icon AccountsIcon() => new Icons.Regular.Size24.Wallet();

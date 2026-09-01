@@ -1,0 +1,95 @@
+@inherits FluentDialogInstance
+@inject BankingDashboardService DashboardService
+
+<FluentDialogBody FixedHeaderFooter="true">
+    <TitleTemplate>Add funds</TitleTemplate>
+    <ChildContent>
+        @if (_error is not null)
+        {
+            <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+        }
+        <EditForm Model="Model" OnValidSubmit="SubmitAsync" FormName="deposit-funds">
+            <DataAnnotationsValidator />
+            <FluentStack Orientation="Orientation.Vertical" Width="100%" VerticalGap="16px">
+                <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                    <FluentSelect TOption="PaymentAccountOption" TValue="string"
+                                  Class="dialog-form-control" Items="Accounts"
+                                  Value="Model.Account" ValueChanged="AccountChanged"
+                                  OptionText="@(option => option.Label)" OptionValue="@(option => option.Name)"
+                                  Label="Account" />
+                    <ValidationMessage For="() => Model.Account" />
+                </FluentStack>
+                <FluentStack Width="100%" HorizontalGap="12px" VerticalGap="12px" Wrap="true">
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                        <FluentNumberInput TValue="decimal" @bind-Value="Model.Amount"
+                                           Class="dialog-form-control" Label="Amount"
+                                           Min="0.01m" Step="0.01m" Required="true" />
+                        <ValidationMessage For="() => Model.Amount" />
+                    </FluentStack>
+                    <FluentStack Orientation="Orientation.Vertical" Class="dialog-form-row">
+                        <FluentTextInput @bind-Value="Model.CurrencyCode" Class="dialog-form-control"
+                                         Label="Currency" ReadOnly="true" />
+                    </FluentStack>
+                </FluentStack>
+                <FluentStack Orientation="Orientation.Vertical" Width="100%">
+                    <FluentTextInput @bind-Value="Model.Reference" Class="dialog-form-control"
+                                     Label="Reference" Maxlength="140" />
+                    <ValidationMessage For="() => Model.Reference" />
+                </FluentStack>
+                <FluentMessageBar Intent="MessageBarIntent.Warning">
+                    This is a learning-only cash-in operation. It does not connect to a real payment rail.
+                </FluentMessageBar>
+                <FluentStack Width="100%" HorizontalAlignment="HorizontalAlignment.End" HorizontalGap="12px" Wrap="true">
+                    <FluentButton Type="ButtonType.Button" Appearance="ButtonAppearance.Subtle"
+                                  Disabled="_saving" OnClick="CancelAsync">Cancel</FluentButton>
+                    <FluentButton Type="ButtonType.Submit" Appearance="ButtonAppearance.Primary" Disabled="_saving">
+                        @(_saving ? "Adding…" : "Add funds")
+                    </FluentButton>
+                </FluentStack>
+            </FluentStack>
+        </EditForm>
+    </ChildContent>
+</FluentDialogBody>
+
+@code {
+    [Parameter, EditorRequired] public DepositFundsCommand Model { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<PaymentAccountOption> Accounts { get; set; } = [];
+    private bool _saving;
+    private string? _error;
+
+    private async Task SubmitAsync()
+    {
+        _saving = true;
+        _error = null;
+        try
+        {
+            var deposit = await DashboardService.DepositFundsAsync(Model);
+            await DialogInstance.CloseAsync(DialogResult.Ok(deposit));
+        }
+        catch (ReauthenticationRequiredException exception) { _error = exception.Message; }
+        catch (Grpc.Core.RpcException exception)
+        {
+            _error = exception.StatusCode switch
+            {
+                Grpc.Core.StatusCode.PermissionDenied => "You don't have permission to add funds to this account.",
+                Grpc.Core.StatusCode.NotFound => "The selected account no longer exists.",
+                Grpc.Core.StatusCode.FailedPrecondition => exception.Status.Detail,
+                Grpc.Core.StatusCode.InvalidArgument => exception.Status.Detail,
+                Grpc.Core.StatusCode.AlreadyExists => "This deposit request was already used with different details.",
+                _ => "Funds could not be added. Please try again."
+            };
+        }
+        catch (Exception exception) { _error = $"Funds could not be added: {exception.Message}"; }
+        finally { _saving = false; }
+    }
+
+    private void AccountChanged(string value)
+    {
+        Model.Account = value;
+        var account = Accounts.FirstOrDefault(option => option.Name == value);
+        if (account is not null) Model.CurrencyCode = account.CurrencyCode;
+    }
+
+    private Task CancelAsync() => DialogInstance.CloseAsync(DialogResult.Cancel());
+    protected override Task OnActionClickedAsync(bool isPrimary) => Task.CompletedTask;
+}

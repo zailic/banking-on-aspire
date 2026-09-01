@@ -9,10 +9,12 @@ import (
 	"time"
 
 	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/genproto/googleapis/type/money"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -21,6 +23,12 @@ var accountsSchema string
 
 //go:embed migrations/002_add_account_number.sql
 var accountNumberSchema string
+
+//go:embed migrations/003_create_payments.sql
+var paymentsSchema string
+
+//go:embed migrations/004_create_deposits.sql
+var depositsSchema string
 
 type PostgresRepository struct{ pool *pgxpool.Pool }
 
@@ -37,7 +45,7 @@ func OpenPostgres(ctx context.Context, connectionString string) (*PostgresReposi
 }
 func (r *PostgresRepository) Close() { r.pool.Close() }
 func (r *PostgresRepository) Migrate(ctx context.Context) error {
-	_, err := r.pool.Exec(ctx, accountsSchema+"\n"+accountNumberSchema)
+	_, err := r.pool.Exec(ctx, accountsSchema+"\n"+accountNumberSchema+"\n"+paymentsSchema+"\n"+depositsSchema)
 	if err != nil {
 		return fmt.Errorf("migrate accounts database: %w", err)
 	}
@@ -128,6 +136,251 @@ func (r *PostgresRepository) CloseAccount(ctx context.Context, name, expectedEta
 		return nil, ErrConflict
 	}
 	return current, nil
+}
+
+func (r *PostgresRepository) SendPayment(ctx context.Context, payment *accountsv1.Payment) (*accountsv1.Payment, error) {
+	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("begin payment: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	accountID := strings.TrimPrefix(payment.GetSourceAccount(), "accounts/")
+	var ownerID, status, currency string
+	var balanceUnits int64
+	var balanceNanos int32
+	err = tx.QueryRow(ctx, `SELECT user_id, status, currency_code, balance_units, balance_nanos FROM accounts WHERE account_id=$1 FOR UPDATE`, accountID).
+		Scan(&ownerID, &status, &currency, &balanceUnits, &balanceNanos)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("lock payment source: %w", err)
+	}
+
+	existing, err := scanPayment(tx.QueryRow(ctx, `SELECT payment_id, source_account_id, beneficiary_user_id, beneficiary_contact_id, currency_code, amount_units, amount_nanos, reference, status, request_id, created_at FROM payments WHERE source_account_id=$1 AND request_id=$2`, accountID, payment.GetRequestId()))
+	if err == nil {
+		if !samePayment(existing, payment) {
+			return nil, ErrIdempotencyConflict
+		}
+		return existing, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("read idempotent payment: %w", err)
+	}
+	if status != "open" {
+		return nil, ErrAccountNotOpen
+	}
+
+	beneficiaryUserID, beneficiaryContactID, ok := parseBeneficiaryName(payment.GetBeneficiary())
+	if !ok || beneficiaryUserID != ownerID {
+		return nil, ErrBeneficiaryNotFound
+	}
+	var destinationType string
+	var internalAccount *string
+	if err := tx.QueryRow(ctx, `SELECT destination_type, internal_account FROM contacts WHERE user_id=$1 AND contact_id=$2`, beneficiaryUserID, beneficiaryContactID).Scan(&destinationType, &internalAccount); errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrBeneficiaryNotFound
+	} else if err != nil {
+		return nil, fmt.Errorf("validate beneficiary: %w", err)
+	}
+
+	balance := &money.Money{CurrencyCode: currency, Units: balanceUnits, Nanos: balanceNanos}
+	remaining, ok := subtractMoney(balance, payment.GetAmount())
+	if !ok {
+		return nil, ErrInsufficientFunds
+	}
+	var destinationID, destinationOwnerID string
+	var destinationBalance *money.Money
+	if destinationType == "internal" {
+		if internalAccount == nil || !validStoredAccountName(*internalAccount) || *internalAccount == payment.GetSourceAccount() {
+			return nil, ErrDestinationInvalid
+		}
+		destinationID = strings.TrimPrefix(*internalAccount, "accounts/")
+		var destinationStatus, destinationCurrency string
+		var destinationUnits int64
+		var destinationNanos int32
+		if err := tx.QueryRow(ctx, `SELECT user_id, status, currency_code, balance_units, balance_nanos FROM accounts WHERE account_id=$1 FOR UPDATE`, destinationID).Scan(&destinationOwnerID, &destinationStatus, &destinationCurrency, &destinationUnits, &destinationNanos); errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrDestinationInvalid
+		} else if err != nil {
+			return nil, fmt.Errorf("lock internal payment destination: %w", err)
+		}
+		if destinationStatus != "open" || destinationCurrency != payment.GetAmount().GetCurrencyCode() {
+			return nil, ErrDestinationInvalid
+		}
+		destinationBalance = addMoney(&money.Money{CurrencyCode: destinationCurrency, Units: destinationUnits, Nanos: destinationNanos}, payment.GetAmount())
+	}
+	if _, err := tx.Exec(ctx, `UPDATE accounts SET balance_units=$2, balance_nanos=$3, updated_at=$4, etag=$5 WHERE account_id=$1`, accountID, remaining.GetUnits(), remaining.GetNanos(), payment.GetCreateTime().AsTime(), payment.GetName()); err != nil {
+		return nil, fmt.Errorf("debit payment source: %w", err)
+	}
+	if destinationBalance != nil {
+		if _, err := tx.Exec(ctx, `UPDATE accounts SET balance_units=$2, balance_nanos=$3, updated_at=$4, etag=$5 WHERE account_id=$1`, destinationID, destinationBalance.GetUnits(), destinationBalance.GetNanos(), payment.GetCreateTime().AsTime(), payment.GetName()); err != nil {
+			return nil, fmt.Errorf("credit internal payment destination: %w", err)
+		}
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO payments (payment_id, source_account_id, beneficiary_user_id, beneficiary_contact_id, currency_code, amount_units, amount_nanos, reference, status, request_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'completed',$9,$10)`,
+		strings.TrimPrefix(payment.GetName(), "payments/"), accountID, beneficiaryUserID, beneficiaryContactID, payment.GetAmount().GetCurrencyCode(), payment.GetAmount().GetUnits(), payment.GetAmount().GetNanos(), payment.GetReference(), payment.GetRequestId(), payment.GetCreateTime().AsTime()); err != nil {
+		return nil, fmt.Errorf("store payment: %w", err)
+	}
+	event := &eventsv1.PaymentSentEvent{
+		EventId: strings.TrimPrefix(payment.GetName(), "payments/"), SchemaVersion: 1,
+		Payment: payment.GetName(), SourceAccount: payment.GetSourceAccount(), SourceOwner: "users/" + ownerID,
+		Beneficiary: payment.GetBeneficiary(), Amount: payment.GetAmount(), Reference: payment.GetReference(),
+		OccurredTime: payment.GetCreateTime(),
+	}
+	if destinationID != "" {
+		event.DestinationAccount = "accounts/" + destinationID
+		event.DestinationOwner = "users/" + destinationOwnerID
+	}
+	payload, err := protojson.Marshal(event)
+	if err != nil {
+		return nil, fmt.Errorf("marshal payment event: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at) VALUES ($1,'banking.events.v1.PaymentSentEvent',$2,$3::jsonb,$4)`,
+		event.GetEventId(), payment.GetSourceAccount(), payload, payment.GetCreateTime().AsTime()); err != nil {
+		return nil, fmt.Errorf("store payment outbox event: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("commit payment: %w", err)
+	}
+	return payment, nil
+}
+
+func (r *PostgresRepository) DepositFunds(ctx context.Context, deposit *accountsv1.Deposit) (*accountsv1.Deposit, error) {
+	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("begin deposit: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	accountID := strings.TrimPrefix(deposit.GetAccount(), "accounts/")
+	var ownerID, status, currency string
+	var balanceUnits int64
+	var balanceNanos int32
+	err = tx.QueryRow(ctx, `SELECT user_id, status, currency_code, balance_units, balance_nanos FROM accounts WHERE account_id=$1 FOR UPDATE`, accountID).
+		Scan(&ownerID, &status, &currency, &balanceUnits, &balanceNanos)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("lock deposit account: %w", err)
+	}
+	existing, err := scanDeposit(tx.QueryRow(ctx, `SELECT deposit_id, account_id, currency_code, amount_units, amount_nanos, reference, request_id, created_at FROM deposits WHERE account_id=$1 AND request_id=$2`, accountID, deposit.GetRequestId()))
+	if err == nil {
+		if !sameDeposit(existing, deposit) {
+			return nil, ErrIdempotencyConflict
+		}
+		return existing, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("read idempotent deposit: %w", err)
+	}
+	if status != "open" {
+		return nil, ErrAccountNotOpen
+	}
+	if currency != deposit.GetAmount().GetCurrencyCode() {
+		return nil, ErrCurrencyMismatch
+	}
+	updated := addMoney(&money.Money{CurrencyCode: currency, Units: balanceUnits, Nanos: balanceNanos}, deposit.GetAmount())
+	if _, err := tx.Exec(ctx, `UPDATE accounts SET balance_units=$2, balance_nanos=$3, updated_at=$4, etag=$5 WHERE account_id=$1`, accountID, updated.GetUnits(), updated.GetNanos(), deposit.GetCreateTime().AsTime(), deposit.GetName()); err != nil {
+		return nil, fmt.Errorf("credit deposit account: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO deposits (deposit_id, account_id, currency_code, amount_units, amount_nanos, reference, request_id, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+		strings.TrimPrefix(deposit.GetName(), "deposits/"), accountID, currency, deposit.GetAmount().GetUnits(), deposit.GetAmount().GetNanos(), deposit.GetReference(), deposit.GetRequestId(), deposit.GetCreateTime().AsTime()); err != nil {
+		return nil, fmt.Errorf("store deposit: %w", err)
+	}
+	event := &eventsv1.FundsDepositedEvent{
+		EventId: strings.TrimPrefix(deposit.GetName(), "deposits/"), SchemaVersion: 1,
+		Deposit: deposit.GetName(), Account: deposit.GetAccount(), Owner: "users/" + ownerID,
+		Amount: deposit.GetAmount(), Reference: deposit.GetReference(), OccurredTime: deposit.GetCreateTime(),
+	}
+	payload, err := protojson.Marshal(event)
+	if err != nil {
+		return nil, fmt.Errorf("marshal deposit event: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at) VALUES ($1,'banking.events.v1.FundsDepositedEvent',$2,$3::jsonb,$4)`,
+		event.GetEventId(), deposit.GetAccount(), payload, deposit.GetCreateTime().AsTime()); err != nil {
+		return nil, fmt.Errorf("store deposit outbox event: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("commit deposit: %w", err)
+	}
+	return deposit, nil
+}
+
+type OutboxEvent struct {
+	ID      string
+	Type    string
+	Payload []byte
+}
+
+func (r *PostgresRepository) PendingOutboxEvents(ctx context.Context, limit int) ([]OutboxEvent, error) {
+	rows, err := r.pool.Query(ctx, `SELECT event_id, event_type, payload FROM account_outbox WHERE published_at IS NULL ORDER BY occurred_at, event_id LIMIT $1`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("list pending outbox events: %w", err)
+	}
+	defer rows.Close()
+	events := make([]OutboxEvent, 0)
+	for rows.Next() {
+		var event OutboxEvent
+		if err := rows.Scan(&event.ID, &event.Type, &event.Payload); err != nil {
+			return nil, fmt.Errorf("scan pending outbox event: %w", err)
+		}
+		events = append(events, event)
+	}
+	return events, rows.Err()
+}
+
+func (r *PostgresRepository) MarkOutboxEventPublished(ctx context.Context, eventID string) error {
+	_, err := r.pool.Exec(ctx, `UPDATE account_outbox SET published_at=NOW() WHERE event_id=$1 AND published_at IS NULL`, eventID)
+	if err != nil {
+		return fmt.Errorf("mark outbox event published: %w", err)
+	}
+	return nil
+}
+
+func scanPayment(scanner rowScanner) (*accountsv1.Payment, error) {
+	var paymentID, accountID, userID, contactID, currency, reference, status, requestID string
+	var units int64
+	var nanos int32
+	var created time.Time
+	if err := scanner.Scan(&paymentID, &accountID, &userID, &contactID, &currency, &units, &nanos, &reference, &status, &requestID, &created); err != nil {
+		return nil, err
+	}
+	return &accountsv1.Payment{
+		Name: "payments/" + paymentID, SourceAccount: "accounts/" + accountID,
+		Beneficiary: "users/" + userID + "/contacts/" + contactID,
+		Amount:      &money.Money{CurrencyCode: currency, Units: units, Nanos: nanos},
+		Reference:   reference, Status: accountsv1.PaymentStatus_PAYMENT_STATUS_COMPLETED,
+		RequestId: requestID, CreateTime: timestamppb.New(created),
+	}, nil
+}
+
+func scanDeposit(scanner rowScanner) (*accountsv1.Deposit, error) {
+	var depositID, accountID, currency, reference, requestID string
+	var units int64
+	var nanos int32
+	var created time.Time
+	if err := scanner.Scan(&depositID, &accountID, &currency, &units, &nanos, &reference, &requestID, &created); err != nil {
+		return nil, err
+	}
+	return &accountsv1.Deposit{
+		Name: "deposits/" + depositID, Account: "accounts/" + accountID,
+		Amount:    &money.Money{CurrencyCode: currency, Units: units, Nanos: nanos},
+		Reference: reference, RequestId: requestID, CreateTime: timestamppb.New(created),
+	}, nil
+}
+
+func parseBeneficiaryName(name string) (string, string, bool) {
+	parts := strings.Split(name, "/")
+	if len(parts) != 4 || parts[0] != "users" || parts[1] == "" || parts[2] != "contacts" || parts[3] == "" {
+		return "", "", false
+	}
+	return parts[1], parts[3], true
+}
+
+func validStoredAccountName(name string) bool {
+	parts := strings.Split(name, "/")
+	return len(parts) == 2 && parts[0] == "accounts" && parts[1] != ""
 }
 
 type rowScanner interface{ Scan(...any) error }

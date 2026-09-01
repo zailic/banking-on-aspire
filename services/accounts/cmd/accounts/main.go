@@ -14,6 +14,7 @@ import (
 	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
 	"dev.local/banking-on-aspire/services/accounts/internal/accountservice"
+	"dev.local/banking-on-aspire/services/accounts/internal/outbox"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -40,6 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer repo.Close()
+	daprHTTPPort := required("DAPR_HTTP_PORT")
 	verifier, err := keycloak.NewTokenVerifier(ctx, strings.TrimRight(required("KEYCLOAK_HTTP"), "/")+"/realms/banking-on-aspire", keycloakClientID)
 	if err != nil {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
@@ -59,6 +61,7 @@ func main() {
 	healthServer := health.NewServer()
 	healthv1.RegisterHealthServer(server, healthServer)
 	healthServer.SetServingStatus("", healthv1.HealthCheckResponse_SERVING)
+	go outbox.New(repo, daprHTTPPort, logger).Run(ctx)
 	go func() { <-ctx.Done(); healthServer.Shutdown(); server.GracefulStop() }()
 	logger.Info("starting accounts gRPC service", "port", port)
 	if err := server.Serve(listener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {

@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package banking.transactions.v1;
+
+import "banking/auth/v1/authorization.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/money.proto";
+
+option csharp_namespace = "Banking.Contracts.Transactions.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1;transactionsv1";
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/User"
+  pattern: "users/{user}"
+};
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/Account"
+  pattern: "accounts/{account}"
+};
+
+// Provides the transaction-history read model for an authenticated user.
+service TransactionsService {
+  // Lists transactions owned by a user, newest first.
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
+    option (google.api.http) = {get: "/v1/{parent=users/*}/transactions"};
+    option (banking.auth.v1.authorization) = {required_permissions: "transactions.read"};
+  }
+}
+
+// One immutable transaction-history entry projected from a domain event.
+message Transaction {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/Transaction"
+    pattern: "users/{user}/transactions/{transaction}"
+    singular: "transaction"
+    plural: "transactions"
+  };
+
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string owner = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string account = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+  string counterparty = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.type.Money amount = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  TransactionDirection direction = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string reference = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string source_event_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+enum TransactionDirection {
+  TRANSACTION_DIRECTION_UNSPECIFIED = 0;
+  TRANSACTION_DIRECTION_DEBIT = 1;
+  TRANSACTION_DIRECTION_CREDIT = 2;
+}
+
+message ListTransactionsRequest {
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).child_type = "banking-on-aspire.dev/Transaction"
+  ];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+  string next_page_token = 2;
+}

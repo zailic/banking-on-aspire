@@ -59,7 +59,11 @@ builder.Services
         };
     });
 builder.Services.AddAuthorization(options =>
-    options.AddPolicy("AccountsCreate", policy => policy.RequireRole("accounts.create")));
+{
+    options.AddPolicy("AccountsCreate", policy => policy.RequireRole("accounts.create"));
+    options.AddPolicy("AccountsDeposit", policy => policy.RequireRole("accounts.deposit"));
+    options.AddPolicy("PaymentsSend", policy => policy.RequireRole("payments.send"));
+});
 
 var app = builder.Build();
 

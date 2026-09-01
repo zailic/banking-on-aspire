@@ -497,3 +497,150 @@ Validation evidence:
 - Banking.Web becomes healthy in Aspire.
 - A real Keycloak password grant followed by a refresh-token grant succeeded and
   returned a renewed access token with the configured 300-second lifetime.
+
+## Authenticated banking workspace checkpoint
+
+Date: 2026-08-28
+Milestone: Frontend/BFF slice complete; M3/M4 handoff
+
+Current state:
+- Banking.Web is an authenticated interactive-server Fluent UI application with
+  a thin BFF that forwards and renews the caller's Keycloak access token.
+- The overview integrates the canonical Users, Contacts, and Accounts gRPC
+  services and renders profiles, beneficiaries, accounts, and real balances.
+- Beneficiary and account creation are available through server-controlled
+  workflows; ownership fields are not trusted from browser input.
+- Users, Contacts, and Accounts are independently runnable Go services backed by
+  PostgreSQL. The actor-based Accounts implementation is retained separately as
+  `accounts-legacy` learning code.
+- The recent-activity panel remains an explicit placeholder because Transactions
+  and the account event stream do not exist yet.
+
+Development-loop clarification:
+- Aspire default watch reevaluates the AppHost and supports the C# project
+  resource loop; it does not add source watching to Go `AddExecutable` resources.
+- Banking.Web can use dynamic loopback ports internally while retaining
+  `https://localhost:7443` as its stable browser and OIDC origin.
+
+Next increment:
+- Define a versioned account event and Transactions API, add the first justified
+  Dapr pub/sub flow, implement an idempotent Transactions read model, and surface
+  it through Banking.Web recent activity.
+
+## SendPayment domain foundation
+
+Date: 2026-08-28
+Milestone: M3 Dapr deepening started
+
+Decision:
+- Replaced cash withdrawal as the canonical next use case with `SendPayment`, so
+  the existing beneficiary context participates in a real business workflow.
+- Accounts owns payment execution and balances. Transactions will consume events
+  only to build queryable history.
+
+Change summary:
+- Added the `Payment` resource and idempotent `SendPayment` RPC protected by the
+  `payments.send` client role.
+- Added atomic PostgreSQL persistence for the source debit, payment record, and
+  `PaymentSent` outbox record. Internal beneficiaries are credited atomically.
+- Added validation for ownership, beneficiary existence, account status,
+  currency, available funds, reference length, and idempotency-key reuse.
+- Added the new role to the committed Keycloak realm and BankingUser group.
+- Made Accounts migrations wait for Contacts migrations because Payments owns a
+  foreign key to the saved beneficiary selected by the command.
+
+Validation evidence:
+- `make check` passes across protobuf validation and all Go workspace tests.
+- Banking.Contracts and Banking.Web build with zero warnings and zero errors.
+
+Next step:
+- Add the outbox dispatcher, Dapr pub/sub component, versioned event contract,
+  and idempotent Transactions consumer before exposing SendPayment in the UI.
+
+## Payment event and Transactions read model
+
+Date: 2026-08-28
+Milestone: M3 event-driven backend slice
+
+Change summary:
+- Added the versioned `PaymentSentEvent` integration contract and an Accounts
+  outbox dispatcher that publishes only committed rows.
+- Added Redis as the concrete Dapr `pubsub` broker and the `payments.sent` topic.
+- Added an HTTP Dapr subscriber that projects debit and internal-credit entries
+  idempotently into the independently owned `transactionsdb` database.
+- Added the authenticated, owner-scoped `ListTransactions` gRPC API protected by
+  `transactions.read`.
+
+Validation evidence:
+- `make check` passes, including subscriber, pagination, ownership, and protobuf
+  authorization-policy tests.
+- Accounts, Transactions, and Banking.Web become healthy through `aspire wait`.
+- The Transactions migration exits with code 0 and Dapr reports the active
+  `payments.sent` subscription through `pubsub`.
+
+Next step:
+- Add Send Payment and recent transaction activity to Banking.Web.
+
+## Send Payment UI and recent activity
+
+Date: 2026-08-28
+Milestone: M3/M4 vertical slice complete
+
+Change summary:
+- Added a Fluent UI payment dialog that selects an open source account and a
+  saved beneficiary, validates the amount, derives the account currency, and
+  generates an idempotency key inside the BFF.
+- Connected Banking.Web to the Transactions gRPC API and replaced the activity
+  placeholder with debit/credit rows, amounts, references, and local timestamps.
+- A successful payment reloads balances and transaction history together.
+
+Validation evidence:
+- Banking.Web builds with zero warnings and zero errors.
+- `make check` passes.
+- Banking.Web, Accounts, and Transactions all become healthy through Aspire.
+
+## Idempotent demo account funding
+
+Date: 2026-08-29
+Milestone: M3/M4 end-to-end flow enablement
+
+Decision:
+- Added a clearly labeled learning-only cash-in command instead of seeding or
+  editing balances directly. The command remains inside Accounts because that
+  service owns the balance invariant.
+
+Change summary:
+- Added `DepositFunds`, protected by `accounts.deposit`, with ownership,
+  currency, account-state, positive-amount, and idempotency validation.
+- Added atomic deposit persistence and a `FundsDepositedEvent` outbox record.
+- Transactions now consumes `funds.deposited` and projects a credit entry.
+- Banking.Web exposes an `Add funds` dialog and refreshes balances plus recent
+  activity after completion.
+
+Validation evidence:
+- `make check` passes, including deposit idempotency/ownership tests and the new
+  event subscriber test.
+- Banking.Web builds with zero warnings and zero errors.
+- Accounts migration exits with code 0; Accounts, Transactions, and Banking.Web
+  become healthy; Dapr reports both `payments.sent` and `funds.deposited` topics.
+
+## Internal beneficiary account validation
+
+Date: 2026-08-30
+Milestone: Contacts boundary hardening
+
+Change summary:
+- Contacts now calls `AccountsService.GetAccount` before persisting a new
+  internal beneficiary or a changed internal destination.
+- The caller's bearer token is forwarded, so Accounts ownership and RBAC remain
+  authoritative; no privileged service bypass was introduced.
+- AppHost models the `contacts → accounts` runtime dependency explicitly and
+  waits for Accounts before starting Contacts.
+- External beneficiaries and display-name-only updates remain independent of
+  Accounts availability.
+
+Behavioral consequence:
+- With the current owner-scoped `GetAccount`, internal beneficiaries are limited
+  to accounts readable by the authenticated user. Supporting another user's
+  account safely would require a purpose-built destination-resolution API that
+  reveals less information than `GetAccount`.

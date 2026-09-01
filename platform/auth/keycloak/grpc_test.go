@@ -8,6 +8,7 @@ import (
 
 	_ "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	_ "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	_ "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1"
 	_ "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -87,17 +88,20 @@ func TestUnaryServerInterceptorAllowsHealthCheck(t *testing.T) {
 
 func TestAuthorizationPoliciesMatchRPCContracts(t *testing.T) {
 	tests := map[string][]string{
-		"/banking.accounts.v1.AccountsService/CreateAccount":    {"accounts.create"},
-		"/banking.accounts.v1.AccountsService/ListAccounts":     {"accounts.balance.read"},
-		"/banking.accounts.v1.AccountsService/GetAccount":       {"accounts.balance.read"},
-		"/banking.accounts.v1.AccountsService/CloseAccount":     {"accounts.close"},
-		"/banking.users.v1.UsersService/GetUser":                {"users.profile.read"},
-		"/banking.users.v1.UsersService/GetOrCreateCurrentUser": {"users.profile.write", "users.profile.read"},
-		"/banking.contacts.v1.ContactsService/ListContacts":     {"contacts.read"},
-		"/banking.contacts.v1.ContactsService/GetContact":       {"contacts.read"},
-		"/banking.contacts.v1.ContactsService/CreateContact":    {"contacts.write"},
-		"/banking.contacts.v1.ContactsService/UpdateContact":    {"contacts.write"},
-		"/banking.contacts.v1.ContactsService/DeleteContact":    {"contacts.write"},
+		"/banking.accounts.v1.AccountsService/CreateAccount":            {"accounts.create"},
+		"/banking.accounts.v1.AccountsService/ListAccounts":             {"accounts.balance.read"},
+		"/banking.accounts.v1.AccountsService/GetAccount":               {"accounts.balance.read"},
+		"/banking.accounts.v1.AccountsService/CloseAccount":             {"accounts.close"},
+		"/banking.accounts.v1.AccountsService/SendPayment":              {"payments.send"},
+		"/banking.accounts.v1.AccountsService/DepositFunds":             {"accounts.deposit"},
+		"/banking.users.v1.UsersService/GetUser":                        {"users.profile.read"},
+		"/banking.users.v1.UsersService/GetOrCreateCurrentUser":         {"users.profile.write", "users.profile.read"},
+		"/banking.contacts.v1.ContactsService/ListContacts":             {"contacts.read"},
+		"/banking.contacts.v1.ContactsService/GetContact":               {"contacts.read"},
+		"/banking.contacts.v1.ContactsService/CreateContact":            {"contacts.write"},
+		"/banking.contacts.v1.ContactsService/UpdateContact":            {"contacts.write"},
+		"/banking.contacts.v1.ContactsService/DeleteContact":            {"contacts.write"},
+		"/banking.transactions.v1.TransactionsService/ListTransactions": {"transactions.read"},
 	}
 	for method, wantRoles := range tests {
 		policy, err := authorizationPolicy(method)

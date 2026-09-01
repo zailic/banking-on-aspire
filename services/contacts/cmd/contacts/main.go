@@ -11,10 +11,13 @@ import (
 	"syscall"
 
 	"dev.local/banking-on-aspire/platform/auth/keycloak"
+	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	contactsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	"dev.local/banking-on-aspire/services/contacts/internal/accountclient"
 	"dev.local/banking-on-aspire/services/contacts/internal/contactrepo"
 	"dev.local/banking-on-aspire/services/contacts/internal/contactservice"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -54,6 +57,15 @@ func main() {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
 		os.Exit(1)
 	}
+	accountsConnection, err := grpc.NewClient(
+		grpcAddress(requiredEnvironment("ACCOUNTS_GRPC")),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		logger.Error("failed to initialize Accounts client", "error", err)
+		os.Exit(1)
+	}
+	defer accountsConnection.Close()
 
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
@@ -61,7 +73,11 @@ func main() {
 		os.Exit(1)
 	}
 	server := grpc.NewServer(grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)))
-	contactsv1.RegisterContactsServiceServer(server, contactservice.New(repository, repository))
+	contactsv1.RegisterContactsServiceServer(server, contactservice.New(
+		repository,
+		repository,
+		accountclient.New(accountsv1.NewAccountsServiceClient(accountsConnection)),
+	))
 	healthServer := health.NewServer()
 	healthv1.RegisterHealthServer(server, healthServer)
 	healthServer.SetServingStatus("", healthv1.HealthCheckResponse_SERVING)
@@ -77,6 +93,13 @@ func main() {
 		logger.Error("contacts service stopped unexpectedly", "error", err)
 		os.Exit(1)
 	}
+}
+
+func grpcAddress(value string) string {
+	if strings.HasPrefix(value, "grpc://") {
+		return "dns:///" + strings.TrimPrefix(value, "grpc://")
+	}
+	return value
 }
 
 func requiredEnvironment(name string) string {

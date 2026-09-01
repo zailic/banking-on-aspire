@@ -66,12 +66,41 @@ Completed steps:
 6. Added the GAIP-aligned Accounts gRPC service backed by PostgreSQL, with
    descriptor-driven RBAC and `sub`-based ownership.
 
-Next steps:
+Current delivery state:
 
-1. Add the Fluent UI Blazor frontend under `frontend/Banking.Web` and a thin BFF
-   boundary that forwards the caller's access token.
-2. Connect Banking.Web to the Accounts gRPC service and render real balances.
-3. Add the Transactions read model and the first justified Dapr pub/sub flow.
+1. `frontend/Banking.Web` provides the .NET 10 interactive-server Fluent UI
+   frontend and thin BFF boundary.
+2. The BFF authenticates with Keycloak, renews server-side access tokens, and
+   forwards the caller token to Users, Contacts, Accounts, and Transactions over gRPC.
+3. The overview renders the current profile, beneficiaries, accounts, and real
+   balances. It also supports beneficiary and account creation.
+4. Users, Contacts, Accounts, and Transactions are independently runnable Go services backed
+   by PostgreSQL and protected by descriptor-declared permissions plus
+   `sub`-based ownership checks.
+
+Completed backend event increment:
+
+1. Added the versioned `PaymentSentEvent` contract and Accounts outbox dispatcher.
+2. Added Redis-backed Dapr pub/sub on `payments.sent`.
+3. Added the idempotent Transactions projection in its own PostgreSQL database and an owner-scoped gRPC API.
+
+Completed UI increment:
+
+1. Added the Banking.Web `Send payment` dialog with account, beneficiary,
+   amount, currency, reference, and automatic idempotency key handling.
+2. Replaced the recent-activity placeholder with the owner-scoped Transactions API.
+
+Next increment:
+
+1. Add focused component/BFF tests for the payment UI.
+2. Refine activity filters, pagination, and transaction details.
+
+Cash-in enablement:
+
+- Added the idempotent canonical `DepositFunds` operation so empty accounts can
+  exercise the payment flow without direct database edits.
+- Added `FundsDepositedEvent`, the `funds.deposited` Dapr topic, Transactions
+  projection, and the Banking.Web `Add funds` dialog.
 
 ## Milestones
 
@@ -105,10 +134,10 @@ Done when:
 - Missing permissions and cross-user access return `PermissionDenied`.
 - Auth configuration and operational setup are documented and repeatable.
 
-### M3 - Dapr deepening
+### M3 - Dapr deepening (In progress)
 - Evaluate state store, actors, and pub/sub against a concrete service use case.
 - Add a state store only if the selected use case requires it.
-- Add at least one pub/sub event (`AccountOpened`, `FundsDeposited`).
+- Publish and consume `PaymentSentEvent` through Redis-backed Dapr pub/sub (completed).
 - Add idempotency strategy for write operations.
 
 Done when:
@@ -124,12 +153,15 @@ Done when:
 - At least one extracted context has independent deployment/runtime.
 
 Planned service locations:
-- `services/accounts` - existing command/actor flow; established before M4.
-- `services/transactions` - read model extracted first during M4.
+- `services/accounts` - canonical GAIP-aligned account lifecycle service backed
+  by PostgreSQL; implemented and integrated with Banking.Web.
+- `services/transactions` - PostgreSQL read model consuming `PaymentSentEvent`; implemented.
 - `services/contacts` - independently runnable beneficiaries context; implemented.
 - `services/users` - independently runnable application profile context linked
   through the Keycloak `sub` claim; implemented. Keycloak remains the identity
   and credential source of truth.
+- `services/accounts-legacy` - preserved actor-based implementation used only as
+  learning/reference code; it is not the canonical account boundary.
 
 ### M5 - Radius environments
 - Define dev/test environments with reusable recipes.

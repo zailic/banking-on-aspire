@@ -1,0 +1,25 @@
+{
+    "pgsql.connections": [
+        {
+            "id": "7337B2B0-1CB4-4582-AE2D-DD04B3CD2AED",
+            "groupId": "1C08EB61-A488-4777-9604-17B267A2A466",
+            "authenticationType": "SqlLogin",
+            "connectTimeout": 15,
+            "applicationName": "vscode-pgsql",
+            "clientEncoding": "utf8",
+            "sslmode": "disable",
+            "sshSavePassword": true,
+            "savePassword": true,
+            "sslRootCertMode": "none",
+            "server": "banking-on-aspire",
+            "user": "postgres",
+            "password": "",
+            "database": "usersdb",
+            "profileName": "banking-on-aspire, usersdb (postgres)",
+            "port": "42043",
+            "hostaddr": "127.0.0.1",
+            "expiresOn": 0,
+            "sshPassword": ""
+        }
+    ]
+}

@@ -135,6 +135,53 @@ func (AccountStatus) EnumDescriptor() ([]byte, []int) {
 	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{1}
 }
 
+// Lifecycle state of a payment.
+type PaymentStatus int32
+
+const (
+	PaymentStatus_PAYMENT_STATUS_UNSPECIFIED PaymentStatus = 0
+	PaymentStatus_PAYMENT_STATUS_COMPLETED   PaymentStatus = 1
+)
+
+// Enum value maps for PaymentStatus.
+var (
+	PaymentStatus_name = map[int32]string{
+		0: "PAYMENT_STATUS_UNSPECIFIED",
+		1: "PAYMENT_STATUS_COMPLETED",
+	}
+	PaymentStatus_value = map[string]int32{
+		"PAYMENT_STATUS_UNSPECIFIED": 0,
+		"PAYMENT_STATUS_COMPLETED":   1,
+	}
+)
+
+func (x PaymentStatus) Enum() *PaymentStatus {
+	p := new(PaymentStatus)
+	*p = x
+	return p
+}
+
+func (x PaymentStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PaymentStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_banking_accounts_v1_accounts_proto_enumTypes[2].Descriptor()
+}
+
+func (PaymentStatus) Type() protoreflect.EnumType {
+	return &file_banking_accounts_v1_accounts_proto_enumTypes[2]
+}
+
+func (x PaymentStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PaymentStatus.Descriptor instead.
+func (PaymentStatus) EnumDescriptor() ([]byte, []int) {
+	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{2}
+}
+
 // A bank account owned by one application user.
 type Account struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -557,6 +604,351 @@ func (x *CloseAccountRequest) GetEtag() string {
 	return ""
 }
 
+// A completed payment from an account to a saved beneficiary.
+type Payment struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Canonical resource name, for example payments/01k3example.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Account debited by the payment.
+	SourceAccount string `protobuf:"bytes,2,opt,name=source_account,json=sourceAccount,proto3" json:"source_account,omitempty"`
+	// Saved beneficiary selected by the caller.
+	Beneficiary string `protobuf:"bytes,3,opt,name=beneficiary,proto3" json:"beneficiary,omitempty"`
+	// Positive amount debited from the source account.
+	Amount *money.Money `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	// Optional user-facing payment reference.
+	Reference string `protobuf:"bytes,5,opt,name=reference,proto3" json:"reference,omitempty"`
+	// Current payment lifecycle state.
+	Status PaymentStatus `protobuf:"varint,6,opt,name=status,proto3,enum=banking.accounts.v1.PaymentStatus" json:"status,omitempty"`
+	// Time when the payment completed.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// Caller-provided idempotency key.
+	RequestId     string `protobuf:"bytes,8,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Payment) Reset() {
+	*x = Payment{}
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Payment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Payment) ProtoMessage() {}
+
+func (x *Payment) ProtoReflect() protoreflect.Message {
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Payment.ProtoReflect.Descriptor instead.
+func (*Payment) Descriptor() ([]byte, []int) {
+	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Payment) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Payment) GetSourceAccount() string {
+	if x != nil {
+		return x.SourceAccount
+	}
+	return ""
+}
+
+func (x *Payment) GetBeneficiary() string {
+	if x != nil {
+		return x.Beneficiary
+	}
+	return ""
+}
+
+func (x *Payment) GetAmount() *money.Money {
+	if x != nil {
+		return x.Amount
+	}
+	return nil
+}
+
+func (x *Payment) GetReference() string {
+	if x != nil {
+		return x.Reference
+	}
+	return ""
+}
+
+func (x *Payment) GetStatus() PaymentStatus {
+	if x != nil {
+		return x.Status
+	}
+	return PaymentStatus_PAYMENT_STATUS_UNSPECIFIED
+}
+
+func (x *Payment) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *Payment) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+// Request message for SendPayment.
+type SendPaymentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Account to debit, in the form accounts/{account}.
+	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Saved beneficiary in the form users/{user}/contacts/{contact}.
+	Beneficiary string `protobuf:"bytes,2,opt,name=beneficiary,proto3" json:"beneficiary,omitempty"`
+	// Positive amount to send. Its currency must match the source account.
+	Amount *money.Money `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	// Optional user-facing payment reference, limited to 140 characters.
+	Reference string `protobuf:"bytes,4,opt,name=reference,proto3" json:"reference,omitempty"`
+	// Stable caller-generated idempotency key.
+	RequestId     string `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendPaymentRequest) Reset() {
+	*x = SendPaymentRequest{}
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendPaymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendPaymentRequest) ProtoMessage() {}
+
+func (x *SendPaymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendPaymentRequest.ProtoReflect.Descriptor instead.
+func (*SendPaymentRequest) Descriptor() ([]byte, []int) {
+	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SendPaymentRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *SendPaymentRequest) GetBeneficiary() string {
+	if x != nil {
+		return x.Beneficiary
+	}
+	return ""
+}
+
+func (x *SendPaymentRequest) GetAmount() *money.Money {
+	if x != nil {
+		return x.Amount
+	}
+	return nil
+}
+
+func (x *SendPaymentRequest) GetReference() string {
+	if x != nil {
+		return x.Reference
+	}
+	return ""
+}
+
+func (x *SendPaymentRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+// A completed cash-in operation on an account.
+type Deposit struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Account       string                 `protobuf:"bytes,2,opt,name=account,proto3" json:"account,omitempty"`
+	Amount        *money.Money           `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Reference     string                 `protobuf:"bytes,4,opt,name=reference,proto3" json:"reference,omitempty"`
+	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	RequestId     string                 `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Deposit) Reset() {
+	*x = Deposit{}
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Deposit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Deposit) ProtoMessage() {}
+
+func (x *Deposit) ProtoReflect() protoreflect.Message {
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Deposit.ProtoReflect.Descriptor instead.
+func (*Deposit) Descriptor() ([]byte, []int) {
+	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Deposit) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Deposit) GetAccount() string {
+	if x != nil {
+		return x.Account
+	}
+	return ""
+}
+
+func (x *Deposit) GetAmount() *money.Money {
+	if x != nil {
+		return x.Amount
+	}
+	return nil
+}
+
+func (x *Deposit) GetReference() string {
+	if x != nil {
+		return x.Reference
+	}
+	return ""
+}
+
+func (x *Deposit) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *Deposit) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+// Request message for DepositFunds.
+type DepositFundsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Parent        string                 `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	Amount        *money.Money           `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	Reference     string                 `protobuf:"bytes,3,opt,name=reference,proto3" json:"reference,omitempty"`
+	RequestId     string                 `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DepositFundsRequest) Reset() {
+	*x = DepositFundsRequest{}
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DepositFundsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DepositFundsRequest) ProtoMessage() {}
+
+func (x *DepositFundsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_banking_accounts_v1_accounts_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DepositFundsRequest.ProtoReflect.Descriptor instead.
+func (*DepositFundsRequest) Descriptor() ([]byte, []int) {
+	return file_banking_accounts_v1_accounts_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DepositFundsRequest) GetParent() string {
+	if x != nil {
+		return x.Parent
+	}
+	return ""
+}
+
+func (x *DepositFundsRequest) GetAmount() *money.Money {
+	if x != nil {
+		return x.Amount
+	}
+	return nil
+}
+
+func (x *DepositFundsRequest) GetReference() string {
+	if x != nil {
+		return x.Reference
+	}
+	return ""
+}
+
+func (x *DepositFundsRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
 var File_banking_accounts_v1_accounts_proto protoreflect.FileDescriptor
 
 const file_banking_accounts_v1_accounts_proto_rawDesc = "" +
@@ -600,7 +992,48 @@ const file_banking_accounts_v1_accounts_proto_rawDesc = "" +
 	"\x13CloseAccountRequest\x129\n" +
 	"\x04name\x18\x01 \x01(\tB%\xe0A\x02\xfaA\x1f\n" +
 	"\x1dbanking-on-aspire.dev/AccountR\x04name\x12\x12\n" +
-	"\x04etag\x18\x02 \x01(\tR\x04etag*`\n" +
+	"\x04etag\x18\x02 \x01(\tR\x04etag\"\xff\x03\n" +
+	"\aPayment\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12L\n" +
+	"\x0esource_account\x18\x02 \x01(\tB%\xe0A\x03\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/AccountR\rsourceAccount\x12G\n" +
+	"\vbeneficiary\x18\x03 \x01(\tB%\xe0A\x03\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/ContactR\vbeneficiary\x12/\n" +
+	"\x06amount\x18\x04 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x03R\x06amount\x12!\n" +
+	"\treference\x18\x05 \x01(\tB\x03\xe0A\x03R\treference\x12?\n" +
+	"\x06status\x18\x06 \x01(\x0e2\".banking.accounts.v1.PaymentStatusB\x03\xe0A\x03R\x06status\x12@\n" +
+	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"createTime\x12\"\n" +
+	"\n" +
+	"request_id\x18\b \x01(\tB\x03\xe0A\x03R\trequestId:I\xeaAF\n" +
+	"\x1dbanking-on-aspire.dev/Payment\x12\x12payments/{payment}*\bpayments2\apayment\"\x8f\x02\n" +
+	"\x12SendPaymentRequest\x12=\n" +
+	"\x06parent\x18\x01 \x01(\tB%\xe0A\x02\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/AccountR\x06parent\x12G\n" +
+	"\vbeneficiary\x18\x02 \x01(\tB%\xe0A\x02\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/ContactR\vbeneficiary\x12/\n" +
+	"\x06amount\x18\x03 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x02R\x06amount\x12\x1c\n" +
+	"\treference\x18\x04 \x01(\tR\treference\x12\"\n" +
+	"\n" +
+	"request_id\x18\x05 \x01(\tB\x03\xe0A\x02R\trequestId\"\xe8\x02\n" +
+	"\aDeposit\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12?\n" +
+	"\aaccount\x18\x02 \x01(\tB%\xe0A\x03\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/AccountR\aaccount\x12/\n" +
+	"\x06amount\x18\x03 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x03R\x06amount\x12!\n" +
+	"\treference\x18\x04 \x01(\tB\x03\xe0A\x03R\treference\x12@\n" +
+	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"createTime\x12\"\n" +
+	"\n" +
+	"request_id\x18\x06 \x01(\tB\x03\xe0A\x03R\trequestId:I\xeaAF\n" +
+	"\x1dbanking-on-aspire.dev/Deposit\x12\x12deposits/{deposit}*\bdeposits2\adeposit\"\xc7\x01\n" +
+	"\x13DepositFundsRequest\x12=\n" +
+	"\x06parent\x18\x01 \x01(\tB%\xe0A\x02\xfaA\x1f\n" +
+	"\x1dbanking-on-aspire.dev/AccountR\x06parent\x12/\n" +
+	"\x06amount\x18\x02 \x01(\v2\x12.google.type.MoneyB\x03\xe0A\x02R\x06amount\x12\x1c\n" +
+	"\treference\x18\x03 \x01(\tR\treference\x12\"\n" +
+	"\n" +
+	"request_id\x18\x04 \x01(\tB\x03\xe0A\x02R\trequestId*`\n" +
 	"\vAccountType\x12\x1c\n" +
 	"\x18ACCOUNT_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ACCOUNT_TYPE_CHECKING\x10\x01\x12\x18\n" +
@@ -609,7 +1042,10 @@ const file_banking_accounts_v1_accounts_proto_rawDesc = "" +
 	"\x1aACCOUNT_STATUS_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13ACCOUNT_STATUS_OPEN\x10\x01\x12\x19\n" +
 	"\x15ACCOUNT_STATUS_FROZEN\x10\x02\x12\x19\n" +
-	"\x15ACCOUNT_STATUS_CLOSED\x10\x032\xfd\x04\n" +
+	"\x15ACCOUNT_STATUS_CLOSED\x10\x03*M\n" +
+	"\rPaymentStatus\x12\x1e\n" +
+	"\x1aPAYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18PAYMENT_STATUS_COMPLETED\x10\x012\xb0\a\n" +
 	"\x0fAccountsService\x12\x9d\x01\n" +
 	"\rCreateAccount\x12).banking.accounts.v1.CreateAccountRequest\x1a\x1c.banking.accounts.v1.Account\"C\xc2\xf3\x18\x11\n" +
 	"\x0faccounts.create\x82\xd3\xe4\x93\x02(:\aaccount\"\x1d/v1/{parent=users/*}/accounts\x12\xa5\x01\n" +
@@ -619,8 +1055,13 @@ const file_banking_accounts_v1_accounts_proto_rawDesc = "" +
 	"GetAccount\x12&.banking.accounts.v1.GetAccountRequest\x1a\x1c.banking.accounts.v1.Account\"8\xc2\xf3\x18\x17\n" +
 	"\x15accounts.balance.read\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/{name=accounts/*}\x12\x92\x01\n" +
 	"\fCloseAccount\x12(.banking.accounts.v1.CloseAccountRequest\x1a\x1c.banking.accounts.v1.Account\":\xc2\xf3\x18\x10\n" +
-	"\x0eaccounts.close\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/{name=accounts/*}:closeB\x99\x01\xeaA*\n" +
-	"\x1abanking-on-aspire.dev/User\x12\fusers/{user}ZJdev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1\xaa\x02\x1dBanking.Contracts.Accounts.V1b\x06proto3"
+	"\x0eaccounts.close\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/v1/{name=accounts/*}:close\x12\x94\x01\n" +
+	"\vSendPayment\x12'.banking.accounts.v1.SendPaymentRequest\x1a\x1c.banking.accounts.v1.Payment\">\xc2\xf3\x18\x0f\n" +
+	"\rpayments.send\x82\xd3\xe4\x93\x02%:\x01*\" /v1/{parent=accounts/*}/payments\x12\x99\x01\n" +
+	"\fDepositFunds\x12(.banking.accounts.v1.DepositFundsRequest\x1a\x1c.banking.accounts.v1.Deposit\"A\xc2\xf3\x18\x12\n" +
+	"\x10accounts.deposit\x82\xd3\xe4\x93\x02%:\x01*\" /v1/{parent=accounts/*}/depositsB\xdc\x01\xeaA*\n" +
+	"\x1abanking-on-aspire.dev/User\x12\fusers/{user}\xeaA@\n" +
+	"\x1dbanking-on-aspire.dev/Contact\x12\x1fusers/{user}/contacts/{contact}ZJdev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1\xaa\x02\x1dBanking.Contracts.Accounts.V1b\x06proto3"
 
 var (
 	file_banking_accounts_v1_accounts_proto_rawDescOnce sync.Once
@@ -634,41 +1075,57 @@ func file_banking_accounts_v1_accounts_proto_rawDescGZIP() []byte {
 	return file_banking_accounts_v1_accounts_proto_rawDescData
 }
 
-var file_banking_accounts_v1_accounts_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_banking_accounts_v1_accounts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_banking_accounts_v1_accounts_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_banking_accounts_v1_accounts_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_banking_accounts_v1_accounts_proto_goTypes = []any{
 	(AccountType)(0),              // 0: banking.accounts.v1.AccountType
 	(AccountStatus)(0),            // 1: banking.accounts.v1.AccountStatus
-	(*Account)(nil),               // 2: banking.accounts.v1.Account
-	(*CreateAccountRequest)(nil),  // 3: banking.accounts.v1.CreateAccountRequest
-	(*ListAccountsRequest)(nil),   // 4: banking.accounts.v1.ListAccountsRequest
-	(*ListAccountsResponse)(nil),  // 5: banking.accounts.v1.ListAccountsResponse
-	(*GetAccountRequest)(nil),     // 6: banking.accounts.v1.GetAccountRequest
-	(*CloseAccountRequest)(nil),   // 7: banking.accounts.v1.CloseAccountRequest
-	(*money.Money)(nil),           // 8: google.type.Money
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(PaymentStatus)(0),            // 2: banking.accounts.v1.PaymentStatus
+	(*Account)(nil),               // 3: banking.accounts.v1.Account
+	(*CreateAccountRequest)(nil),  // 4: banking.accounts.v1.CreateAccountRequest
+	(*ListAccountsRequest)(nil),   // 5: banking.accounts.v1.ListAccountsRequest
+	(*ListAccountsResponse)(nil),  // 6: banking.accounts.v1.ListAccountsResponse
+	(*GetAccountRequest)(nil),     // 7: banking.accounts.v1.GetAccountRequest
+	(*CloseAccountRequest)(nil),   // 8: banking.accounts.v1.CloseAccountRequest
+	(*Payment)(nil),               // 9: banking.accounts.v1.Payment
+	(*SendPaymentRequest)(nil),    // 10: banking.accounts.v1.SendPaymentRequest
+	(*Deposit)(nil),               // 11: banking.accounts.v1.Deposit
+	(*DepositFundsRequest)(nil),   // 12: banking.accounts.v1.DepositFundsRequest
+	(*money.Money)(nil),           // 13: google.type.Money
+	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
 }
 var file_banking_accounts_v1_accounts_proto_depIdxs = []int32{
 	0,  // 0: banking.accounts.v1.Account.type:type_name -> banking.accounts.v1.AccountType
 	1,  // 1: banking.accounts.v1.Account.status:type_name -> banking.accounts.v1.AccountStatus
-	8,  // 2: banking.accounts.v1.Account.available_balance:type_name -> google.type.Money
-	9,  // 3: banking.accounts.v1.Account.create_time:type_name -> google.protobuf.Timestamp
-	9,  // 4: banking.accounts.v1.Account.update_time:type_name -> google.protobuf.Timestamp
-	2,  // 5: banking.accounts.v1.CreateAccountRequest.account:type_name -> banking.accounts.v1.Account
-	2,  // 6: banking.accounts.v1.ListAccountsResponse.accounts:type_name -> banking.accounts.v1.Account
-	3,  // 7: banking.accounts.v1.AccountsService.CreateAccount:input_type -> banking.accounts.v1.CreateAccountRequest
-	4,  // 8: banking.accounts.v1.AccountsService.ListAccounts:input_type -> banking.accounts.v1.ListAccountsRequest
-	6,  // 9: banking.accounts.v1.AccountsService.GetAccount:input_type -> banking.accounts.v1.GetAccountRequest
-	7,  // 10: banking.accounts.v1.AccountsService.CloseAccount:input_type -> banking.accounts.v1.CloseAccountRequest
-	2,  // 11: banking.accounts.v1.AccountsService.CreateAccount:output_type -> banking.accounts.v1.Account
-	5,  // 12: banking.accounts.v1.AccountsService.ListAccounts:output_type -> banking.accounts.v1.ListAccountsResponse
-	2,  // 13: banking.accounts.v1.AccountsService.GetAccount:output_type -> banking.accounts.v1.Account
-	2,  // 14: banking.accounts.v1.AccountsService.CloseAccount:output_type -> banking.accounts.v1.Account
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	13, // 2: banking.accounts.v1.Account.available_balance:type_name -> google.type.Money
+	14, // 3: banking.accounts.v1.Account.create_time:type_name -> google.protobuf.Timestamp
+	14, // 4: banking.accounts.v1.Account.update_time:type_name -> google.protobuf.Timestamp
+	3,  // 5: banking.accounts.v1.CreateAccountRequest.account:type_name -> banking.accounts.v1.Account
+	3,  // 6: banking.accounts.v1.ListAccountsResponse.accounts:type_name -> banking.accounts.v1.Account
+	13, // 7: banking.accounts.v1.Payment.amount:type_name -> google.type.Money
+	2,  // 8: banking.accounts.v1.Payment.status:type_name -> banking.accounts.v1.PaymentStatus
+	14, // 9: banking.accounts.v1.Payment.create_time:type_name -> google.protobuf.Timestamp
+	13, // 10: banking.accounts.v1.SendPaymentRequest.amount:type_name -> google.type.Money
+	13, // 11: banking.accounts.v1.Deposit.amount:type_name -> google.type.Money
+	14, // 12: banking.accounts.v1.Deposit.create_time:type_name -> google.protobuf.Timestamp
+	13, // 13: banking.accounts.v1.DepositFundsRequest.amount:type_name -> google.type.Money
+	4,  // 14: banking.accounts.v1.AccountsService.CreateAccount:input_type -> banking.accounts.v1.CreateAccountRequest
+	5,  // 15: banking.accounts.v1.AccountsService.ListAccounts:input_type -> banking.accounts.v1.ListAccountsRequest
+	7,  // 16: banking.accounts.v1.AccountsService.GetAccount:input_type -> banking.accounts.v1.GetAccountRequest
+	8,  // 17: banking.accounts.v1.AccountsService.CloseAccount:input_type -> banking.accounts.v1.CloseAccountRequest
+	10, // 18: banking.accounts.v1.AccountsService.SendPayment:input_type -> banking.accounts.v1.SendPaymentRequest
+	12, // 19: banking.accounts.v1.AccountsService.DepositFunds:input_type -> banking.accounts.v1.DepositFundsRequest
+	3,  // 20: banking.accounts.v1.AccountsService.CreateAccount:output_type -> banking.accounts.v1.Account
+	6,  // 21: banking.accounts.v1.AccountsService.ListAccounts:output_type -> banking.accounts.v1.ListAccountsResponse
+	3,  // 22: banking.accounts.v1.AccountsService.GetAccount:output_type -> banking.accounts.v1.Account
+	3,  // 23: banking.accounts.v1.AccountsService.CloseAccount:output_type -> banking.accounts.v1.Account
+	9,  // 24: banking.accounts.v1.AccountsService.SendPayment:output_type -> banking.accounts.v1.Payment
+	11, // 25: banking.accounts.v1.AccountsService.DepositFunds:output_type -> banking.accounts.v1.Deposit
+	20, // [20:26] is the sub-list for method output_type
+	14, // [14:20] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_banking_accounts_v1_accounts_proto_init() }
@@ -681,8 +1138,8 @@ func file_banking_accounts_v1_accounts_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_banking_accounts_v1_accounts_proto_rawDesc), len(file_banking_accounts_v1_accounts_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   6,
+			NumEnums:      3,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

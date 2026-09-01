@@ -22,6 +22,16 @@ type userResolverStub struct {
 	err      error
 }
 
+type accountValidatorStub struct {
+	err   error
+	calls []string
+}
+
+func (v *accountValidatorStub) ValidateInternalAccount(_ context.Context, name string) error {
+	v.calls = append(v.calls, name)
+	return v.err
+}
+
 func (r userResolverStub) ResolveUserName(context.Context, string) (string, error) {
 	return r.userName, r.err
 }
@@ -163,7 +173,7 @@ func TestContactsRejectAnotherUsersResources(t *testing.T) {
 }
 
 func TestContactsRequireAuthenticatedIdentity(t *testing.T) {
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"})
+	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, &accountValidatorStub{})
 	_, err := service.ListContacts(context.Background(), &contactsv1.ListContactsRequest{Parent: "users/alice"})
 	if status.Code(err) != codes.Unauthenticated {
 		t.Fatalf("code = %v, want %v", status.Code(err), codes.Unauthenticated)
@@ -171,7 +181,7 @@ func TestContactsRequireAuthenticatedIdentity(t *testing.T) {
 }
 
 func TestContactsRejectIdentityWithoutActiveProfile(t *testing.T) {
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{err: contactrepo.ErrUserNotFound})
+	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{err: contactrepo.ErrUserNotFound}, &accountValidatorStub{})
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "unknown-subject"})
 	_, err := service.ListContacts(ctx, &contactsv1.ListContactsRequest{Parent: "users/alice"})
 	if status.Code(err) != codes.PermissionDenied {
@@ -193,6 +203,7 @@ func newTestClient(t *testing.T) contactsv1.ContactsServiceClient {
 	contactsv1.RegisterContactsServiceServer(server, contactservice.New(
 		contactrepo.NewMemory(),
 		userResolverStub{userName: "users/alice"},
+		&accountValidatorStub{},
 	))
 	go func() {
 		if err := server.Serve(listener); err != nil {
@@ -216,4 +227,30 @@ func newTestClient(t *testing.T) contactsv1.ContactsServiceClient {
 		_ = listener.Close()
 	})
 	return contactsv1.NewContactsServiceClient(connection)
+}
+
+func TestCreateContactValidatesInternalAccount(t *testing.T) {
+	validator := &accountValidatorStub{err: status.Error(codes.NotFound, "missing")}
+	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, validator)
+	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "alice-subject"})
+	_, err := service.CreateContact(ctx, &contactsv1.CreateContactRequest{
+		Parent: "users/alice", ContactId: "missing-account",
+		Contact: &contactsv1.Contact{DisplayName: "Missing", Destination: &contactsv1.Contact_InternalAccount{InternalAccount: "accounts/missing"}},
+	})
+	if status.Code(err) != codes.InvalidArgument || len(validator.calls) != 1 || validator.calls[0] != "accounts/missing" {
+		t.Fatalf("code = %v, calls = %v, error = %v", status.Code(err), validator.calls, err)
+	}
+}
+
+func TestCreateExternalContactDoesNotCallAccounts(t *testing.T) {
+	validator := &accountValidatorStub{err: status.Error(codes.Unavailable, "must not be called")}
+	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, validator)
+	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "alice-subject"})
+	_, err := service.CreateContact(ctx, &contactsv1.CreateContactRequest{
+		Parent: "users/alice", ContactId: "external",
+		Contact: &contactsv1.Contact{DisplayName: "External", Destination: &contactsv1.Contact_ExternalAccount{ExternalAccount: &contactsv1.ExternalBankAccount{RoutingNumber: "123", AccountNumber: "456"}}},
+	})
+	if err != nil || len(validator.calls) != 0 {
+		t.Fatalf("error = %v, calls = %v", err, validator.calls)
+	}
 }

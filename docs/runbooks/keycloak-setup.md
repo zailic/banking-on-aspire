@@ -7,7 +7,7 @@ Configure Keycloak so the bank account API can enforce role-based authorization.
 This runbook aligns with the current service assumptions from code:
 - Realm path suffix: /realms/banking-on-aspire
 - Client ID expected by verifier: banking-on-aspire-app
-- Roles checked in client roles: accounts.balance.read, accounts.create, transactions.deposit.create, transactions.withdraw.create, accounts.close, users.profile.read, users.profile.write, contacts.read, contacts.write
+- Roles checked in client roles: accounts.balance.read, accounts.create, accounts.deposit, payments.send, transactions.read, transactions.deposit.create, transactions.withdraw.create, accounts.close, users.profile.read, users.profile.write, contacts.read, contacts.write
 - Preferred username used for account ownership mapping: ionut
 
 Naming note:
@@ -50,6 +50,9 @@ Current ownership mapping:
 4. In client roles, create:
    - accounts.balance.read
    - accounts.create
+   - accounts.deposit
+   - payments.send
+   - transactions.read
    - transactions.deposit.create
    - transactions.withdraw.create
    - accounts.close
@@ -122,9 +125,12 @@ TOKEN="$TOKEN" BASE_URL="http://localhost:8082" scripts/smoke-baseline.sh
 | Endpoint | Method | Required role | Notes |
 |---|---|---|---|
 | /v1/users/{user}/accounts | POST | accounts.create | Administrative account creation with a zero initial balance |
+| /v1/accounts/{account}/payments | POST | payments.send | Sends an idempotent payment to a saved beneficiary |
+| /v1/accounts/{account}/deposits | POST | accounts.deposit | Adds learning-only funds idempotently to an owned account |
+| /v1/users/{user}/transactions | GET | transactions.read | Reads the authenticated user's transaction history |
 | /accounts/{accounts}/balance | GET | accounts.balance.read | Maps to Bank of Anthos-style balance inquiry flow |
 | /accounts/{accounts}/deposit | POST | transactions.deposit.create | Maps to cash-in transaction flow |
-| /accounts/{accounts}/withdraw | POST | transactions.withdraw.create | Maps to cash-out/payment initiation flow |
+| /accounts/{accounts}/withdraw | POST | transactions.withdraw.create | Legacy cash-withdrawal learning flow |
 | /accounts/{accounts}/close | POST | accounts.close | Lifecycle/admin operation, separated from transaction roles |
 
 ## Token Test Matrix

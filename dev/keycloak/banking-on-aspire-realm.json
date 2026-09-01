@@ -449,6 +449,33 @@
           "attributes": {}
         },
         {
+          "id": "0dce0714-4880-4e48-9db8-ccdf2ed912ca",
+          "name": "payments.send",
+          "description": "Send a payment from an owned account to a saved beneficiary",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "599d045f-8175-4b90-bf84-52b2313bba9d",
+          "name": "transactions.read",
+          "description": "Read the authenticated user's transaction history",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "5a63042f-48cb-4990-9508-2de80ff0b91a",
+          "name": "accounts.deposit",
+          "description": "Add demo funds to an owned account",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
           "id": "7bed9ced-911b-48db-957c-9ec18ae4bca2",
           "name": "transactions.withdraw.create",
           "description": "",
@@ -551,7 +578,10 @@
       "clientRoles": {
         "banking-on-aspire-app": [
           "accounts.balance.read",
+          "accounts.deposit",
           "contacts.write",
+          "payments.send",
+          "transactions.read",
           "users.profile.write",
           "contacts.read",
           "users.profile.read"

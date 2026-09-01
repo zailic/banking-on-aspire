@@ -38,11 +38,13 @@ The direct `go run` command is useful for isolated service development. Use
 Expected outcome:
 - AppHost starts successfully.
 - keycloak resource is healthy.
-- postgres and usersdb resources are healthy.
+- postgres, usersdb, transactionsdb, and Redis resources are healthy.
 - contacts-migrations completes successfully before contacts starts.
 - users-migrations completes successfully before users starts.
 - accounts-migrations completes successfully before accounts starts.
-- accounts, accounts-legacy, contacts, users, and their Dapr sidecars are healthy.
+- transactions-migrations completes successfully before transactions starts.
+- accounts, accounts-legacy, contacts, users, transactions, and their Dapr sidecars are healthy.
+- The transactions Dapr log reports a subscription to `payments.sent` through `pubsub`.
 - banking-web is healthy and exposes `https://localhost:7443`.
 
 Use Aspire rather than guessing the dynamically assigned Contacts endpoint:
@@ -98,8 +100,9 @@ aspire wait banking-web
 ```
 
 Open `https://localhost:7443` and sign in. The BFF creates or refreshes the local
-profile, then displays the profile and owned beneficiaries. A fresh Keycloak
-volume imports the callback configuration automatically.
+profile, then displays the profile, owned beneficiaries, accounts, and real
+balances. Authorized users can also create beneficiaries and accounts. A fresh
+Keycloak volume imports the callback configuration automatically.
 
 ## Baseline Checks
 
@@ -166,20 +169,27 @@ Checks:
 
 ### Go service fails with `bind: address already in use`
 
-Each host-native executable needs a distinct internal listening port. Accounts
-uses `8080`; Aspire sets `CONTACTS_PORT=8083` and configures the Contacts Dapr
-sidecar with the same app port. External client ports remain Aspire-managed.
+Each host-native executable needs a distinct internal listening port. Canonical
+Accounts uses `8085`, Contacts uses `8083`, Users uses `8084`, and Transactions
+uses HTTP `8086` for Dapr plus gRPC `8087`. External client ports remain
+Aspire-managed.
 
-### Banking.Web hot reload fails on `localhost:0`
+### Banking.Web watch and hot reload
 
-Kestrel does not support dynamic port binding through the special `localhost`
-host. The Banking.Web launch profiles therefore use `127.0.0.1:0` for their
-Aspire-managed internal HTTP and HTTPS ports. Keep the public browser and OIDC
-origin at `https://localhost:7443`; forwarded headers preserve that external URL.
+Aspire default watch and resource hot reload are separate development loops.
+`features.defaultWatchEnabled` restarts the file-based AppHost when its model
+changes and currently controls C# project resources as well. The Go services are
+registered with `AddExecutable` and are not rebuilt when Go source files change;
+restart the affected resource or use a Go-specific watcher for that service.
 
-If a launch profile is regenerated, avoid values such as
-`http://localhost:0`. Use `http://127.0.0.1:0` (and the HTTPS equivalent) so
-`dotnet watch` can restart the Kestrel child process after a source change.
+If Banking.Web hot reload fails while using `localhost:0`, note that Kestrel does
+not support dynamic port binding through the special `localhost` host. Replace
+the affected internal launch-profile URLs with `127.0.0.1:0`. Keep the public
+browser and OIDC origin at `https://localhost:7443`; forwarded headers preserve
+that external URL.
+
+With fixed internal ports, `localhost` is valid, but parallel or isolated Aspire
+instances can conflict on those ports.
 
 ## Evidence to capture
 

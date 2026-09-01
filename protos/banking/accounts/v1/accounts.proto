@@ -16,6 +16,11 @@ option (google.api.resource_definition) = {
   type: "banking-on-aspire.dev/User"
   pattern: "users/{user}"
 };
+// Identifies a beneficiary managed by the Contacts service.
+option (google.api.resource_definition) = {
+  type: "banking-on-aspire.dev/Contact"
+  pattern: "users/{user}/contacts/{contact}"
+};
 
 // Manages bank accounts owned by application users.
 service AccountsService {
@@ -47,6 +52,24 @@ service AccountsService {
       body: "*"
     };
     option (banking.auth.v1.authorization) = {required_permissions: "accounts.close"};
+  }
+
+  // Sends a payment from an owned account to a saved beneficiary.
+  rpc SendPayment(SendPaymentRequest) returns (Payment) {
+    option (google.api.http) = {
+      post: "/v1/{parent=accounts/*}/payments"
+      body: "*"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "payments.send"};
+  }
+
+  // Adds funds to an owned account for the local learning cash-in flow.
+  rpc DepositFunds(DepositFundsRequest) returns (Deposit) {
+    option (google.api.http) = {
+      post: "/v1/{parent=accounts/*}/deposits"
+      body: "*"
+    };
+    option (banking.auth.v1.authorization) = {required_permissions: "accounts.deposit"};
   }
 }
 
@@ -189,4 +212,105 @@ message CloseAccountRequest {
 
   // Optional entity tag used to reject a stale close request.
   string etag = 2;
+}
+
+// A completed payment from an account to a saved beneficiary.
+message Payment {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/Payment"
+    pattern: "payments/{payment}"
+    singular: "payment"
+    plural: "payments"
+  };
+
+  // Canonical resource name, for example payments/01k3example.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  // Account debited by the payment.
+  string source_account = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+
+  // Saved beneficiary selected by the caller.
+  string beneficiary = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Contact"
+  ];
+
+  // Positive amount debited from the source account.
+  google.type.Money amount = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Optional user-facing payment reference.
+  string reference = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Current payment lifecycle state.
+  PaymentStatus status = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Time when the payment completed.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Caller-provided idempotency key.
+  string request_id = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Lifecycle state of a payment.
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_COMPLETED = 1;
+}
+
+// Request message for SendPayment.
+message SendPaymentRequest {
+  // Account to debit, in the form accounts/{account}.
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+
+  // Saved beneficiary in the form users/{user}/contacts/{contact}.
+  string beneficiary = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Contact"
+  ];
+
+  // Positive amount to send. Its currency must match the source account.
+  google.type.Money amount = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional user-facing payment reference, limited to 140 characters.
+  string reference = 4;
+
+  // Stable caller-generated idempotency key.
+  string request_id = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+// A completed cash-in operation on an account.
+message Deposit {
+  option (google.api.resource) = {
+    type: "banking-on-aspire.dev/Deposit"
+    pattern: "deposits/{deposit}"
+    singular: "deposit"
+    plural: "deposits"
+  };
+
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string account = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+  google.type.Money amount = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string reference = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string request_id = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Request message for DepositFunds.
+message DepositFundsRequest {
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "banking-on-aspire.dev/Account"
+  ];
+  google.type.Money amount = 2 [(google.api.field_behavior) = REQUIRED];
+  string reference = 3;
+  string request_id = 4 [(google.api.field_behavior) = REQUIRED];
 }

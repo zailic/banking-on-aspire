@@ -15,13 +15,18 @@ This document consolidates the current planning, onboarding, and operational not
 - [03-local-development-and-smoke.md](03-local-development-and-smoke.md)
 
 ## Status
-- M0, M1, and M2 are complete; domain decomposition is in progress with Users
-  and Contacts running independently.
+- M0, M1, and M2 are complete.
+- The authenticated Banking.Web/BFF slice is implemented and integrates Users,
+  Contacts, and the canonical Accounts gRPC service.
+- Domain decomposition is in progress with Users, Contacts, and Accounts running
+  independently. Transactions has not been implemented yet.
 - The specs include boundaries, requirements, design, acceptance criteria,
   resolved questions, and implementation tasks.
 
 ## Next Implementation Backlog
-1. Add the first authenticated frontend/BFF vertical slice.
-2. Modernize Accounts around protobuf contracts, `sub` ownership, and explicit persistence.
-3. Introduce an account event and idempotent Transactions read-model consumer.
-4. Keep the OpenSpec documents updated as each milestone is implemented.
+1. Define the Transactions protobuf API and the first versioned account event.
+2. Add a justified Dapr pub/sub component owned by the account-to-transactions flow.
+3. Implement an idempotent Transactions read-model consumer and persistence model.
+4. Expose transaction history through the BFF and replace the recent-activity placeholder.
+5. Add automated event duplication, authorization, and end-to-end smoke coverage.
+6. Keep the OpenSpec documents updated as each milestone is implemented.

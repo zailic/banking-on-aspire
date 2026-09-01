@@ -1,5 +1,6 @@
 using Banking.Contracts.Accounts.V1;
 using Banking.Contracts.Contacts.V1;
+using Banking.Contracts.Transactions.V1;
 using Banking.Contracts.Users.V1;
 using Banking.Web.Auth;
 using Grpc.Core;
@@ -37,10 +38,19 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
                 cancellationToken: cancellationToken).ResponseAsync,
             cancellationToken);
 
+        using var transactionsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:TransactionsUrl"));
+        var transactions = new TransactionsService.TransactionsServiceClient(transactionsChannel);
+        var transactionsResponse = await ExecuteAuthenticatedAsync(
+            headers => transactions.ListTransactionsAsync(
+                new ListTransactionsRequest { Parent = user.Name, PageSize = 10 }, headers,
+                cancellationToken: cancellationToken).ResponseAsync,
+            cancellationToken);
+
         return new BankingDashboard(
             user,
             [.. accountsResponse.Accounts],
-            [.. contactsResponse.Contacts]);
+            [.. contactsResponse.Contacts],
+            [.. transactionsResponse.Transactions]);
     }
 
     public async Task<Contact> CreateContactAsync(
@@ -112,6 +122,69 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
             cancellationToken);
     }
 
+    public async Task<Payment> SendPaymentAsync(
+        SendPaymentCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        Validator.ValidateObject(command, new ValidationContext(command), validateAllProperties: true);
+        var amount = decimal.Round(command.Amount, 2, MidpointRounding.AwayFromZero);
+        var units = decimal.ToInt64(decimal.Truncate(amount));
+        var nanos = decimal.ToInt32((amount - units) * 1_000_000_000m);
+        using var accountsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:AccountsUrl"));
+        var accounts = new AccountsService.AccountsServiceClient(accountsChannel);
+        return await ExecuteAuthenticatedAsync(
+            headers => accounts.SendPaymentAsync(
+                new SendPaymentRequest
+                {
+                    Parent = command.SourceAccount.Trim(),
+                    Beneficiary = command.Beneficiary.Trim(),
+                    Amount = new Google.Type.Money
+                    {
+                        CurrencyCode = command.CurrencyCode.Trim().ToUpperInvariant(),
+                        Units = units,
+                        Nanos = nanos
+                    },
+                    Reference = command.Reference.Trim(),
+                    RequestId = string.IsNullOrWhiteSpace(command.RequestId)
+                        ? Guid.NewGuid().ToString("N")
+                        : command.RequestId.Trim()
+                },
+                headers,
+                cancellationToken: cancellationToken).ResponseAsync,
+            cancellationToken);
+    }
+
+    public async Task<Deposit> DepositFundsAsync(
+        DepositFundsCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        Validator.ValidateObject(command, new ValidationContext(command), validateAllProperties: true);
+        var amount = decimal.Round(command.Amount, 2, MidpointRounding.AwayFromZero);
+        var units = decimal.ToInt64(decimal.Truncate(amount));
+        var nanos = decimal.ToInt32((amount - units) * 1_000_000_000m);
+        using var accountsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:AccountsUrl"));
+        var accounts = new AccountsService.AccountsServiceClient(accountsChannel);
+        return await ExecuteAuthenticatedAsync(
+            headers => accounts.DepositFundsAsync(
+                new DepositFundsRequest
+                {
+                    Parent = command.Account.Trim(),
+                    Amount = new Google.Type.Money
+                    {
+                        CurrencyCode = command.CurrencyCode.Trim().ToUpperInvariant(),
+                        Units = units,
+                        Nanos = nanos
+                    },
+                    Reference = command.Reference.Trim(),
+                    RequestId = string.IsNullOrWhiteSpace(command.RequestId)
+                        ? Guid.NewGuid().ToString("N")
+                        : command.RequestId.Trim()
+                },
+                headers,
+                cancellationToken: cancellationToken).ResponseAsync,
+            cancellationToken);
+    }
+
     private async Task<T> ExecuteAuthenticatedAsync<T>(
         Func<Metadata, Task<T>> operation,
         CancellationToken cancellationToken)
@@ -176,7 +249,8 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
 public sealed record BankingDashboard(
     User User,
     IReadOnlyList<Account> Accounts,
-    IReadOnlyList<Contact> Contacts);
+    IReadOnlyList<Contact> Contacts,
+    IReadOnlyList<Transaction> Transactions);
 
 public enum ContactDestinationType
 {
@@ -238,4 +312,41 @@ public sealed class CreateAccountCommand
 
     [RegularExpression(@"^$|^[a-z][a-z0-9-]{0,62}$", ErrorMessage = "Use lowercase letters, digits and hyphens; start with a letter.")]
     public string AccountId { get; set; } = "";
+}
+
+public sealed class SendPaymentCommand
+{
+    [Required, RegularExpression(@"^accounts/[^/]+$", ErrorMessage = "Select a source account.")]
+    public string SourceAccount { get; set; } = "";
+
+    [Required, RegularExpression(@"^users/[^/]+/contacts/[^/]+$", ErrorMessage = "Select a beneficiary.")]
+    public string Beneficiary { get; set; } = "";
+
+    [Range(typeof(decimal), "0.01", "999999999999999999", ErrorMessage = "Enter an amount greater than zero.")]
+    public decimal Amount { get; set; }
+
+    [Required, RegularExpression(@"^[A-Za-z]{3}$")]
+    public string CurrencyCode { get; set; } = "RON";
+
+    [StringLength(140)]
+    public string Reference { get; set; } = "";
+
+    public string RequestId { get; set; } = "";
+}
+
+public sealed class DepositFundsCommand
+{
+    [Required, RegularExpression(@"^accounts/[^/]+$", ErrorMessage = "Select an account.")]
+    public string Account { get; set; } = "";
+
+    [Range(typeof(decimal), "0.01", "999999999999999999", ErrorMessage = "Enter an amount greater than zero.")]
+    public decimal Amount { get; set; }
+
+    [Required, RegularExpression(@"^[A-Za-z]{3}$")]
+    public string CurrencyCode { get; set; } = "RON";
+
+    [StringLength(140)]
+    public string Reference { get; set; } = "Demo cash-in";
+
+    public string RequestId { get; set; } = "";
 }

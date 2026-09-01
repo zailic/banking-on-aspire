@@ -23,6 +23,8 @@ const (
 	AccountsService_ListAccounts_FullMethodName  = "/banking.accounts.v1.AccountsService/ListAccounts"
 	AccountsService_GetAccount_FullMethodName    = "/banking.accounts.v1.AccountsService/GetAccount"
 	AccountsService_CloseAccount_FullMethodName  = "/banking.accounts.v1.AccountsService/CloseAccount"
+	AccountsService_SendPayment_FullMethodName   = "/banking.accounts.v1.AccountsService/SendPayment"
+	AccountsService_DepositFunds_FullMethodName  = "/banking.accounts.v1.AccountsService/DepositFunds"
 )
 
 // AccountsServiceClient is the client API for AccountsService service.
@@ -39,6 +41,10 @@ type AccountsServiceClient interface {
 	GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*Account, error)
 	// Permanently closes an account while retaining its audit history.
 	CloseAccount(ctx context.Context, in *CloseAccountRequest, opts ...grpc.CallOption) (*Account, error)
+	// Sends a payment from an owned account to a saved beneficiary.
+	SendPayment(ctx context.Context, in *SendPaymentRequest, opts ...grpc.CallOption) (*Payment, error)
+	// Adds funds to an owned account for the local learning cash-in flow.
+	DepositFunds(ctx context.Context, in *DepositFundsRequest, opts ...grpc.CallOption) (*Deposit, error)
 }
 
 type accountsServiceClient struct {
@@ -89,6 +95,26 @@ func (c *accountsServiceClient) CloseAccount(ctx context.Context, in *CloseAccou
 	return out, nil
 }
 
+func (c *accountsServiceClient) SendPayment(ctx context.Context, in *SendPaymentRequest, opts ...grpc.CallOption) (*Payment, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Payment)
+	err := c.cc.Invoke(ctx, AccountsService_SendPayment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountsServiceClient) DepositFunds(ctx context.Context, in *DepositFundsRequest, opts ...grpc.CallOption) (*Deposit, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Deposit)
+	err := c.cc.Invoke(ctx, AccountsService_DepositFunds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountsServiceServer is the server API for AccountsService service.
 // All implementations must embed UnimplementedAccountsServiceServer
 // for forward compatibility.
@@ -103,6 +129,10 @@ type AccountsServiceServer interface {
 	GetAccount(context.Context, *GetAccountRequest) (*Account, error)
 	// Permanently closes an account while retaining its audit history.
 	CloseAccount(context.Context, *CloseAccountRequest) (*Account, error)
+	// Sends a payment from an owned account to a saved beneficiary.
+	SendPayment(context.Context, *SendPaymentRequest) (*Payment, error)
+	// Adds funds to an owned account for the local learning cash-in flow.
+	DepositFunds(context.Context, *DepositFundsRequest) (*Deposit, error)
 	mustEmbedUnimplementedAccountsServiceServer()
 }
 
@@ -124,6 +154,12 @@ func (UnimplementedAccountsServiceServer) GetAccount(context.Context, *GetAccoun
 }
 func (UnimplementedAccountsServiceServer) CloseAccount(context.Context, *CloseAccountRequest) (*Account, error) {
 	return nil, status.Error(codes.Unimplemented, "method CloseAccount not implemented")
+}
+func (UnimplementedAccountsServiceServer) SendPayment(context.Context, *SendPaymentRequest) (*Payment, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendPayment not implemented")
+}
+func (UnimplementedAccountsServiceServer) DepositFunds(context.Context, *DepositFundsRequest) (*Deposit, error) {
+	return nil, status.Error(codes.Unimplemented, "method DepositFunds not implemented")
 }
 func (UnimplementedAccountsServiceServer) mustEmbedUnimplementedAccountsServiceServer() {}
 func (UnimplementedAccountsServiceServer) testEmbeddedByValue()                         {}
@@ -218,6 +254,42 @@ func _AccountsService_CloseAccount_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccountsService_SendPayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendPaymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountsServiceServer).SendPayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccountsService_SendPayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountsServiceServer).SendPayment(ctx, req.(*SendPaymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccountsService_DepositFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DepositFundsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountsServiceServer).DepositFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccountsService_DepositFunds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountsServiceServer).DepositFunds(ctx, req.(*DepositFundsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AccountsService_ServiceDesc is the grpc.ServiceDesc for AccountsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +312,14 @@ var AccountsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CloseAccount",
 			Handler:    _AccountsService_CloseAccount_Handler,
+		},
+		{
+			MethodName: "SendPayment",
+			Handler:    _AccountsService_SendPayment_Handler,
+		},
+		{
+			MethodName: "DepositFunds",
+			Handler:    _AccountsService_DepositFunds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

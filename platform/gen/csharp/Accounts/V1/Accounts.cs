@@ -57,39 +57,83 @@ namespace Banking.Contracts.Accounts.V1 {
             "bnRSZXF1ZXN0EjkKBG5hbWUYASABKAlCJeBBAvpBHwodYmFua2luZy1vbi1h",
             "c3BpcmUuZGV2L0FjY291bnRSBG5hbWUiZAoTQ2xvc2VBY2NvdW50UmVxdWVz",
             "dBI5CgRuYW1lGAEgASgJQiXgQQL6QR8KHWJhbmtpbmctb24tYXNwaXJlLmRl",
-            "di9BY2NvdW50UgRuYW1lEhIKBGV0YWcYAiABKAlSBGV0YWcqYAoLQWNjb3Vu",
-            "dFR5cGUSHAoYQUNDT1VOVF9UWVBFX1VOU1BFQ0lGSUVEEAASGQoVQUNDT1VO",
-            "VF9UWVBFX0NIRUNLSU5HEAESGAoUQUNDT1VOVF9UWVBFX1NBVklOR1MQAip+",
-            "Cg1BY2NvdW50U3RhdHVzEh4KGkFDQ09VTlRfU1RBVFVTX1VOU1BFQ0lGSUVE",
-            "EAASFwoTQUNDT1VOVF9TVEFUVVNfT1BFThABEhkKFUFDQ09VTlRfU1RBVFVT",
-            "X0ZST1pFThACEhkKFUFDQ09VTlRfU1RBVFVTX0NMT1NFRBADMv0ECg9BY2Nv",
-            "dW50c1NlcnZpY2USnQEKDUNyZWF0ZUFjY291bnQSKS5iYW5raW5nLmFjY291",
-            "bnRzLnYxLkNyZWF0ZUFjY291bnRSZXF1ZXN0GhwuYmFua2luZy5hY2NvdW50",
-            "cy52MS5BY2NvdW50IkPC8xgRCg9hY2NvdW50cy5jcmVhdGWC0+STAigiHS92",
-            "MS97cGFyZW50PXVzZXJzLyp9L2FjY291bnRzOgdhY2NvdW50EqUBCgxMaXN0",
-            "QWNjb3VudHMSKC5iYW5raW5nLmFjY291bnRzLnYxLkxpc3RBY2NvdW50c1Jl",
-            "cXVlc3QaKS5iYW5raW5nLmFjY291bnRzLnYxLkxpc3RBY2NvdW50c1Jlc3Bv",
-            "bnNlIkDC8xgXChVhY2NvdW50cy5iYWxhbmNlLnJlYWSC0+STAh8SHS92MS97",
-            "cGFyZW50PXVzZXJzLyp9L2FjY291bnRzEowBCgpHZXRBY2NvdW50EiYuYmFu",
-            "a2luZy5hY2NvdW50cy52MS5HZXRBY2NvdW50UmVxdWVzdBocLmJhbmtpbmcu",
-            "YWNjb3VudHMudjEuQWNjb3VudCI4wvMYFwoVYWNjb3VudHMuYmFsYW5jZS5y",
-            "ZWFkgtPkkwIXEhUvdjEve25hbWU9YWNjb3VudHMvKn0SkgEKDENsb3NlQWNj",
-            "b3VudBIoLmJhbmtpbmcuYWNjb3VudHMudjEuQ2xvc2VBY2NvdW50UmVxdWVz",
-            "dBocLmJhbmtpbmcuYWNjb3VudHMudjEuQWNjb3VudCI6wvMYEAoOYWNjb3Vu",
-            "dHMuY2xvc2WC0+STAiAiGy92MS97bmFtZT1hY2NvdW50cy8qfTpjbG9zZToB",
-            "KkKZAVpKZGV2LmxvY2FsL2Jhbmtpbmctb24tYXNwaXJlL3BsYXRmb3JtL2dl",
-            "bi9nby9iYW5raW5nL2FjY291bnRzL3YxO2FjY291bnRzdjGqAh1CYW5raW5n",
-            "LkNvbnRyYWN0cy5BY2NvdW50cy5WMepBKgoaYmFua2luZy1vbi1hc3BpcmUu",
-            "ZGV2L1VzZXISDHVzZXJzL3t1c2VyfWIGcHJvdG8z"));
+            "di9BY2NvdW50UgRuYW1lEhIKBGV0YWcYAiABKAlSBGV0YWci/wMKB1BheW1l",
+            "bnQSFwoEbmFtZRgBIAEoCUID4EEIUgRuYW1lEkwKDnNvdXJjZV9hY2NvdW50",
+            "GAIgASgJQiXgQQP6QR8KHWJhbmtpbmctb24tYXNwaXJlLmRldi9BY2NvdW50",
+            "Ug1zb3VyY2VBY2NvdW50EkcKC2JlbmVmaWNpYXJ5GAMgASgJQiXgQQP6QR8K",
+            "HWJhbmtpbmctb24tYXNwaXJlLmRldi9Db250YWN0UgtiZW5lZmljaWFyeRIv",
+            "CgZhbW91bnQYBCABKAsyEi5nb29nbGUudHlwZS5Nb25leUID4EEDUgZhbW91",
+            "bnQSIQoJcmVmZXJlbmNlGAUgASgJQgPgQQNSCXJlZmVyZW5jZRI/CgZzdGF0",
+            "dXMYBiABKA4yIi5iYW5raW5nLmFjY291bnRzLnYxLlBheW1lbnRTdGF0dXNC",
+            "A+BBA1IGc3RhdHVzEkAKC2NyZWF0ZV90aW1lGAcgASgLMhouZ29vZ2xlLnBy",
+            "b3RvYnVmLlRpbWVzdGFtcEID4EEDUgpjcmVhdGVUaW1lEiIKCnJlcXVlc3Rf",
+            "aWQYCCABKAlCA+BBA1IJcmVxdWVzdElkOknqQUYKHWJhbmtpbmctb24tYXNw",
+            "aXJlLmRldi9QYXltZW50EhJwYXltZW50cy97cGF5bWVudH0qCHBheW1lbnRz",
+            "MgdwYXltZW50Io8CChJTZW5kUGF5bWVudFJlcXVlc3QSPQoGcGFyZW50GAEg",
+            "ASgJQiXgQQL6QR8KHWJhbmtpbmctb24tYXNwaXJlLmRldi9BY2NvdW50UgZw",
+            "YXJlbnQSRwoLYmVuZWZpY2lhcnkYAiABKAlCJeBBAvpBHwodYmFua2luZy1v",
+            "bi1hc3BpcmUuZGV2L0NvbnRhY3RSC2JlbmVmaWNpYXJ5Ei8KBmFtb3VudBgD",
+            "IAEoCzISLmdvb2dsZS50eXBlLk1vbmV5QgPgQQJSBmFtb3VudBIcCglyZWZl",
+            "cmVuY2UYBCABKAlSCXJlZmVyZW5jZRIiCgpyZXF1ZXN0X2lkGAUgASgJQgPg",
+            "QQJSCXJlcXVlc3RJZCLoAgoHRGVwb3NpdBIXCgRuYW1lGAEgASgJQgPgQQhS",
+            "BG5hbWUSPwoHYWNjb3VudBgCIAEoCUIl4EED+kEfCh1iYW5raW5nLW9uLWFz",
+            "cGlyZS5kZXYvQWNjb3VudFIHYWNjb3VudBIvCgZhbW91bnQYAyABKAsyEi5n",
+            "b29nbGUudHlwZS5Nb25leUID4EEDUgZhbW91bnQSIQoJcmVmZXJlbmNlGAQg",
+            "ASgJQgPgQQNSCXJlZmVyZW5jZRJACgtjcmVhdGVfdGltZRgFIAEoCzIaLmdv",
+            "b2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBA1IKY3JlYXRlVGltZRIiCgpy",
+            "ZXF1ZXN0X2lkGAYgASgJQgPgQQNSCXJlcXVlc3RJZDpJ6kFGCh1iYW5raW5n",
+            "LW9uLWFzcGlyZS5kZXYvRGVwb3NpdBISZGVwb3NpdHMve2RlcG9zaXR9Kghk",
+            "ZXBvc2l0czIHZGVwb3NpdCLHAQoTRGVwb3NpdEZ1bmRzUmVxdWVzdBI9CgZw",
+            "YXJlbnQYASABKAlCJeBBAvpBHwodYmFua2luZy1vbi1hc3BpcmUuZGV2L0Fj",
+            "Y291bnRSBnBhcmVudBIvCgZhbW91bnQYAiABKAsyEi5nb29nbGUudHlwZS5N",
+            "b25leUID4EECUgZhbW91bnQSHAoJcmVmZXJlbmNlGAMgASgJUglyZWZlcmVu",
+            "Y2USIgoKcmVxdWVzdF9pZBgEIAEoCUID4EECUglyZXF1ZXN0SWQqYAoLQWNj",
+            "b3VudFR5cGUSHAoYQUNDT1VOVF9UWVBFX1VOU1BFQ0lGSUVEEAASGQoVQUND",
+            "T1VOVF9UWVBFX0NIRUNLSU5HEAESGAoUQUNDT1VOVF9UWVBFX1NBVklOR1MQ",
+            "Aip+Cg1BY2NvdW50U3RhdHVzEh4KGkFDQ09VTlRfU1RBVFVTX1VOU1BFQ0lG",
+            "SUVEEAASFwoTQUNDT1VOVF9TVEFUVVNfT1BFThABEhkKFUFDQ09VTlRfU1RB",
+            "VFVTX0ZST1pFThACEhkKFUFDQ09VTlRfU1RBVFVTX0NMT1NFRBADKk0KDVBh",
+            "eW1lbnRTdGF0dXMSHgoaUEFZTUVOVF9TVEFUVVNfVU5TUEVDSUZJRUQQABIc",
+            "ChhQQVlNRU5UX1NUQVRVU19DT01QTEVURUQQATKwBwoPQWNjb3VudHNTZXJ2",
+            "aWNlEp0BCg1DcmVhdGVBY2NvdW50EikuYmFua2luZy5hY2NvdW50cy52MS5D",
+            "cmVhdGVBY2NvdW50UmVxdWVzdBocLmJhbmtpbmcuYWNjb3VudHMudjEuQWNj",
+            "b3VudCJDwvMYEQoPYWNjb3VudHMuY3JlYXRlgtPkkwIoIh0vdjEve3BhcmVu",
+            "dD11c2Vycy8qfS9hY2NvdW50czoHYWNjb3VudBKlAQoMTGlzdEFjY291bnRz",
+            "EiguYmFua2luZy5hY2NvdW50cy52MS5MaXN0QWNjb3VudHNSZXF1ZXN0Giku",
+            "YmFua2luZy5hY2NvdW50cy52MS5MaXN0QWNjb3VudHNSZXNwb25zZSJAwvMY",
+            "FwoVYWNjb3VudHMuYmFsYW5jZS5yZWFkgtPkkwIfEh0vdjEve3BhcmVudD11",
+            "c2Vycy8qfS9hY2NvdW50cxKMAQoKR2V0QWNjb3VudBImLmJhbmtpbmcuYWNj",
+            "b3VudHMudjEuR2V0QWNjb3VudFJlcXVlc3QaHC5iYW5raW5nLmFjY291bnRz",
+            "LnYxLkFjY291bnQiOMLzGBcKFWFjY291bnRzLmJhbGFuY2UucmVhZILT5JMC",
+            "FxIVL3YxL3tuYW1lPWFjY291bnRzLyp9EpIBCgxDbG9zZUFjY291bnQSKC5i",
+            "YW5raW5nLmFjY291bnRzLnYxLkNsb3NlQWNjb3VudFJlcXVlc3QaHC5iYW5r",
+            "aW5nLmFjY291bnRzLnYxLkFjY291bnQiOsLzGBAKDmFjY291bnRzLmNsb3Nl",
+            "gtPkkwIgIhsvdjEve25hbWU9YWNjb3VudHMvKn06Y2xvc2U6ASoSlAEKC1Nl",
+            "bmRQYXltZW50EicuYmFua2luZy5hY2NvdW50cy52MS5TZW5kUGF5bWVudFJl",
+            "cXVlc3QaHC5iYW5raW5nLmFjY291bnRzLnYxLlBheW1lbnQiPsLzGA8KDXBh",
+            "eW1lbnRzLnNlbmSC0+STAiUiIC92MS97cGFyZW50PWFjY291bnRzLyp9L3Bh",
+            "eW1lbnRzOgEqEpkBCgxEZXBvc2l0RnVuZHMSKC5iYW5raW5nLmFjY291bnRz",
+            "LnYxLkRlcG9zaXRGdW5kc1JlcXVlc3QaHC5iYW5raW5nLmFjY291bnRzLnYx",
+            "LkRlcG9zaXQiQcLzGBIKEGFjY291bnRzLmRlcG9zaXSC0+STAiUiIC92MS97",
+            "cGFyZW50PWFjY291bnRzLyp9L2RlcG9zaXRzOgEqQtwBWkpkZXYubG9jYWwv",
+            "YmFua2luZy1vbi1hc3BpcmUvcGxhdGZvcm0vZ2VuL2dvL2JhbmtpbmcvYWNj",
+            "b3VudHMvdjE7YWNjb3VudHN2MaoCHUJhbmtpbmcuQ29udHJhY3RzLkFjY291",
+            "bnRzLlYx6kEqChpiYW5raW5nLW9uLWFzcGlyZS5kZXYvVXNlchIMdXNlcnMv",
+            "e3VzZXJ96kFACh1iYW5raW5nLW9uLWFzcGlyZS5kZXYvQ29udGFjdBIfdXNl",
+            "cnMve3VzZXJ9L2NvbnRhY3RzL3tjb250YWN0fWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Banking.Contracts.Auth.V1.AuthorizationReflection.Descriptor, global::Google.Api.AnnotationsReflection.Descriptor, global::Google.Api.FieldBehaviorReflection.Descriptor, global::Google.Api.ResourceReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, global::Google.Type.MoneyReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Banking.Contracts.Accounts.V1.AccountType), typeof(global::Banking.Contracts.Accounts.V1.AccountStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Banking.Contracts.Accounts.V1.AccountType), typeof(global::Banking.Contracts.Accounts.V1.AccountStatus), typeof(global::Banking.Contracts.Accounts.V1.PaymentStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.Account), global::Banking.Contracts.Accounts.V1.Account.Parser, new[]{ "Name", "Owner", "DisplayName", "Type", "Status", "AvailableBalance", "CreateTime", "UpdateTime", "Etag", "AccountNumber", "CurrencyCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.CreateAccountRequest), global::Banking.Contracts.Accounts.V1.CreateAccountRequest.Parser, new[]{ "Parent", "Account", "AccountId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.ListAccountsRequest), global::Banking.Contracts.Accounts.V1.ListAccountsRequest.Parser, new[]{ "Parent", "PageSize", "PageToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.ListAccountsResponse), global::Banking.Contracts.Accounts.V1.ListAccountsResponse.Parser, new[]{ "Accounts", "NextPageToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.GetAccountRequest), global::Banking.Contracts.Accounts.V1.GetAccountRequest.Parser, new[]{ "Name" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.CloseAccountRequest), global::Banking.Contracts.Accounts.V1.CloseAccountRequest.Parser, new[]{ "Name", "Etag" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.CloseAccountRequest), global::Banking.Contracts.Accounts.V1.CloseAccountRequest.Parser, new[]{ "Name", "Etag" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.Payment), global::Banking.Contracts.Accounts.V1.Payment.Parser, new[]{ "Name", "SourceAccount", "Beneficiary", "Amount", "Reference", "Status", "CreateTime", "RequestId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.SendPaymentRequest), global::Banking.Contracts.Accounts.V1.SendPaymentRequest.Parser, new[]{ "Parent", "Beneficiary", "Amount", "Reference", "RequestId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.Deposit), global::Banking.Contracts.Accounts.V1.Deposit.Parser, new[]{ "Name", "Account", "Amount", "Reference", "CreateTime", "RequestId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Banking.Contracts.Accounts.V1.DepositFundsRequest), global::Banking.Contracts.Accounts.V1.DepositFundsRequest.Parser, new[]{ "Parent", "Amount", "Reference", "RequestId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -134,6 +178,14 @@ namespace Banking.Contracts.Accounts.V1 {
     /// The account has been permanently closed.
     /// </summary>
     [pbr::OriginalName("ACCOUNT_STATUS_CLOSED")] Closed = 3,
+  }
+
+  /// <summary>
+  /// Lifecycle state of a payment.
+  /// </summary>
+  public enum PaymentStatus {
+    [pbr::OriginalName("PAYMENT_STATUS_UNSPECIFIED")] Unspecified = 0,
+    [pbr::OriginalName("PAYMENT_STATUS_COMPLETED")] Completed = 1,
   }
 
   #endregion
@@ -2021,6 +2073,1606 @@ namespace Banking.Contracts.Accounts.V1 {
           }
           case 18: {
             Etag = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// A completed payment from an account to a saved beneficiary.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Payment : pb::IMessage<Payment>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<Payment> _parser = new pb::MessageParser<Payment>(() => new Payment());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<Payment> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Banking.Contracts.Accounts.V1.AccountsReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Payment() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Payment(Payment other) : this() {
+      name_ = other.name_;
+      sourceAccount_ = other.sourceAccount_;
+      beneficiary_ = other.beneficiary_;
+      amount_ = other.amount_ != null ? other.amount_.Clone() : null;
+      reference_ = other.reference_;
+      status_ = other.status_;
+      createTime_ = other.createTime_ != null ? other.createTime_.Clone() : null;
+      requestId_ = other.requestId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Payment Clone() {
+      return new Payment(this);
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private string name_ = "";
+    /// <summary>
+    /// Canonical resource name, for example payments/01k3example.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "source_account" field.</summary>
+    public const int SourceAccountFieldNumber = 2;
+    private string sourceAccount_ = "";
+    /// <summary>
+    /// Account debited by the payment.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SourceAccount {
+      get { return sourceAccount_; }
+      set {
+        sourceAccount_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "beneficiary" field.</summary>
+    public const int BeneficiaryFieldNumber = 3;
+    private string beneficiary_ = "";
+    /// <summary>
+    /// Saved beneficiary selected by the caller.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Beneficiary {
+      get { return beneficiary_; }
+      set {
+        beneficiary_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 4;
+    private global::Google.Type.Money amount_;
+    /// <summary>
+    /// Positive amount debited from the source account.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Type.Money Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reference" field.</summary>
+    public const int ReferenceFieldNumber = 5;
+    private string reference_ = "";
+    /// <summary>
+    /// Optional user-facing payment reference.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reference {
+      get { return reference_; }
+      set {
+        reference_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "status" field.</summary>
+    public const int StatusFieldNumber = 6;
+    private global::Banking.Contracts.Accounts.V1.PaymentStatus status_ = global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified;
+    /// <summary>
+    /// Current payment lifecycle state.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Banking.Contracts.Accounts.V1.PaymentStatus Status {
+      get { return status_; }
+      set {
+        status_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "create_time" field.</summary>
+    public const int CreateTimeFieldNumber = 7;
+    private global::Google.Protobuf.WellKnownTypes.Timestamp createTime_;
+    /// <summary>
+    /// Time when the payment completed.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Protobuf.WellKnownTypes.Timestamp CreateTime {
+      get { return createTime_; }
+      set {
+        createTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "request_id" field.</summary>
+    public const int RequestIdFieldNumber = 8;
+    private string requestId_ = "";
+    /// <summary>
+    /// Caller-provided idempotency key.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string RequestId {
+      get { return requestId_; }
+      set {
+        requestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as Payment);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(Payment other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Name != other.Name) return false;
+      if (SourceAccount != other.SourceAccount) return false;
+      if (Beneficiary != other.Beneficiary) return false;
+      if (!object.Equals(Amount, other.Amount)) return false;
+      if (Reference != other.Reference) return false;
+      if (Status != other.Status) return false;
+      if (!object.Equals(CreateTime, other.CreateTime)) return false;
+      if (RequestId != other.RequestId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (SourceAccount.Length != 0) hash ^= SourceAccount.GetHashCode();
+      if (Beneficiary.Length != 0) hash ^= Beneficiary.GetHashCode();
+      if (amount_ != null) hash ^= Amount.GetHashCode();
+      if (Reference.Length != 0) hash ^= Reference.GetHashCode();
+      if (Status != global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified) hash ^= Status.GetHashCode();
+      if (createTime_ != null) hash ^= CreateTime.GetHashCode();
+      if (RequestId.Length != 0) hash ^= RequestId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Name.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Name);
+      }
+      if (SourceAccount.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SourceAccount);
+      }
+      if (Beneficiary.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Beneficiary);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(Reference);
+      }
+      if (Status != global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Status);
+      }
+      if (createTime_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Name.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Name);
+      }
+      if (SourceAccount.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SourceAccount);
+      }
+      if (Beneficiary.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Beneficiary);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(Reference);
+      }
+      if (Status != global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) Status);
+      }
+      if (createTime_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (SourceAccount.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SourceAccount);
+      }
+      if (Beneficiary.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Beneficiary);
+      }
+      if (amount_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Amount);
+      }
+      if (Reference.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reference);
+      }
+      if (Status != global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Status);
+      }
+      if (createTime_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RequestId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(Payment other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.SourceAccount.Length != 0) {
+        SourceAccount = other.SourceAccount;
+      }
+      if (other.Beneficiary.Length != 0) {
+        Beneficiary = other.Beneficiary;
+      }
+      if (other.amount_ != null) {
+        if (amount_ == null) {
+          Amount = new global::Google.Type.Money();
+        }
+        Amount.MergeFrom(other.Amount);
+      }
+      if (other.Reference.Length != 0) {
+        Reference = other.Reference;
+      }
+      if (other.Status != global::Banking.Contracts.Accounts.V1.PaymentStatus.Unspecified) {
+        Status = other.Status;
+      }
+      if (other.createTime_ != null) {
+        if (createTime_ == null) {
+          CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+        }
+        CreateTime.MergeFrom(other.CreateTime);
+      }
+      if (other.RequestId.Length != 0) {
+        RequestId = other.RequestId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Name = input.ReadString();
+            break;
+          }
+          case 18: {
+            SourceAccount = input.ReadString();
+            break;
+          }
+          case 26: {
+            Beneficiary = input.ReadString();
+            break;
+          }
+          case 34: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 42: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 48: {
+            Status = (global::Banking.Contracts.Accounts.V1.PaymentStatus) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            if (createTime_ == null) {
+              CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(CreateTime);
+            break;
+          }
+          case 66: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Name = input.ReadString();
+            break;
+          }
+          case 18: {
+            SourceAccount = input.ReadString();
+            break;
+          }
+          case 26: {
+            Beneficiary = input.ReadString();
+            break;
+          }
+          case 34: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 42: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 48: {
+            Status = (global::Banking.Contracts.Accounts.V1.PaymentStatus) input.ReadEnum();
+            break;
+          }
+          case 58: {
+            if (createTime_ == null) {
+              CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(CreateTime);
+            break;
+          }
+          case 66: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Request message for SendPayment.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class SendPaymentRequest : pb::IMessage<SendPaymentRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SendPaymentRequest> _parser = new pb::MessageParser<SendPaymentRequest>(() => new SendPaymentRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SendPaymentRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Banking.Contracts.Accounts.V1.AccountsReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SendPaymentRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SendPaymentRequest(SendPaymentRequest other) : this() {
+      parent_ = other.parent_;
+      beneficiary_ = other.beneficiary_;
+      amount_ = other.amount_ != null ? other.amount_.Clone() : null;
+      reference_ = other.reference_;
+      requestId_ = other.requestId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SendPaymentRequest Clone() {
+      return new SendPaymentRequest(this);
+    }
+
+    /// <summary>Field number for the "parent" field.</summary>
+    public const int ParentFieldNumber = 1;
+    private string parent_ = "";
+    /// <summary>
+    /// Account to debit, in the form accounts/{account}.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Parent {
+      get { return parent_; }
+      set {
+        parent_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "beneficiary" field.</summary>
+    public const int BeneficiaryFieldNumber = 2;
+    private string beneficiary_ = "";
+    /// <summary>
+    /// Saved beneficiary in the form users/{user}/contacts/{contact}.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Beneficiary {
+      get { return beneficiary_; }
+      set {
+        beneficiary_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 3;
+    private global::Google.Type.Money amount_;
+    /// <summary>
+    /// Positive amount to send. Its currency must match the source account.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Type.Money Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reference" field.</summary>
+    public const int ReferenceFieldNumber = 4;
+    private string reference_ = "";
+    /// <summary>
+    /// Optional user-facing payment reference, limited to 140 characters.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reference {
+      get { return reference_; }
+      set {
+        reference_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "request_id" field.</summary>
+    public const int RequestIdFieldNumber = 5;
+    private string requestId_ = "";
+    /// <summary>
+    /// Stable caller-generated idempotency key.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string RequestId {
+      get { return requestId_; }
+      set {
+        requestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SendPaymentRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SendPaymentRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Parent != other.Parent) return false;
+      if (Beneficiary != other.Beneficiary) return false;
+      if (!object.Equals(Amount, other.Amount)) return false;
+      if (Reference != other.Reference) return false;
+      if (RequestId != other.RequestId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Parent.Length != 0) hash ^= Parent.GetHashCode();
+      if (Beneficiary.Length != 0) hash ^= Beneficiary.GetHashCode();
+      if (amount_ != null) hash ^= Amount.GetHashCode();
+      if (Reference.Length != 0) hash ^= Reference.GetHashCode();
+      if (RequestId.Length != 0) hash ^= RequestId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Parent.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Parent);
+      }
+      if (Beneficiary.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Beneficiary);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Reference);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Parent.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Parent);
+      }
+      if (Beneficiary.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Beneficiary);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Reference);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Parent.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Parent);
+      }
+      if (Beneficiary.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Beneficiary);
+      }
+      if (amount_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Amount);
+      }
+      if (Reference.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reference);
+      }
+      if (RequestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RequestId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SendPaymentRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Parent.Length != 0) {
+        Parent = other.Parent;
+      }
+      if (other.Beneficiary.Length != 0) {
+        Beneficiary = other.Beneficiary;
+      }
+      if (other.amount_ != null) {
+        if (amount_ == null) {
+          Amount = new global::Google.Type.Money();
+        }
+        Amount.MergeFrom(other.Amount);
+      }
+      if (other.Reference.Length != 0) {
+        Reference = other.Reference;
+      }
+      if (other.RequestId.Length != 0) {
+        RequestId = other.RequestId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Parent = input.ReadString();
+            break;
+          }
+          case 18: {
+            Beneficiary = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 34: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 42: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Parent = input.ReadString();
+            break;
+          }
+          case 18: {
+            Beneficiary = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 34: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 42: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// A completed cash-in operation on an account.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Deposit : pb::IMessage<Deposit>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<Deposit> _parser = new pb::MessageParser<Deposit>(() => new Deposit());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<Deposit> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Banking.Contracts.Accounts.V1.AccountsReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Deposit() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Deposit(Deposit other) : this() {
+      name_ = other.name_;
+      account_ = other.account_;
+      amount_ = other.amount_ != null ? other.amount_.Clone() : null;
+      reference_ = other.reference_;
+      createTime_ = other.createTime_ != null ? other.createTime_.Clone() : null;
+      requestId_ = other.requestId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public Deposit Clone() {
+      return new Deposit(this);
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "account" field.</summary>
+    public const int AccountFieldNumber = 2;
+    private string account_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Account {
+      get { return account_; }
+      set {
+        account_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 3;
+    private global::Google.Type.Money amount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Type.Money Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reference" field.</summary>
+    public const int ReferenceFieldNumber = 4;
+    private string reference_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reference {
+      get { return reference_; }
+      set {
+        reference_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "create_time" field.</summary>
+    public const int CreateTimeFieldNumber = 5;
+    private global::Google.Protobuf.WellKnownTypes.Timestamp createTime_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Protobuf.WellKnownTypes.Timestamp CreateTime {
+      get { return createTime_; }
+      set {
+        createTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "request_id" field.</summary>
+    public const int RequestIdFieldNumber = 6;
+    private string requestId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string RequestId {
+      get { return requestId_; }
+      set {
+        requestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as Deposit);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(Deposit other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Name != other.Name) return false;
+      if (Account != other.Account) return false;
+      if (!object.Equals(Amount, other.Amount)) return false;
+      if (Reference != other.Reference) return false;
+      if (!object.Equals(CreateTime, other.CreateTime)) return false;
+      if (RequestId != other.RequestId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Account.Length != 0) hash ^= Account.GetHashCode();
+      if (amount_ != null) hash ^= Amount.GetHashCode();
+      if (Reference.Length != 0) hash ^= Reference.GetHashCode();
+      if (createTime_ != null) hash ^= CreateTime.GetHashCode();
+      if (RequestId.Length != 0) hash ^= RequestId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Name.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Name);
+      }
+      if (Account.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Account);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Reference);
+      }
+      if (createTime_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Name.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Name);
+      }
+      if (Account.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Account);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Reference);
+      }
+      if (createTime_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Account.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Account);
+      }
+      if (amount_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Amount);
+      }
+      if (Reference.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reference);
+      }
+      if (createTime_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CreateTime);
+      }
+      if (RequestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RequestId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(Deposit other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Account.Length != 0) {
+        Account = other.Account;
+      }
+      if (other.amount_ != null) {
+        if (amount_ == null) {
+          Amount = new global::Google.Type.Money();
+        }
+        Amount.MergeFrom(other.Amount);
+      }
+      if (other.Reference.Length != 0) {
+        Reference = other.Reference;
+      }
+      if (other.createTime_ != null) {
+        if (createTime_ == null) {
+          CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+        }
+        CreateTime.MergeFrom(other.CreateTime);
+      }
+      if (other.RequestId.Length != 0) {
+        RequestId = other.RequestId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Name = input.ReadString();
+            break;
+          }
+          case 18: {
+            Account = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 34: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 42: {
+            if (createTime_ == null) {
+              CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(CreateTime);
+            break;
+          }
+          case 50: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Name = input.ReadString();
+            break;
+          }
+          case 18: {
+            Account = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 34: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 42: {
+            if (createTime_ == null) {
+              CreateTime = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(CreateTime);
+            break;
+          }
+          case 50: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Request message for DepositFunds.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class DepositFundsRequest : pb::IMessage<DepositFundsRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<DepositFundsRequest> _parser = new pb::MessageParser<DepositFundsRequest>(() => new DepositFundsRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<DepositFundsRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Banking.Contracts.Accounts.V1.AccountsReflection.Descriptor.MessageTypes[9]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositFundsRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositFundsRequest(DepositFundsRequest other) : this() {
+      parent_ = other.parent_;
+      amount_ = other.amount_ != null ? other.amount_.Clone() : null;
+      reference_ = other.reference_;
+      requestId_ = other.requestId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public DepositFundsRequest Clone() {
+      return new DepositFundsRequest(this);
+    }
+
+    /// <summary>Field number for the "parent" field.</summary>
+    public const int ParentFieldNumber = 1;
+    private string parent_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Parent {
+      get { return parent_; }
+      set {
+        parent_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "amount" field.</summary>
+    public const int AmountFieldNumber = 2;
+    private global::Google.Type.Money amount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Type.Money Amount {
+      get { return amount_; }
+      set {
+        amount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reference" field.</summary>
+    public const int ReferenceFieldNumber = 3;
+    private string reference_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Reference {
+      get { return reference_; }
+      set {
+        reference_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "request_id" field.</summary>
+    public const int RequestIdFieldNumber = 4;
+    private string requestId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string RequestId {
+      get { return requestId_; }
+      set {
+        requestId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as DepositFundsRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(DepositFundsRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Parent != other.Parent) return false;
+      if (!object.Equals(Amount, other.Amount)) return false;
+      if (Reference != other.Reference) return false;
+      if (RequestId != other.RequestId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Parent.Length != 0) hash ^= Parent.GetHashCode();
+      if (amount_ != null) hash ^= Amount.GetHashCode();
+      if (Reference.Length != 0) hash ^= Reference.GetHashCode();
+      if (RequestId.Length != 0) hash ^= RequestId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Parent.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Parent);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Reference);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Parent.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Parent);
+      }
+      if (amount_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Amount);
+      }
+      if (Reference.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Reference);
+      }
+      if (RequestId.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(RequestId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Parent.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Parent);
+      }
+      if (amount_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Amount);
+      }
+      if (Reference.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Reference);
+      }
+      if (RequestId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(RequestId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(DepositFundsRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Parent.Length != 0) {
+        Parent = other.Parent;
+      }
+      if (other.amount_ != null) {
+        if (amount_ == null) {
+          Amount = new global::Google.Type.Money();
+        }
+        Amount.MergeFrom(other.Amount);
+      }
+      if (other.Reference.Length != 0) {
+        Reference = other.Reference;
+      }
+      if (other.RequestId.Length != 0) {
+        RequestId = other.RequestId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Parent = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 26: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 34: {
+            RequestId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Parent = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (amount_ == null) {
+              Amount = new global::Google.Type.Money();
+            }
+            input.ReadMessage(Amount);
+            break;
+          }
+          case 26: {
+            Reference = input.ReadString();
+            break;
+          }
+          case 34: {
+            RequestId = input.ReadString();
             break;
           }
         }

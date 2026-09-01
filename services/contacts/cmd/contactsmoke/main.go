@@ -21,6 +21,7 @@ func main() {
 	action := flag.String("action", "get", "create, get, list, update, or delete")
 	parent := flag.String("parent", "users/smoke-user", "Canonical user resource that owns the contact")
 	contactID := flag.String("contact-id", "persistence-smoke", "Contact resource ID")
+	internalAccount := flag.String("internal-account", "", "Existing internal account used by the create action")
 	flag.Parse()
 	token := strings.TrimSpace(os.Getenv("CONTACTS_SMOKE_TOKEN"))
 	if strings.TrimSpace(*endpoint) == "" {
@@ -44,12 +45,15 @@ func main() {
 
 	switch *action {
 	case "create":
+		if strings.TrimSpace(*internalAccount) == "" {
+			log.Fatal("-internal-account is required for the create action")
+		}
 		contact, err := client.CreateContact(ctx, &contactsv1.CreateContactRequest{
 			Parent:    *parent,
 			ContactId: *contactID,
 			Contact: &contactsv1.Contact{
 				DisplayName: "Persistence Smoke",
-				Destination: &contactsv1.Contact_InternalAccount{InternalAccount: "accounts/smoke-account"},
+				Destination: &contactsv1.Contact_InternalAccount{InternalAccount: *internalAccount},
 			},
 		})
 		if err != nil {

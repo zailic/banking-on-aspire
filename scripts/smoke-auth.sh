@@ -79,7 +79,7 @@ token_permissions="$(printf '%s' "$token" | jq -Rr '
   | fromjson
   | .resource_access["banking-on-aspire-app"].roles // []
 ')"
-required_permissions=(users.profile.read users.profile.write contacts.read contacts.write)
+required_permissions=(users.profile.read users.profile.write contacts.read contacts.write accounts.balance.read accounts.deposit payments.send transactions.read)
 missing_permissions=()
 for permission in "${required_permissions[@]}"; do
   if ! jq -e --arg permission "$permission" 'index($permission) != null' \

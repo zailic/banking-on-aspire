@@ -6,11 +6,11 @@ Purpose: map concepts from Bank of Anthos to banking-on-aspire, a stack centered
 
 | Bank of Anthos concept | Banking-on-Aspire target | Technology focus | Notes |
 |---|---|---|---|
-| Frontend + BFF | API gateway/BFF layer (next) | Aspire resource graph, token propagation | Start with one thin authenticated vertical slice |
+| Frontend + BFF | Banking.Web authenticated BFF (implemented) | Aspire resource graph, OIDC, token renewal and propagation | Profile, beneficiaries, accounts, and account creation are integrated |
 | Users service | Identity and profile boundary (implemented) | Keycloak + PostgreSQL profile service | Keep identity source of truth in Keycloak |
-| Ledger/transactions | Transaction history read service | Dapr pub/sub + state store | Build read model from emitted domain events |
-| Accounts service | Legacy command/actor flow | Persistence selected from domain requirements | Keep the current actor implementation only as a learning reference until modernization |
-| Contacts service | Beneficiaries context (implemented) | gRPC + PostgreSQL | Proto RBAC and `sub`-based ownership are enforced |
+| Ledger/transactions | Transaction history read service (implemented) | Dapr pub/sub + PostgreSQL | Projects `PaymentSentEvent` idempotently |
+| Accounts service | GAIP-aligned Accounts boundary (implemented) | gRPC + PostgreSQL + Keycloak authorization | The actor implementation remains under `accounts-legacy` as a learning reference |
+| Contacts service | Beneficiaries context (implemented) | gRPC + PostgreSQL | Proto RBAC and `sub`-based ownership are enforced; internal destinations are validated through Accounts |
 | Platform/deploy setup | Environment model | Radius environments and recipes | Separate local orchestration from deploy topology |
 
 ## Recommended Port Order
@@ -18,8 +18,8 @@ Purpose: map concepts from Bank of Anthos to banking-on-aspire, a stack centered
 1. Baseline and observability first.
 2. Identity hardening with Keycloak client-role permissions.
 3. Users and beneficiaries contexts with canonical resource ownership.
-4. Thin frontend/BFF vertical slice.
-5. Event stream for account domain actions and transaction read model extraction.
+4. Thin frontend/BFF vertical slice (completed).
+5. Event stream for payments and transaction read model extraction (completed backend slice).
 6. Radius environment templates for deployment.
 
 ## Role Model Aligned to Existing Flows

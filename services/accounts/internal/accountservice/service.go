@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"dev.local/banking-on-aspire/platform/auth/keycloak"
 	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
@@ -151,6 +152,90 @@ func (s *Service) CloseAccount(ctx context.Context, req *accountsv1.CloseAccount
 	return closed, nil
 }
 
+func (s *Service) SendPayment(ctx context.Context, req *accountsv1.SendPaymentRequest) (*accountsv1.Payment, error) {
+	if req == nil || !validAccountName(req.GetParent()) {
+		return nil, status.Error(codes.InvalidArgument, "parent must have the form accounts/{account}")
+	}
+	if !validBeneficiaryName(req.GetBeneficiary()) {
+		return nil, status.Error(codes.InvalidArgument, "beneficiary must have the form users/{user}/contacts/{contact}")
+	}
+	requestID := strings.TrimSpace(req.GetRequestId())
+	if requestID == "" || len(requestID) > 128 {
+		return nil, status.Error(codes.InvalidArgument, "request_id is required and must not exceed 128 characters")
+	}
+	reference := strings.TrimSpace(req.GetReference())
+	if utf8.RuneCountInString(reference) > 140 {
+		return nil, status.Error(codes.InvalidArgument, "reference must not exceed 140 characters")
+	}
+	amount := req.GetAmount()
+	if !validPositiveMoney(amount) {
+		return nil, status.Error(codes.InvalidArgument, "amount must be positive and use a three-letter ISO 4217 currency code")
+	}
+	current, err := s.repository.Get(ctx, req.GetParent())
+	if err != nil {
+		return nil, repositoryError(err)
+	}
+	if err := s.authorizeOwner(ctx, current.GetOwner()); err != nil {
+		return nil, err
+	}
+	currencyCode := strings.ToUpper(strings.TrimSpace(amount.GetCurrencyCode()))
+	if currencyCode != current.GetCurrencyCode() {
+		return nil, status.Error(codes.InvalidArgument, "amount currency must match the source account")
+	}
+	now := time.Now().UTC()
+	payment := &accountsv1.Payment{
+		Name: "payments/pay-" + randomHex(10), SourceAccount: req.GetParent(),
+		Beneficiary: req.GetBeneficiary(),
+		Amount:      &money.Money{CurrencyCode: currencyCode, Units: amount.GetUnits(), Nanos: amount.GetNanos()},
+		Reference:   reference, Status: accountsv1.PaymentStatus_PAYMENT_STATUS_COMPLETED,
+		CreateTime: timestamppb.New(now), RequestId: requestID,
+	}
+	completed, err := s.repository.SendPayment(ctx, payment)
+	if err != nil {
+		return nil, repositoryError(err)
+	}
+	return completed, nil
+}
+
+func (s *Service) DepositFunds(ctx context.Context, req *accountsv1.DepositFundsRequest) (*accountsv1.Deposit, error) {
+	if req == nil || !validAccountName(req.GetParent()) {
+		return nil, status.Error(codes.InvalidArgument, "parent must have the form accounts/{account}")
+	}
+	requestID := strings.TrimSpace(req.GetRequestId())
+	if requestID == "" || len(requestID) > 128 {
+		return nil, status.Error(codes.InvalidArgument, "request_id is required and must not exceed 128 characters")
+	}
+	reference := strings.TrimSpace(req.GetReference())
+	if utf8.RuneCountInString(reference) > 140 {
+		return nil, status.Error(codes.InvalidArgument, "reference must not exceed 140 characters")
+	}
+	if !validPositiveMoney(req.GetAmount()) {
+		return nil, status.Error(codes.InvalidArgument, "amount must be positive and use a three-letter ISO 4217 currency code")
+	}
+	current, err := s.repository.Get(ctx, req.GetParent())
+	if err != nil {
+		return nil, repositoryError(err)
+	}
+	if err := s.authorizeOwner(ctx, current.GetOwner()); err != nil {
+		return nil, err
+	}
+	currencyCode := strings.ToUpper(strings.TrimSpace(req.GetAmount().GetCurrencyCode()))
+	if currencyCode != current.GetCurrencyCode() {
+		return nil, status.Error(codes.InvalidArgument, "amount currency must match the account")
+	}
+	now := time.Now().UTC()
+	deposit := &accountsv1.Deposit{
+		Name: "deposits/dep-" + randomHex(10), Account: req.GetParent(),
+		Amount:    &money.Money{CurrencyCode: currencyCode, Units: req.GetAmount().GetUnits(), Nanos: req.GetAmount().GetNanos()},
+		Reference: reference, CreateTime: timestamppb.New(now), RequestId: requestID,
+	}
+	completed, err := s.repository.DepositFunds(ctx, deposit)
+	if err != nil {
+		return nil, repositoryError(err)
+	}
+	return completed, nil
+}
+
 func (s *Service) authorizeOwner(ctx context.Context, owner string) error {
 	claims, ok := keycloak.ClaimsFromContext(ctx)
 	if !ok || strings.TrimSpace(claims.Subject) == "" {
@@ -177,10 +262,23 @@ func repositoryError(err error) error {
 		return status.Error(codes.Aborted, "etag does not match the current account")
 	case errors.Is(err, accountrepo.ErrAlreadyExists):
 		return status.Error(codes.AlreadyExists, "account already exists")
+	case errors.Is(err, accountrepo.ErrBeneficiaryNotFound):
+		return status.Error(codes.NotFound, "beneficiary not found for the account owner")
+	case errors.Is(err, accountrepo.ErrInsufficientFunds):
+		return status.Error(codes.FailedPrecondition, "account has insufficient available funds")
+	case errors.Is(err, accountrepo.ErrAccountNotOpen):
+		return status.Error(codes.FailedPrecondition, "source account is not open")
+	case errors.Is(err, accountrepo.ErrIdempotencyConflict):
+		return status.Error(codes.AlreadyExists, "request_id was already used for different operation data")
+	case errors.Is(err, accountrepo.ErrDestinationInvalid):
+		return status.Error(codes.FailedPrecondition, "internal beneficiary account cannot receive this payment")
+	case errors.Is(err, accountrepo.ErrCurrencyMismatch):
+		return status.Error(codes.InvalidArgument, "amount currency must match the account")
 	default:
 		return status.Error(codes.Internal, "account persistence failed")
 	}
 }
+
 func validID(value string) bool {
 	if len(value) == 0 || len(value) > 63 || value[0] < 'a' || value[0] > 'z' {
 		return false
@@ -192,6 +290,7 @@ func validID(value string) bool {
 	}
 	return true
 }
+
 func validCurrencyCode(value string) bool {
 	if len(value) != 3 {
 		return false
@@ -203,17 +302,36 @@ func validCurrencyCode(value string) bool {
 	}
 	return true
 }
+
 func validUserName(value string) bool {
 	p := strings.Split(value, "/")
 	return len(p) == 2 && p[0] == "users" && p[1] != ""
 }
+
 func validAccountName(value string) bool {
 	p := strings.Split(value, "/")
 	return len(p) == 2 && p[0] == "accounts" && p[1] != ""
 }
+
+func validBeneficiaryName(value string) bool {
+	p := strings.Split(value, "/")
+	return len(p) == 4 && p[0] == "users" && p[1] != "" && p[2] == "contacts" && p[3] != ""
+}
+
+func validPositiveMoney(value *money.Money) bool {
+	if value == nil || !validCurrencyCode(strings.ToUpper(strings.TrimSpace(value.GetCurrencyCode()))) {
+		return false
+	}
+	if value.GetUnits() < 0 || value.GetNanos() < 0 || value.GetNanos() >= 1_000_000_000 {
+		return false
+	}
+	return value.GetUnits() > 0 || value.GetNanos() > 0
+}
+
 func newEtag() string {
 	return randomHex(16)
 }
+
 func randomHex(size int) string {
 	value := make([]byte, size)
 	if _, err := rand.Read(value); err != nil {
@@ -221,6 +339,7 @@ func randomHex(size int) string {
 	}
 	return hex.EncodeToString(value)
 }
+
 func newAccountNumber() string {
 	value := make([]byte, 12)
 	for index := range value {
@@ -237,9 +356,11 @@ func newAccountNumber() string {
 	}
 	return string(value)
 }
+
 func encodePageToken(offset int) string {
 	return base64.RawURLEncoding.EncodeToString([]byte(strconv.Itoa(offset)))
 }
+
 func decodePageToken(token string) (int, error) {
 	if token == "" {
 		return 0, nil

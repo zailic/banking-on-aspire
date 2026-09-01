@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package banking.events.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/type/money.proto";
+
+option csharp_namespace = "Banking.Contracts.Events.V1";
+option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1;eventsv1";
+
+// Immutable integration event emitted after a payment commits.
+message PaymentSentEvent {
+  // Globally unique event identifier used for consumer deduplication.
+  string event_id = 1;
+
+  // Event schema version. The first published representation is version 1.
+  int32 schema_version = 2;
+
+  // Canonical payment resource name.
+  string payment = 3;
+
+  // Debited account and its owner.
+  string source_account = 4;
+  string source_owner = 5;
+
+  // Saved beneficiary selected by the sender.
+  string beneficiary = 6;
+
+  // Credited local account and owner. Empty for an external beneficiary.
+  string destination_account = 7;
+  string destination_owner = 8;
+
+  // Amount moved by the payment.
+  google.type.Money amount = 9;
+
+  // Optional user-facing payment reference.
+  string reference = 10;
+
+  // Time when Accounts committed the payment.
+  google.protobuf.Timestamp occurred_time = 11;
+}
+
+// Immutable integration event emitted after an account deposit commits.
+message FundsDepositedEvent {
+  string event_id = 1;
+  int32 schema_version = 2;
+  string deposit = 3;
+  string account = 4;
+  string owner = 5;
+  google.type.Money amount = 6;
+  string reference = 7;
+  google.protobuf.Timestamp occurred_time = 8;
+}

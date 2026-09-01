@@ -2,6 +2,7 @@
 #:package Aspire.Hosting.Keycloak@13.5.3-preview.1.26425.3
 #:sdk Aspire.AppHost.Sdk@13.5.3
 #:package Aspire.Hosting.PostgreSQL@13.5.3
+#:package Aspire.Hosting.Redis@13.5.3
 #:package CommunityToolkit.Aspire.Hosting.Dapr@13.2.1-beta.532
 
 using System.Net.Http.Headers;
@@ -13,6 +14,7 @@ using Aspire.Hosting.ApplicationModel;
 #pragma warning disable ASPIRECSHARPAPPS001
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.AddDapr();
 var bankingWebClientSecret = builder.AddParameter("banking-web-client-secret", secret: true);
 var realmDirectory = Path.GetFullPath("dev/keycloak");
 const string developmentRealm = "banking-on-aspire";
@@ -29,6 +31,10 @@ var keycloak = builder.AddKeycloak("keycloak", port: 8081)
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume();
 var usersDb = postgres.AddDatabase("usersdb");
+var transactionsDb = postgres.AddDatabase("transactionsdb");
+var redis = builder.AddRedis("redis");
+var pubSub = builder.AddDaprPubSub("pubsub")
+    .WithMetadata("redisHost", redis.GetEndpoint("tcp"));
 
 var contactsMigrations = builder.AddExecutable(
         "contacts-migrations",
@@ -59,6 +65,19 @@ var accountsMigrations = builder.AddExecutable(
         "./cmd/accountsmigrate")
     .WithReference(usersDb)
     .WaitFor(usersDb)
+    .WaitForCompletion(usersMigrations)
+    .WaitForCompletion(contactsMigrations);
+
+var transactionsMigrations = builder.AddExecutable(
+        "transactions-migrations",
+        "go",
+        "services/transactions",
+        "run",
+        "-buildvcs=false",
+        "./cmd/transactionsmigrate")
+    .WithReference(transactionsDb)
+    .WithReference(usersDb)
+    .WaitFor(transactionsDb)
     .WaitForCompletion(usersMigrations);
 
 keycloak
@@ -130,6 +149,7 @@ var accounts = builder.AddExecutable(
         name: "grpc",
         isExternal: true)
     .WithDaprSidecar(sidecar => sidecar
+        .WithReference(pubSub)
         .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
         {
             AppId = "accounts",
@@ -139,6 +159,36 @@ var accounts = builder.AddExecutable(
     .WithReference(usersDb)
     .WaitFor(usersDb)
     .WaitForCompletion(accountsMigrations)
+    .WaitFor(redis)
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
+
+var transactions = builder.AddExecutable(
+        "transactions",
+        "go",
+        "services/transactions",
+        "run",
+        "-buildvcs=false",
+        "./cmd/transactions")
+    .WithEnvironment("TRANSACTIONS_HTTP_PORT", "8086")
+    .WithEnvironment("TRANSACTIONS_GRPC_PORT", "8087")
+    .WithEndpoint(
+        targetPort: 8087,
+        scheme: "grpc",
+        name: "grpc",
+        isExternal: true)
+    .WithDaprSidecar(sidecar => sidecar
+        .WithReference(pubSub)
+        .WithOptions(new CommunityToolkit.Aspire.Hosting.Dapr.DaprSidecarOptions
+        {
+            AppId = "transactions",
+            AppPort = 8086,
+            AppProtocol = "http"
+        }))
+    .WithReference(transactionsDb)
+    .WithReference(usersDb)
+    .WaitForCompletion(transactionsMigrations)
+    .WaitFor(redis)
     .WithReference(keycloak)
     .WaitFor(keycloak);
 
@@ -150,6 +200,7 @@ var contacts = builder.AddExecutable(
         "-buildvcs=false",
         "./cmd/contacts")
     .WithEnvironment("CONTACTS_PORT", "8083")
+    .WithEnvironment("ACCOUNTS_GRPC", accounts.GetEndpoint("grpc"))
     .WithEndpoint(
         targetPort: 8083,
         scheme: "grpc",
@@ -165,6 +216,7 @@ var contacts = builder.AddExecutable(
     .WithReference(usersDb)
     .WaitFor(usersDb)
     .WaitForCompletion(contactsMigrations)
+    .WaitFor(accounts)
     .WithReference(keycloak)
     .WaitFor(keycloak);
 
@@ -203,11 +255,13 @@ builder.AddCSharpApp("banking-web", "frontend/Banking.Web/Banking.Web.csproj")
     .WithEnvironment("Backend__UsersUrl", users.GetEndpoint("grpc"))
     .WithEnvironment("Backend__ContactsUrl", contacts.GetEndpoint("grpc"))
     .WithEnvironment("Backend__AccountsUrl", accounts.GetEndpoint("grpc"))
+    .WithEnvironment("Backend__TransactionsUrl", transactions.GetEndpoint("grpc"))
     .WithReference(keycloak)
     .WaitFor(keycloak)
     .WaitFor(users)
     .WaitFor(contacts)
-    .WaitFor(accounts);
+    .WaitFor(accounts)
+    .WaitFor(transactions);
 
 builder.Build().Run();
 

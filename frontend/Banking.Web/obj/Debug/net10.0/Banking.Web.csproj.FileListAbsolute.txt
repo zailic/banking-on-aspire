@@ -101,4 +101,4 @@
 /home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/frontend/Banking.Web/bin/Debug/net10.0/Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.dll
 /home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/frontend/Banking.Web/bin/Debug/net10.0/Microsoft.FluentUI.AspNetCore.Components.Icons.dll
 /home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/frontend/Banking.Web/obj/Debug/net10.0/compressed/2qv1qmql80-{0}-f1mup8dydf-f1mup8dydf.gz
-/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/frontend/Banking.Web/obj/Debug/net10.0/compressed/oxf3h8aqrs-{0}-ci8fg809pd-ci8fg809pd.gz
+/home/ovi_z/DevPlaygroud/dapr/banking-on-aspire/frontend/Banking.Web/obj/Debug/net10.0/compressed/oxf3h8aqrs-{0}-we8zait7l2-we8zait7l2.gz

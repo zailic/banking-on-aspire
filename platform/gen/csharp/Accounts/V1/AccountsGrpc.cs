@@ -60,6 +60,14 @@ namespace Banking.Contracts.Accounts.V1 {
     static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.GetAccountRequest> __Marshaller_banking_accounts_v1_GetAccountRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.GetAccountRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.CloseAccountRequest> __Marshaller_banking_accounts_v1_CloseAccountRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.CloseAccountRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.SendPaymentRequest> __Marshaller_banking_accounts_v1_SendPaymentRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.SendPaymentRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.Payment> __Marshaller_banking_accounts_v1_Payment = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.Payment.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.DepositFundsRequest> __Marshaller_banking_accounts_v1_DepositFundsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.DepositFundsRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Banking.Contracts.Accounts.V1.Deposit> __Marshaller_banking_accounts_v1_Deposit = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Banking.Contracts.Accounts.V1.Deposit.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::Banking.Contracts.Accounts.V1.CreateAccountRequest, global::Banking.Contracts.Accounts.V1.Account> __Method_CreateAccount = new grpc::Method<global::Banking.Contracts.Accounts.V1.CreateAccountRequest, global::Banking.Contracts.Accounts.V1.Account>(
@@ -92,6 +100,22 @@ namespace Banking.Contracts.Accounts.V1 {
         "CloseAccount",
         __Marshaller_banking_accounts_v1_CloseAccountRequest,
         __Marshaller_banking_accounts_v1_Account);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::Banking.Contracts.Accounts.V1.SendPaymentRequest, global::Banking.Contracts.Accounts.V1.Payment> __Method_SendPayment = new grpc::Method<global::Banking.Contracts.Accounts.V1.SendPaymentRequest, global::Banking.Contracts.Accounts.V1.Payment>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "SendPayment",
+        __Marshaller_banking_accounts_v1_SendPaymentRequest,
+        __Marshaller_banking_accounts_v1_Payment);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::Banking.Contracts.Accounts.V1.DepositFundsRequest, global::Banking.Contracts.Accounts.V1.Deposit> __Method_DepositFunds = new grpc::Method<global::Banking.Contracts.Accounts.V1.DepositFundsRequest, global::Banking.Contracts.Accounts.V1.Deposit>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "DepositFunds",
+        __Marshaller_banking_accounts_v1_DepositFundsRequest,
+        __Marshaller_banking_accounts_v1_Deposit);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -147,6 +171,30 @@ namespace Banking.Contracts.Accounts.V1 {
       /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::Banking.Contracts.Accounts.V1.Account> CloseAccount(global::Banking.Contracts.Accounts.V1.CloseAccountRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      /// Sends a payment from an owned account to a saved beneficiary.
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Banking.Contracts.Accounts.V1.Payment> SendPayment(global::Banking.Contracts.Accounts.V1.SendPaymentRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      /// <summary>
+      /// Adds funds to an owned account for the local learning cash-in flow.
+      /// </summary>
+      /// <param name="request">The request received from the client.</param>
+      /// <param name="context">The context of the server-side call handler being invoked.</param>
+      /// <returns>The response to send back to the client (wrapped by a task).</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Banking.Contracts.Accounts.V1.Deposit> DepositFunds(global::Banking.Contracts.Accounts.V1.DepositFundsRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -372,6 +420,102 @@ namespace Banking.Contracts.Accounts.V1 {
       {
         return CallInvoker.AsyncUnaryCall(__Method_CloseAccount, null, options, request);
       }
+      /// <summary>
+      /// Sends a payment from an owned account to a saved beneficiary.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Banking.Contracts.Accounts.V1.Payment SendPayment(global::Banking.Contracts.Accounts.V1.SendPaymentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return SendPayment(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Sends a payment from an owned account to a saved beneficiary.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Banking.Contracts.Accounts.V1.Payment SendPayment(global::Banking.Contracts.Accounts.V1.SendPaymentRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_SendPayment, null, options, request);
+      }
+      /// <summary>
+      /// Sends a payment from an owned account to a saved beneficiary.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Banking.Contracts.Accounts.V1.Payment> SendPaymentAsync(global::Banking.Contracts.Accounts.V1.SendPaymentRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return SendPaymentAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Sends a payment from an owned account to a saved beneficiary.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Banking.Contracts.Accounts.V1.Payment> SendPaymentAsync(global::Banking.Contracts.Accounts.V1.SendPaymentRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_SendPayment, null, options, request);
+      }
+      /// <summary>
+      /// Adds funds to an owned account for the local learning cash-in flow.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Banking.Contracts.Accounts.V1.Deposit DepositFunds(global::Banking.Contracts.Accounts.V1.DepositFundsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DepositFunds(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Adds funds to an owned account for the local learning cash-in flow.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The response received from the server.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Banking.Contracts.Accounts.V1.Deposit DepositFunds(global::Banking.Contracts.Accounts.V1.DepositFundsRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_DepositFunds, null, options, request);
+      }
+      /// <summary>
+      /// Adds funds to an owned account for the local learning cash-in flow.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+      /// <param name="cancellationToken">An optional token for canceling the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Banking.Contracts.Accounts.V1.Deposit> DepositFundsAsync(global::Banking.Contracts.Accounts.V1.DepositFundsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return DepositFundsAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      /// <summary>
+      /// Adds funds to an owned account for the local learning cash-in flow.
+      /// </summary>
+      /// <param name="request">The request to send to the server.</param>
+      /// <param name="options">The options for the call.</param>
+      /// <returns>The call object.</returns>
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Banking.Contracts.Accounts.V1.Deposit> DepositFundsAsync(global::Banking.Contracts.Accounts.V1.DepositFundsRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_DepositFunds, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override AccountsServiceClient NewInstance(ClientBaseConfiguration configuration)
@@ -389,7 +533,9 @@ namespace Banking.Contracts.Accounts.V1 {
           .AddMethod(__Method_CreateAccount, serviceImpl.CreateAccount)
           .AddMethod(__Method_ListAccounts, serviceImpl.ListAccounts)
           .AddMethod(__Method_GetAccount, serviceImpl.GetAccount)
-          .AddMethod(__Method_CloseAccount, serviceImpl.CloseAccount).Build();
+          .AddMethod(__Method_CloseAccount, serviceImpl.CloseAccount)
+          .AddMethod(__Method_SendPayment, serviceImpl.SendPayment)
+          .AddMethod(__Method_DepositFunds, serviceImpl.DepositFunds).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -403,6 +549,8 @@ namespace Banking.Contracts.Accounts.V1 {
       serviceBinder.AddMethod(__Method_ListAccounts, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Banking.Contracts.Accounts.V1.ListAccountsRequest, global::Banking.Contracts.Accounts.V1.ListAccountsResponse>(serviceImpl.ListAccounts));
       serviceBinder.AddMethod(__Method_GetAccount, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Banking.Contracts.Accounts.V1.GetAccountRequest, global::Banking.Contracts.Accounts.V1.Account>(serviceImpl.GetAccount));
       serviceBinder.AddMethod(__Method_CloseAccount, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Banking.Contracts.Accounts.V1.CloseAccountRequest, global::Banking.Contracts.Accounts.V1.Account>(serviceImpl.CloseAccount));
+      serviceBinder.AddMethod(__Method_SendPayment, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Banking.Contracts.Accounts.V1.SendPaymentRequest, global::Banking.Contracts.Accounts.V1.Payment>(serviceImpl.SendPayment));
+      serviceBinder.AddMethod(__Method_DepositFunds, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Banking.Contracts.Accounts.V1.DepositFundsRequest, global::Banking.Contracts.Accounts.V1.Deposit>(serviceImpl.DepositFunds));
     }
 
   }
