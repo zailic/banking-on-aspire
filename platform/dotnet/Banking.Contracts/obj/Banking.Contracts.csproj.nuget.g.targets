@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)google.api.commonprotos/2.17.0/build/Google.Api.CommonProtos.targets" Condition="Exists('$(NuGetPackageRoot)google.api.commonprotos/2.17.0/build/Google.Api.CommonProtos.targets')" />
-  </ImportGroup>
-</Project>
