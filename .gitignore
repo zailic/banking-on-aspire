@@ -1,3 +1,5 @@
 .env.smoke
 tools/bin/
 tools/downloads/
+**/bin/
+**/obj/

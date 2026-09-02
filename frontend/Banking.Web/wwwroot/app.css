@@ -20,19 +20,32 @@ body {
     height: 100dvh;
     min-height: 0;
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
-    grid-template-rows: 52px minmax(0, 1fr);
-    grid-template-areas: "nav header" "nav content";
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+    grid-template-rows: 52px minmax(0, 1fr) !important;
+    grid-template-areas: "nav header" "nav content" !important;
 }
 
-.layout-header { grid-area: header; min-width: 0; }
+.layout-header {
+    grid-area: header;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0 !important;
+    background: var(--colorNeutralBackground1) !important;
+    overflow: visible !important;
+    z-index: 100;
+}
 .navigation-region {
     grid-area: nav;
+    box-sizing: border-box;
     width: 72px;
     min-width: 72px;
+    height: 100%;
     min-height: 0;
+    overflow: hidden !important;
 }
-.content-region { grid-area: content; }
+
+.content-region { grid-area: content; width: 100%; z-index: 0; }
 
 .app-navigation {
     box-sizing: border-box;
@@ -41,8 +54,11 @@ body {
     align-items: center;
     width: 72px;
     height: 100%;
-    padding: 8px 6px;
     border-right: 1px solid var(--colorNeutralStroke2);
+    background: var(--colorNeutralBackground1);
+}
+
+.app-navigation .fluent-appbar {
     background: var(--colorNeutralBackground1);
 }
 
@@ -51,7 +67,6 @@ body {
     place-items: center;
     width: 36px;
     height: 36px;
-    margin-bottom: 10px;
     border-radius: var(--borderRadiusMedium);
     color: var(--colorNeutralForegroundOnBrand);
     background: var(--colorBrandBackground);
@@ -61,10 +76,18 @@ body {
     text-decoration: none;
 }
 
+.app-logo-container {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 52px;
+    flex-shrink: 0;
+}
+
 .primary-appbar {
     width: 100%;
-    display: grid;
-    gap: 4px;
+    background: var(--colorNeutralBackground1);
+    flex: 1;
 }
 
 .utility-appbar {
@@ -72,12 +95,9 @@ body {
     margin-top: auto;
 }
 
-.nav-action { box-sizing: border-box; width: 100%; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: var(--borderRadiusMedium); color: var(--colorNeutralForeground2); font-size: 10px; line-height: 1; text-decoration: none; }
-.nav-action:hover { color: var(--colorNeutralForeground1); background: var(--colorSubtleBackgroundHover); }
-.nav-action.active { color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); }
-
 .app-header {
     box-sizing: border-box;
+    width: 100%;
     height: 52px;
     padding: 0 16px 0 20px;
     display: flex;

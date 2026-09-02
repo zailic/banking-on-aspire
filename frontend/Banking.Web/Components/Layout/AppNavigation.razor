@@ -1,16 +1,27 @@
 <nav class="app-navigation" aria-label="Main navigation">
-    <a class="app-logo" href="/" aria-label="Banking on Aspire home">BA</a>
-    <div class="primary-appbar">
-        <NavLink class="nav-action" href="/" Match="NavLinkMatch.All" title="Overview"><FluentIcon Value="OverviewIcon()" /><span>Overview</span></NavLink>
-        <NavLink class="nav-action" href="/#beneficiaries" title="Beneficiaries"><FluentIcon Value="BeneficiariesIcon()" /><span>Contacts</span></NavLink>
+    <div class="app-logo-container">
+        <a class="app-logo" href="/" aria-label="Banking on Aspire home">BA</a>
     </div>
-    <div class="utility-appbar">
-        <NavLink class="nav-action" href="/#profile" title="Profile"><FluentIcon Value="ProfileIcon()" /><span>Profile</span></NavLink>
-    </div>
+    <FluentAppBar Orientation="Orientation.Vertical" Class="primary-appbar">
+        <FluentAppBarItem Href="/"
+                          Match="NavLinkMatch.All"
+                          IconRest="OverviewIcon()"
+                          IconActive="OverviewActiveIcon()"
+                          Text="Overview"
+                          Tooltip="Overview" />
+        <FluentAppBarItem Href="/#beneficiaries"
+                          IconRest="BeneficiariesIcon()"
+                          IconActive="BeneficiariesActiveIcon()"
+                          Text="Contacts"
+                          Tooltip="Beneficiaries" />
+    </FluentAppBar>
 </nav>
 
 @code {
     private static Icon OverviewIcon() => new Icons.Regular.Size20.Home();
+    private static Icon OverviewActiveIcon() => new Icons.Filled.Size20.Home();
     private static Icon BeneficiariesIcon() => new Icons.Regular.Size20.People();
+    private static Icon BeneficiariesActiveIcon() => new Icons.Filled.Size20.People();
     private static Icon ProfileIcon() => new Icons.Regular.Size20.Person();
+    private static Icon ProfileActiveIcon() => new Icons.Filled.Size20.Person();
 }

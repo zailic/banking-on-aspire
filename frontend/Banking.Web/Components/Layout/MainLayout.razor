@@ -2,19 +2,23 @@
 
 <FluentProviders />
 
-<div class="app-layout">
-    <div class="layout-header">
+<FluentLayout Class="app-layout"
+              Width="100%"
+              Height="100dvh"
+              GlobalScrollbar="false"
+              MobileBreakdownWidth="0">
+    <FluentLayoutItem Area="LayoutArea.Header" Class="layout-header" Height="52px">
         <AppHeader />
-    </div>
+    </FluentLayoutItem>
 
-    <div class="navigation-region">
+    <FluentLayoutItem Area="LayoutArea.Navigation" Class="navigation-region" Width="72px">
         <AppNavigation />
-    </div>
+    </FluentLayoutItem>
 
-    <div class="content-region">
+    <FluentLayoutItem Area="LayoutArea.Content" Class="content-region">
         <main class="shell">@Body</main>
-    </div>
-</div>
+    </FluentLayoutItem>
+</FluentLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred. <a href="." class="reload">Reload</a>
