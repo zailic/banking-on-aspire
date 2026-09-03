@@ -10,7 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"dev.local/banking-on-aspire/platform/observability"
 	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
@@ -38,7 +40,7 @@ func New(store Store, daprHTTPPort string, logger *slog.Logger) *Dispatcher {
 		store: store,
 		endpoint: "http://127.0.0.1:" + strings.TrimSpace(daprHTTPPort) +
 			"/v1.0/publish/" + url.PathEscape(pubSubName) + "/",
-		client: &http.Client{Timeout: 5 * time.Second}, logger: logger,
+		client: &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport), Timeout: 5 * time.Second}, logger: logger,
 	}
 }
 
@@ -63,11 +65,12 @@ func (d *Dispatcher) dispatch(ctx context.Context) error {
 		return err
 	}
 	for _, event := range events {
+		eventCtx := observability.ExtractTraceContext(ctx, event.TraceParent, event.TraceState)
 		topic, err := topicFor(event.Type)
 		if err != nil {
 			return err
 		}
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, d.endpoint+url.PathEscape(topic), bytes.NewReader(event.Payload))
+		req, err := http.NewRequestWithContext(eventCtx, http.MethodPost, d.endpoint+url.PathEscape(topic), bytes.NewReader(event.Payload))
 		if err != nil {
 			return fmt.Errorf("create publish request: %w", err)
 		}

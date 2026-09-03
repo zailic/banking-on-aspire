@@ -405,6 +405,42 @@
       ],
       "banking-on-aspire-app": [
         {
+          "id": "bfd3fd48-91e5-4b78-9b7d-469f2da06a17",
+          "name": "contacts.write",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "9ef08013-ae80-427e-936e-568072d0d2d3",
+          "name": "accounts.deposit",
+          "description": "Add fictive funds to an owned account",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "661f98cb-67eb-4c2c-9240-f42c0be89714",
+          "name": "users.profile.read",
+          "description": "",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
+          "id": "b4b6f984-9f3a-4295-bb02-948ff055ea3a",
+          "name": "accounts.balance.read",
+          "description": "Read balance access",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
+          "attributes": {}
+        },
+        {
           "id": "432d1390-8f91-46c5-b251-110b9629ab62",
           "name": "uma_protection",
           "composite": false,
@@ -431,17 +467,8 @@
           "attributes": {}
         },
         {
-          "id": "e5df32d2-c7de-4b2e-a50c-f073cdf30477",
-          "name": "accounts.create",
-          "description": "Create bank accounts for active users",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
-          "attributes": {}
-        },
-        {
-          "id": "bfd3fd48-91e5-4b78-9b7d-469f2da06a17",
-          "name": "contacts.write",
+          "id": "c871370f-ca2e-4d1e-9b06-08e52db017cb",
+          "name": "transactions.read",
           "description": "",
           "composite": false,
           "clientRole": true,
@@ -449,27 +476,9 @@
           "attributes": {}
         },
         {
-          "id": "0dce0714-4880-4e48-9db8-ccdf2ed912ca",
-          "name": "payments.send",
-          "description": "Send a payment from an owned account to a saved beneficiary",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
-          "attributes": {}
-        },
-        {
-          "id": "599d045f-8175-4b90-bf84-52b2313bba9d",
-          "name": "transactions.read",
-          "description": "Read the authenticated user's transaction history",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
-          "attributes": {}
-        },
-        {
-          "id": "5a63042f-48cb-4990-9508-2de80ff0b91a",
-          "name": "accounts.deposit",
-          "description": "Add demo funds to an owned account",
+          "id": "d0be51bd-fda4-4b56-9094-fcec603e2b6e",
+          "name": "accounts.create",
+          "description": "",
           "composite": false,
           "clientRole": true,
           "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
@@ -517,18 +526,9 @@
           "attributes": {}
         },
         {
-          "id": "661f98cb-67eb-4c2c-9240-f42c0be89714",
-          "name": "users.profile.read",
-          "description": "",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
-          "attributes": {}
-        },
-        {
-          "id": "b4b6f984-9f3a-4295-bb02-948ff055ea3a",
-          "name": "accounts.balance.read",
-          "description": "Read balance access",
+          "id": "3e65d812-01a5-4729-871f-a75af6972504",
+          "name": "payments.send",
+          "description": "Send a payment from an owned account to a saved beneficiary",
           "composite": false,
           "clientRole": true,
           "containerId": "0934d1bb-bb50-4ed6-a844-1892ba35f5fe",
@@ -577,14 +577,14 @@
       "realmRoles": [],
       "clientRoles": {
         "banking-on-aspire-app": [
-          "accounts.balance.read",
-          "accounts.deposit",
           "contacts.write",
-          "payments.send",
           "transactions.read",
           "users.profile.write",
+          "accounts.deposit",
           "contacts.read",
-          "users.profile.read"
+          "users.profile.read",
+          "payments.send",
+          "accounts.balance.read"
         ]
       }
     },

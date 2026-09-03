@@ -644,3 +644,87 @@ Behavioral consequence:
   to accounts readable by the authenticated user. Supporting another user's
   account safely would require a purpose-built destination-resolution API that
   reveals less information than `GetAccount`.
+
+## Fluent UI v5 application shell
+
+Date: 2026-09-02
+Milestone: Frontend shell modernization
+
+Change summary:
+- Replaced the hand-written application grid in `MainLayout` with Fluent UI v5
+  `FluentLayout` and `FluentLayoutItem` components while preserving the compact
+  72-pixel navigation rail and independently scrolling content region.
+- Replaced the navigation `NavLink` markup with vertical `FluentAppBar` and
+  `FluentAppBarItem` components, including distinct regular and active icons.
+- Kept primary navigation and the bottom profile action in separate app bars so
+  the Fluent overflow algorithm does not hide the profile action.
+- Allowed the header layout item to overflow above the content stacking context,
+  so the custom user-menu popover is not clipped by FluentLayout's default
+  `overflow: hidden` rule.
+
+What failed and why:
+- `LayoutArea.Navigation` renders as the CSS grid area `nav`, not `navigation`.
+  Using the enum name as the CSS area name left the item unassigned and caused
+  CSS Grid to place the navigation rail in the bottom-right corner.
+- FluentLayout supplies opinionated header padding, brand background, overflow,
+  and grid geometry. The application shell must override those defaults at the
+  layout-item boundary when retaining its existing visual design.
+- A fixed `height` on a child of the vertical navigation flex container can still
+  shrink because `flex-shrink` defaults to `1`; fixed-height rail sections need an
+  explicit non-shrinking flex basis.
+
+Validation evidence:
+- Banking.Web builds with zero warnings and zero errors after the layout and
+  navigation migration.
+
+Next step:
+- Add a focused visual/component regression check for the application shell so
+  header width, navigation placement, overflow menus, and fixed rail sections
+  are verified together.
+
+## End-to-end observability and resilience drills
+
+Date: 2026-09-02
+Milestone: M6 observability and resilience increment
+
+Change summary:
+- Enabled gRPC-client tracing in Banking.Web and added explicit BFF activities
+  for `DepositFunds` and `SendPayment`, including a visible token-refresh retry event.
+- Added a shared Go OpenTelemetry bootstrap, gRPC server instrumentation,
+  instrumented Accounts-to-Dapr publishing, and Transactions HTTP subscriber tracing.
+- Opted Accounts and Transactions into Aspire OTLP export with
+  `WithOtlpExporter(OtlpProtocol.Grpc)`.
+- Persisted W3C `traceparent` and `tracestate` in the Accounts outbox so an
+  asynchronous publish remains correlated with the original command.
+- Added a traceable `accountsmoke` client and an automated transient publish
+  retry test.
+
+Validation evidence:
+- Deposit trace `3bd271ba471d07154e8e0b5574112b49` contained Accounts,
+  Accounts Dapr, Transactions Dapr, and Transactions subscriber spans.
+- SendPayment trace `94a9344feb0c6fca6cb516a11aab260b` contained the same
+  correlated service chain.
+- With the Accounts Dapr sidecar unavailable, deposit trace
+  `75dff2c307f9f288856883d4fa561ddf` completed after recovery and preserved
+  its trace ID across delayed delivery.
+- With PostgreSQL stopped, Accounts returned `DeadlineExceeded`; after recovery,
+  the existing Accounts process reconnected and listed all three demo accounts.
+- With Keycloak stopped, token acquisition failed while calls using the already
+  issued JWT continued through cached verification; token issuance recovered.
+- `make check` and the Banking.Web build pass with zero test/build errors.
+
+What failed and why:
+- Aspire did not inject OTLP variables into Go `AddExecutable` resources until
+  they explicitly opted in with `WithOtlpExporter`.
+- The first Go resource merge mixed semantic-convention schemas `1.40.0` and
+  `1.41.0`; OpenTelemetry refused the conflict. Aligning on `1.41.0` fixed startup.
+- `OpenTelemetry.Instrumentation.GrpcNetClient` remains prerelease; the compatible
+  `1.15.1-beta.1` version is pinned alongside the stable core/exporter packages.
+
+Decision:
+- Treat SendPayment as the canonical withdrawal/outgoing-money flow. Retain the
+  same idempotency key when retrying an ambiguous money command.
+
+Next step:
+- Define deployment-specific dashboards and alerts after selecting a durable
+  telemetry backend and target environment.

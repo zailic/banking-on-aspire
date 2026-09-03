@@ -6,13 +6,19 @@ using Banking.Web.Auth;
 using Grpc.Core;
 using Grpc.Net.Client;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
 namespace Banking.Web.Services;
 
-public sealed class BankingDashboardService(IConfiguration configuration, AccessTokenProvider accessTokenProvider)
+public sealed class BankingDashboardService(
+    IConfiguration configuration,
+    AccessTokenProvider accessTokenProvider,
+    ILogger<BankingDashboardService> logger)
 {
+    private static readonly ActivitySource ActivitySource = new("Banking.Web.BFF");
+
     public async Task<BankingDashboard> LoadAsync(CancellationToken cancellationToken = default)
     {
         using var usersChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:UsersUrl"));
@@ -127,12 +133,15 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
         CancellationToken cancellationToken = default)
     {
         Validator.ValidateObject(command, new ValidationContext(command), validateAllProperties: true);
+        using var activity = ActivitySource.StartActivity("SendPayment", ActivityKind.Internal);
+        activity?.SetTag("banking.source_account", command.SourceAccount.Trim());
+        activity?.SetTag("banking.beneficiary", command.Beneficiary.Trim());
         var amount = decimal.Round(command.Amount, 2, MidpointRounding.AwayFromZero);
         var units = decimal.ToInt64(decimal.Truncate(amount));
         var nanos = decimal.ToInt32((amount - units) * 1_000_000_000m);
         using var accountsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:AccountsUrl"));
         var accounts = new AccountsService.AccountsServiceClient(accountsChannel);
-        return await ExecuteAuthenticatedAsync(
+        var payment = await ExecuteAuthenticatedAsync(
             headers => accounts.SendPaymentAsync(
                 new SendPaymentRequest
                 {
@@ -152,6 +161,8 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
                 headers,
                 cancellationToken: cancellationToken).ResponseAsync,
             cancellationToken);
+        activity?.SetTag("banking.payment", payment.Name);
+        return payment;
     }
 
     public async Task<Deposit> DepositFundsAsync(
@@ -159,12 +170,14 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
         CancellationToken cancellationToken = default)
     {
         Validator.ValidateObject(command, new ValidationContext(command), validateAllProperties: true);
+        using var activity = ActivitySource.StartActivity("DepositFunds", ActivityKind.Internal);
+        activity?.SetTag("banking.account", command.Account.Trim());
         var amount = decimal.Round(command.Amount, 2, MidpointRounding.AwayFromZero);
         var units = decimal.ToInt64(decimal.Truncate(amount));
         var nanos = decimal.ToInt32((amount - units) * 1_000_000_000m);
         using var accountsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:AccountsUrl"));
         var accounts = new AccountsService.AccountsServiceClient(accountsChannel);
-        return await ExecuteAuthenticatedAsync(
+        var deposit = await ExecuteAuthenticatedAsync(
             headers => accounts.DepositFundsAsync(
                 new DepositFundsRequest
                 {
@@ -183,6 +196,8 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
                 headers,
                 cancellationToken: cancellationToken).ResponseAsync,
             cancellationToken);
+        activity?.SetTag("banking.deposit", deposit.Name);
+        return deposit;
     }
 
     private async Task<T> ExecuteAuthenticatedAsync<T>(
@@ -196,6 +211,9 @@ public sealed class BankingDashboardService(IConfiguration configuration, Access
         }
         catch (RpcException exception) when (exception.StatusCode == StatusCode.Unauthenticated)
         {
+            Activity.Current?.AddEvent(new ActivityEvent("access_token.refresh_retry"));
+            Activity.Current?.SetTag("banking.auth.retry", true);
+            logger.LogWarning("gRPC call was unauthenticated; refreshing the access token and retrying once");
             token = await accessTokenProvider.GetAccessTokenAsync(
                 forceRefresh: true,
                 cancellationToken: cancellationToken);

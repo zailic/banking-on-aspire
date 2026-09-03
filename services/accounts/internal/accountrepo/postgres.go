@@ -10,6 +10,7 @@ import (
 
 	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
+	"dev.local/banking-on-aspire/platform/observability"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -30,6 +31,9 @@ var paymentsSchema string
 //go:embed migrations/004_create_deposits.sql
 var depositsSchema string
 
+//go:embed migrations/005_add_outbox_trace_context.sql
+var outboxTraceContextSchema string
+
 type PostgresRepository struct{ pool *pgxpool.Pool }
 
 func OpenPostgres(ctx context.Context, connectionString string) (*PostgresRepository, error) {
@@ -45,7 +49,7 @@ func OpenPostgres(ctx context.Context, connectionString string) (*PostgresReposi
 }
 func (r *PostgresRepository) Close() { r.pool.Close() }
 func (r *PostgresRepository) Migrate(ctx context.Context) error {
-	_, err := r.pool.Exec(ctx, accountsSchema+"\n"+accountNumberSchema+"\n"+paymentsSchema+"\n"+depositsSchema)
+	_, err := r.pool.Exec(ctx, accountsSchema+"\n"+accountNumberSchema+"\n"+paymentsSchema+"\n"+depositsSchema+"\n"+outboxTraceContextSchema)
 	if err != nil {
 		return fmt.Errorf("migrate accounts database: %w", err)
 	}
@@ -235,8 +239,9 @@ func (r *PostgresRepository) SendPayment(ctx context.Context, payment *accountsv
 	if err != nil {
 		return nil, fmt.Errorf("marshal payment event: %w", err)
 	}
-	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at) VALUES ($1,'banking.events.v1.PaymentSentEvent',$2,$3::jsonb,$4)`,
-		event.GetEventId(), payment.GetSourceAccount(), payload, payment.GetCreateTime().AsTime()); err != nil {
+	traceParent, traceState := observability.InjectTraceContext(ctx)
+	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at, trace_parent, trace_state) VALUES ($1,'banking.events.v1.PaymentSentEvent',$2,$3::jsonb,$4,$5,$6)`,
+		event.GetEventId(), payment.GetSourceAccount(), payload, payment.GetCreateTime().AsTime(), traceParent, traceState); err != nil {
 		return nil, fmt.Errorf("store payment outbox event: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
@@ -297,8 +302,9 @@ func (r *PostgresRepository) DepositFunds(ctx context.Context, deposit *accounts
 	if err != nil {
 		return nil, fmt.Errorf("marshal deposit event: %w", err)
 	}
-	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at) VALUES ($1,'banking.events.v1.FundsDepositedEvent',$2,$3::jsonb,$4)`,
-		event.GetEventId(), deposit.GetAccount(), payload, deposit.GetCreateTime().AsTime()); err != nil {
+	traceParent, traceState := observability.InjectTraceContext(ctx)
+	if _, err := tx.Exec(ctx, `INSERT INTO account_outbox (event_id, event_type, aggregate_name, payload, occurred_at, trace_parent, trace_state) VALUES ($1,'banking.events.v1.FundsDepositedEvent',$2,$3::jsonb,$4,$5,$6)`,
+		event.GetEventId(), deposit.GetAccount(), payload, deposit.GetCreateTime().AsTime(), traceParent, traceState); err != nil {
 		return nil, fmt.Errorf("store deposit outbox event: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
@@ -308,13 +314,15 @@ func (r *PostgresRepository) DepositFunds(ctx context.Context, deposit *accounts
 }
 
 type OutboxEvent struct {
-	ID      string
-	Type    string
-	Payload []byte
+	ID          string
+	Type        string
+	Payload     []byte
+	TraceParent string
+	TraceState  string
 }
 
 func (r *PostgresRepository) PendingOutboxEvents(ctx context.Context, limit int) ([]OutboxEvent, error) {
-	rows, err := r.pool.Query(ctx, `SELECT event_id, event_type, payload FROM account_outbox WHERE published_at IS NULL ORDER BY occurred_at, event_id LIMIT $1`, limit)
+	rows, err := r.pool.Query(ctx, `SELECT event_id, event_type, payload, trace_parent, trace_state FROM account_outbox WHERE published_at IS NULL ORDER BY occurred_at, event_id LIMIT $1`, limit)
 	if err != nil {
 		return nil, fmt.Errorf("list pending outbox events: %w", err)
 	}
@@ -322,7 +330,7 @@ func (r *PostgresRepository) PendingOutboxEvents(ctx context.Context, limit int)
 	events := make([]OutboxEvent, 0)
 	for rows.Next() {
 		var event OutboxEvent
-		if err := rows.Scan(&event.ID, &event.Type, &event.Payload); err != nil {
+		if err := rows.Scan(&event.ID, &event.Type, &event.Payload, &event.TraceParent, &event.TraceState); err != nil {
 			return nil, fmt.Errorf("scan pending outbox event: %w", err)
 		}
 		events = append(events, event)

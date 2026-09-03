@@ -401,21 +401,33 @@ dd {
 .summary-card small { overflow: hidden; color: var(--colorNeutralForeground3); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .summary-card-muted strong { color: var(--colorNeutralForeground3); }
 .summary-icon, .empty-icon { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: var(--borderRadiusLarge); color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); }
-.dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
 .dashboard-panel { box-sizing: border-box; min-width: 0; padding: 0; overflow: hidden; }
 .panel-heading { min-height: 62px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--colorNeutralStroke2); }
 .panel-heading h2 { margin: 0 0 2px; font-size: 16px; font-weight: 650; }
 .panel-heading p { margin: 0; color: var(--colorNeutralForeground3); font-size: 11px; }
-.accounts-panel { grid-column: 1 / span 2; min-height: 242px; }
-.accounts-grid { width: 100%; }
+.accounts-panel { grid-column: 1; grid-row: 1; }
 .account-identity { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
 .account-identity strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account-identity span { color: var(--colorNeutralForeground3); font-size: 12px; letter-spacing: .04em; }
-.account-balance { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.activity-panel { grid-column: 3; min-height: 242px; }
-.activity-list { display: grid; }
-.activity-item { min-width: 0; padding: 12px 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--colorNeutralStroke2); }
+.activity-panel { grid-column: 3; grid-row: 1; }
+.accounts-panel, .beneficiaries-panel, .activity-panel { min-height: 0; display: flex; flex-direction: column; }
+.accounts-panel .panel-heading, .beneficiaries-panel .panel-heading, .activity-panel .panel-heading { flex: 0 0 auto; }
+.panel-heading-actions { display: flex; align-items: center; gap: 4px; }
+.panel-count { flex: 0 0 auto; display: inline-grid; min-width: 26px; height: 26px; padding-inline: 7px; place-items: center; border-radius: 999px; color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.activity-list, .compact-dashboard-list { min-height: 0; display: grid; align-content: start; overflow-y: auto; scrollbar-gutter: stable; }
+.activity-item { min-width: 0; padding: 10px 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--colorNeutralStroke2); }
 .activity-item:last-child { border-bottom: 0; }
+.compact-dashboard-item { min-width: 0; padding: 10px 14px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--colorNeutralStroke2); }
+.compact-dashboard-item:last-child { border-bottom: 0; }
+.compact-item-icon { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); }
+.compact-item-value { min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.compact-item-value strong { font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.compact-item-value span { color: var(--colorNeutralForeground3); font-size: 10px; }
+.beneficiary-identity { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.beneficiary-identity strong, .beneficiary-identity span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.beneficiary-identity strong { font-size: 12px; }
+.beneficiary-identity span { color: var(--colorNeutralForeground3); font-size: 10px; }
 .activity-direction { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; }
 .activity-direction.debit { color: var(--colorPaletteRedForeground1); background: var(--colorPaletteRedBackground1); }
 .activity-direction.credit { color: var(--colorPaletteGreenForeground1); background: var(--colorPaletteGreenBackground1); }
@@ -426,19 +438,12 @@ dd {
 .activity-amount strong { font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .activity-amount.debit strong { color: var(--colorPaletteRedForeground1); }
 .activity-amount.credit strong { color: var(--colorPaletteGreenForeground1); }
-.beneficiaries-panel { grid-column: 2 / span 2; }
-.profile-panel { grid-column: 1; grid-row: 2; }
+.beneficiaries-panel { grid-column: 2; grid-row: 1; }
 .panel-empty { min-height: 180px; padding: 24px; display: grid; place-items: center; align-content: center; gap: 5px; text-align: center; }
 .compact-empty { min-height: 130px; }
 .panel-empty strong { margin-top: 5px; font-size: 13px; }
 .panel-empty span { max-width: 300px; color: var(--colorNeutralForeground3); font-size: 11px; line-height: 1.45; }
-.beneficiaries-grid { width: 100%; }
-.beneficiaries-grid fluent-data-grid-row { border-bottom: 1px solid var(--colorNeutralStroke2); }
-.beneficiaries-grid fluent-data-grid-row:last-child { border-bottom: 0; }
-.destination { color: var(--colorNeutralForeground2); font-size: 12px; }
 .contact-type, .status-badge { display: inline-flex; width: fit-content; padding: 3px 8px; border-radius: 999px; color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); font-size: 10px; font-weight: 600; }
-.profile-panel dl { padding: 16px; grid-template-columns: 78px minmax(0, 1fr); gap: 12px; }
-.profile-id { color: var(--colorNeutralForeground3); font-family: var(--fontFamilyMonospace); font-size: 10px; }
 
 @media (max-width: 760px) {
 
@@ -462,8 +467,7 @@ dd {
     .dashboard-heading { align-items: flex-start; flex-direction: column; }
     .dashboard-actions { width: 100%; justify-content: flex-start; }
     .summary-grid, .dashboard-grid { grid-template-columns: 1fr; }
-    .accounts-panel, .activity-panel, .beneficiaries-panel, .profile-panel { grid-column: 1; grid-row: auto; }
-    .beneficiaries-panel { overflow-x: auto; }
+    .accounts-panel, .activity-panel, .beneficiaries-panel { grid-column: 1; grid-row: auto; height: min(360px, 55vh); }
 
     .contact-card div,
     .section-heading {

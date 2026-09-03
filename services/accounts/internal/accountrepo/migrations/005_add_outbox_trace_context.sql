@@ -1,0 +1,3 @@
+ALTER TABLE account_outbox
+    ADD COLUMN IF NOT EXISTS trace_parent TEXT NOT NULL DEFAULT '',
+    ADD COLUMN IF NOT EXISTS trace_state TEXT NOT NULL DEFAULT '';

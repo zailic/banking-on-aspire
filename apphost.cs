@@ -142,6 +142,7 @@ var accounts = builder.AddExecutable(
         "run",
         "-buildvcs=false",
         "./cmd/accounts")
+    .WithOtlpExporter(OtlpProtocol.Grpc)
     .WithEnvironment("ACCOUNTS_PORT", "8085")
     .WithEndpoint(
         targetPort: 8085,
@@ -170,6 +171,7 @@ var transactions = builder.AddExecutable(
         "run",
         "-buildvcs=false",
         "./cmd/transactions")
+    .WithOtlpExporter(OtlpProtocol.Grpc)
     .WithEnvironment("TRANSACTIONS_HTTP_PORT", "8086")
     .WithEnvironment("TRANSACTIONS_GRPC_PORT", "8087")
     .WithEndpoint(

@@ -9,12 +9,15 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"dev.local/banking-on-aspire/platform/auth/keycloak"
 	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	"dev.local/banking-on-aspire/platform/observability"
 	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
 	"dev.local/banking-on-aspire/services/accounts/internal/accountservice"
 	"dev.local/banking-on-aspire/services/accounts/internal/outbox"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -35,6 +38,18 @@ func main() {
 	slog.SetDefault(logger)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	shutdownTelemetry, err := observability.Configure(ctx, "accounts")
+	if err != nil {
+		logger.Error("failed to initialize OpenTelemetry", "error", err)
+		os.Exit(1)
+	}
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := shutdownTelemetry(shutdownCtx); err != nil {
+			logger.Warn("failed to shut down OpenTelemetry", "error", err)
+		}
+	}()
 	repo, err := accountrepo.OpenPostgres(ctx, required("USERSDB_URI"))
 	if err != nil {
 		logger.Error("failed to initialize accounts repository", "error", err)
@@ -56,7 +71,10 @@ func main() {
 		logger.Error("failed to listen", "error", err)
 		os.Exit(1)
 	}
-	server := grpc.NewServer(grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)))
+	server := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)),
+	)
 	accountsv1.RegisterAccountsServiceServer(server, accountservice.New(repo, repo))
 	healthServer := health.NewServer()
 	healthv1.RegisterHealthServer(server, healthServer)

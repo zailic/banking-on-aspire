@@ -18,6 +18,18 @@ go test ./...
 
 The AppHost injects `USERSDB_URI`, `KEYCLOAK_HTTP`, and `ACCOUNTS_PORT`.
 
+For a traceable local probe, set `ACCOUNTS_SMOKE_TOKEN` and use
+`cmd/accountsmoke`. Each mutation prints its generated W3C trace ID:
+
+```bash
+go run ./cmd/accountsmoke -endpoint grpc://localhost:<port> -parent users/<user-id> -action list
+go run ./cmd/accountsmoke -endpoint grpc://localhost:<port> -parent accounts/<account-id> -currency RON -amount 1.00 -action deposit
+go run ./cmd/accountsmoke -endpoint grpc://localhost:<port> -parent accounts/<account-id> -beneficiary users/<user-id>/contacts/<contact-id> -currency RON -amount 1.00 -action send
+```
+
+See `../../docs/runbooks/observability-and-failure-drills.md` for dashboard
+queries, retry checks, and safe PostgreSQL, Keycloak, and Dapr drills.
+
 ## Payments
 
 `SendPayment` is the canonical money-movement command. It debits an owned open

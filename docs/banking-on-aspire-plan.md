@@ -175,6 +175,14 @@ Done when:
 - Dashboards for latency/errors/auth failures.
 - Run failure drills (PostgreSQL down, Keycloak unavailable, sidecar restart).
 
+Progress (2026-09-02):
+- Completed end-to-end W3C trace propagation for DepositFunds and SendPayment
+  across Banking.Web, Accounts, the durable outbox, Dapr pub/sub, and Transactions.
+- Added automated outbox retry/trace-context coverage and completed local
+  PostgreSQL, Keycloak, and Dapr recovery drills.
+- Added the observability and failure-drill runbook. Alert definitions and a
+  persistent production dashboard remain future deployment work.
+
 Done when:
 - Alerts and troubleshooting steps are documented and validated.
 
