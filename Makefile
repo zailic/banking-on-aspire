@@ -2,6 +2,7 @@ TOOLS_DIR := $(CURDIR)/tools
 BUF := $(TOOLS_DIR)/bin/buf
 PROTOC := $(TOOLS_DIR)/bin/protoc
 GO_PACKAGES := ./platform/... ./services/accounts/... ./services/accounts-legacy/... ./services/contacts/... ./services/transactions/... ./services/users/...
+GO_MOD_DIRS := $(shell find . -type f -name 'go.mod' -exec dirname {} \; | sort)
 GO_FILES := $(shell find platform services -type f -name '*.go')
 
 .PHONY: help tools tools-clean tools-versions proto proto-format proto-lint proto-build proto-check go-format go-format-check go-lint test check smoke-auth
@@ -58,6 +59,13 @@ go-format-check:
 
 go-lint:
 	@go vet $(GO_PACKAGES)
+
+go-mod-tidy: $(GO_MOD_DIRS:%=go-mod-tidy/%)
+go-mod-tidy/%: DIR=$*
+go-mod-tidy/%:
+	@echo "Running go mod tidy in $(DIR)" \
+		&& cd $(DIR) \
+		&& go mod tidy
 
 test:
 	@go test $(GO_PACKAGES)
