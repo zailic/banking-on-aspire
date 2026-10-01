@@ -25,7 +25,12 @@ func (r *repositoryStub) ApplyFundsDeposited(context.Context, *eventsv1.FundsDep
 func (r *repositoryStub) ResolveUserName(context.Context, string) (string, error) {
 	return r.owner, nil
 }
-func (r *repositoryStub) List(_ context.Context, _ string, limit, offset int) ([]*transactionsv1.Transaction, error) {
+
+func (r *repositoryStub) List(
+	_ context.Context,
+	_ string,
+	limit, offset int,
+) ([]*transactionsv1.Transaction, error) {
 	end := min(offset+limit, len(r.items))
 	if offset > len(r.items) {
 		return nil, nil
@@ -38,19 +43,28 @@ func authenticatedContext() context.Context {
 }
 
 func TestListTransactionsPaginates(t *testing.T) {
-	repo := &repositoryStub{owner: "users/user-1", items: []*transactionsv1.Transaction{{Name: "one"}, {Name: "two"}, {Name: "three"}}}
-	first, err := New(repo).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: repo.owner, PageSize: 2})
+	repo := &repositoryStub{
+		owner: "users/user-1",
+		items: []*transactionsv1.Transaction{{Name: "one"}, {Name: "two"}, {Name: "three"}},
+	}
+	first, err := New(
+		repo,
+	).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: repo.owner, PageSize: 2})
 	if err != nil || len(first.GetTransactions()) != 2 || first.GetNextPageToken() == "" {
 		t.Fatalf("first page = %#v, error = %v", first, err)
 	}
-	second, err := New(repo).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: repo.owner, PageSize: 2, PageToken: first.GetNextPageToken()})
+	second, err := New(
+		repo,
+	).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: repo.owner, PageSize: 2, PageToken: first.GetNextPageToken()})
 	if err != nil || len(second.GetTransactions()) != 1 || second.GetNextPageToken() != "" {
 		t.Fatalf("second page = %#v, error = %v", second, err)
 	}
 }
 
 func TestListTransactionsRejectsAnotherOwner(t *testing.T) {
-	_, err := New(&repositoryStub{owner: "users/user-1"}).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: "users/user-2"})
+	_, err := New(
+		&repositoryStub{owner: "users/user-1"},
+	).ListTransactions(authenticatedContext(), &transactionsv1.ListTransactionsRequest{Parent: "users/user-2"})
 	if status.Code(err) != codes.PermissionDenied {
 		t.Fatalf("code = %v, want %v", status.Code(err), codes.PermissionDenied)
 	}

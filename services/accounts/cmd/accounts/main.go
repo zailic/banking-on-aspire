@@ -57,7 +57,13 @@ func main() {
 	}
 	defer repo.Close()
 	daprHTTPPort := required("DAPR_HTTP_PORT")
-	verifier, err := keycloak.NewTokenVerifier(ctx, strings.TrimRight(required("KEYCLOAK_HTTP"), "/")+"/realms/banking-on-aspire", keycloakClientID)
+	discoveryURL := strings.TrimRight(required("KEYCLOAK_HTTP"), "/") + "/realms/banking-on-aspire"
+	verifier, err := keycloak.NewTokenVerifier(
+		ctx,
+		discoveryURL,
+		keycloakClientID,
+		os.Getenv("KEYCLOAK_ISSUER"),
+	)
 	if err != nil {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
 		os.Exit(1)

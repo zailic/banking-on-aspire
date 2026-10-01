@@ -84,7 +84,12 @@ func (a *CounterActor) ReminderCall(
 	sign := []int{1, -1}[rand.Intn(2)]
 	randomAmount := rand.Intn(100) + 1
 
-	log.Printf("reminder callback: %s, state: %s, amount: %d", reminderName, string(state), sign*randomAmount)
+	log.Printf(
+		"reminder callback: %s, state: %s, amount: %d",
+		reminderName,
+		string(state),
+		sign*randomAmount,
+	)
 	opResponse, err := a.Add(context.Background(), &api.AddRequest{
 		Amount: sign * randomAmount,
 	})

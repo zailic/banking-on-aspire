@@ -11,6 +11,10 @@ Start the lab locally and validate a baseline workflow before changing architect
 - Dapr CLI installed and initialized
 - Aspire CLI available
 
+The AppHost is the .NET project `Banking.AppHost.csproj`; its source is split
+under `AppHost/` by infrastructure, migrations, services, frontend, and
+deployment responsibilities.
+
 ## Start Commands
 
 From repository root:
@@ -79,10 +83,10 @@ For the automated authentication and ownership matrix, configure the local
 Aspire secret store once:
 
 ```bash
-aspire secret set 'SmokeAuth:Keycloak:Username' '<username>' --apphost apphost.cs
-aspire secret set 'SmokeAuth:Keycloak:Password' '<password>' --apphost apphost.cs
-aspire secret set 'SmokeAuth:Keycloak:ClientSecret' '<client-secret>' --apphost apphost.cs
-aspire secret set 'Parameters:banking-web-client-secret' '<client-secret>' --apphost apphost.cs
+aspire secret set 'SmokeAuth:Keycloak:Username' '<username>' --apphost Banking.AppHost.csproj
+aspire secret set 'SmokeAuth:Keycloak:Password' '<password>' --apphost Banking.AppHost.csproj
+aspire secret set 'SmokeAuth:Keycloak:ClientSecret' '<client-secret>' --apphost Banking.AppHost.csproj
+aspire secret set 'Parameters:banking-web-client-secret' '<client-secret>' --apphost Banking.AppHost.csproj
 ```
 
 Then run `make smoke-auth` from the repository root. The gate reads secrets with
@@ -139,12 +143,12 @@ curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8082/accounts/de
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8082/accounts/demo-account-usd/balance
 ```
 
-## Validation Evidence (2026-07-30)
+## Validation Evidence
 
-- `aspire --version` returned `13.4.6+87fe259e4fc244c599019a7b1304c85a1488f248`.
-- `aspire start` succeeded and started AppHost with dashboard URL.
-- `aspire ps` showed `apphost.cs` running.
-- `aspire stop` shut down AppHost successfully.
+- On 2026-07-30, Aspire 13.4.6 started and stopped the original file-based AppHost.
+- The current AppHost is `Banking.AppHost.csproj` on Aspire 13.6.0. Run
+  `aspire start`, inspect resources with `aspire describe`, and finish with
+  `aspire stop` when capturing fresh local evidence.
 
 ## Troubleshooting
 
@@ -177,8 +181,8 @@ Aspire-managed.
 ### Banking.Web watch and hot reload
 
 Aspire default watch and resource hot reload are separate development loops.
-`features.defaultWatchEnabled` restarts the file-based AppHost when its model
-changes and currently controls C# project resources as well. The Go services are
+`features.defaultWatchEnabled` restarts the AppHost when its model changes and
+currently controls C# project resources as well. The Go services are
 registered with `AddExecutable` and are not rebuilt when Go source files change;
 restart the affected resource or use a Go-specific watcher for that service.
 

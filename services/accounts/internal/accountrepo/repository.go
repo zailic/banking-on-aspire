@@ -110,7 +110,10 @@ func (m *Memory) Get(_ context.Context, name string) (*accountsv1.Account, error
 	return proto.Clone(account).(*accountsv1.Account), nil
 }
 
-func (m *Memory) CloseAccount(_ context.Context, name, expectedEtag, nextEtag string) (*accountsv1.Account, error) {
+func (m *Memory) CloseAccount(
+	_ context.Context,
+	name, expectedEtag, nextEtag string,
+) (*accountsv1.Account, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	account, ok := m.accounts[name]
@@ -125,7 +128,10 @@ func (m *Memory) CloseAccount(_ context.Context, name, expectedEtag, nextEtag st
 	return proto.Clone(account).(*accountsv1.Account), nil
 }
 
-func (m *Memory) SendPayment(_ context.Context, payment *accountsv1.Payment) (*accountsv1.Payment, error) {
+func (m *Memory) SendPayment(
+	_ context.Context,
+	payment *accountsv1.Payment,
+) (*accountsv1.Payment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	account, ok := m.accounts[payment.GetSourceAccount()]
@@ -156,7 +162,8 @@ func (m *Memory) SendPayment(_ context.Context, payment *accountsv1.Payment) (*a
 			return nil, ErrDestinationInvalid
 		}
 		destination, exists = m.accounts[beneficiary.internalAccount]
-		if !exists || destination.GetStatus() != accountsv1.AccountStatus_ACCOUNT_STATUS_OPEN || destination.GetCurrencyCode() != payment.GetAmount().GetCurrencyCode() {
+		if !exists || destination.GetStatus() != accountsv1.AccountStatus_ACCOUNT_STATUS_OPEN ||
+			destination.GetCurrencyCode() != payment.GetAmount().GetCurrencyCode() {
 			return nil, ErrDestinationInvalid
 		}
 	}
@@ -164,7 +171,10 @@ func (m *Memory) SendPayment(_ context.Context, payment *accountsv1.Payment) (*a
 	account.UpdateTime = payment.GetCreateTime()
 	account.Etag = payment.GetName()
 	if destination != nil {
-		destination.AvailableBalance = addMoney(destination.GetAvailableBalance(), payment.GetAmount())
+		destination.AvailableBalance = addMoney(
+			destination.GetAvailableBalance(),
+			payment.GetAmount(),
+		)
 		destination.UpdateTime = payment.GetCreateTime()
 		destination.Etag = payment.GetName()
 	}
@@ -172,7 +182,10 @@ func (m *Memory) SendPayment(_ context.Context, payment *accountsv1.Payment) (*a
 	return proto.Clone(payment).(*accountsv1.Payment), nil
 }
 
-func (m *Memory) DepositFunds(_ context.Context, deposit *accountsv1.Deposit) (*accountsv1.Deposit, error) {
+func (m *Memory) DepositFunds(
+	_ context.Context,
+	deposit *accountsv1.Deposit,
+) (*accountsv1.Deposit, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	account, ok := m.accounts[deposit.GetAccount()]
@@ -206,7 +219,8 @@ func samePayment(left, right *accountsv1.Payment) bool {
 }
 
 func sameDeposit(left, right *accountsv1.Deposit) bool {
-	return left.GetReference() == right.GetReference() && proto.Equal(left.GetAmount(), right.GetAmount())
+	return left.GetReference() == right.GetReference() &&
+		proto.Equal(left.GetAmount(), right.GetAmount())
 }
 
 func subtractMoney(balance, amount interface {

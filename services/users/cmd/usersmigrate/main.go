@@ -13,7 +13,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	connectionString := strings.TrimSpace(os.Getenv("USERSDB_URI"))
 	if connectionString == "" {
-		logger.Error("users database connection string is not configured", "environment", "USERSDB_URI")
+		logger.Error(
+			"users database connection string is not configured",
+			"environment",
+			"USERSDB_URI",
+		)
 		os.Exit(1)
 	}
 	repository, err := userrepo.OpenPostgres(context.Background(), connectionString)

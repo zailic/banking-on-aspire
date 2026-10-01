@@ -26,7 +26,10 @@ func main() {
 	}
 
 	target := strings.TrimPrefix(strings.TrimPrefix(*endpoint, "grpc://"), "http://")
-	connection, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.NewClient(
+		target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

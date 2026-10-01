@@ -163,9 +163,19 @@ Planned service locations:
 - `services/accounts-legacy` - preserved actor-based implementation used only as
   learning/reference code; it is not the canonical account boundary.
 
-### M5 - Radius environments
+### M5 - Radius environments (In progress)
 - Define dev/test environments with reusable recipes.
 - Map Aspire outputs to Radius deployment model.
+
+Progress (2026-10-01):
+- Migrated the file-based AppHost to `Banking.AppHost.csproj` on Aspire 13.6 and
+  split the model into focused source files under `AppHost/`.
+- Added container publishing for the four Go services and Banking.Web, plus a
+  Radius adapter for Dapr, Kubernetes persistence, Keycloak reconciliation, and
+  database migrations.
+- Added independent Radius release artifacts and selective workload deployment
+  steps. The deployment workflow and its current preview compatibility limits
+  are documented in `extensions/Banking.Aspire.Hosting.Radius/README.md`.
 
 Done when:
 - Same app model can be deployed to at least two environments.

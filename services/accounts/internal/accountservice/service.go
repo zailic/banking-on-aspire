@@ -29,7 +29,10 @@ type Service struct {
 	users      accountrepo.UserResolver
 }
 
-func (s *Service) CreateAccount(ctx context.Context, req *accountsv1.CreateAccountRequest) (*accountsv1.Account, error) {
+func (s *Service) CreateAccount(
+	ctx context.Context,
+	req *accountsv1.CreateAccountRequest,
+) (*accountsv1.Account, error) {
 	if req == nil || !validUserName(req.GetParent()) {
 		return nil, status.Error(codes.InvalidArgument, "parent must have the form users/{user}")
 	}
@@ -41,18 +44,25 @@ func (s *Service) CreateAccount(ctx context.Context, req *accountsv1.CreateAccou
 	if displayName == "" {
 		return nil, status.Error(codes.InvalidArgument, "account.display_name is required")
 	}
-	if input.GetType() != accountsv1.AccountType_ACCOUNT_TYPE_CHECKING && input.GetType() != accountsv1.AccountType_ACCOUNT_TYPE_SAVINGS {
+	if input.GetType() != accountsv1.AccountType_ACCOUNT_TYPE_CHECKING &&
+		input.GetType() != accountsv1.AccountType_ACCOUNT_TYPE_SAVINGS {
 		return nil, status.Error(codes.InvalidArgument, "account.type must be checking or savings")
 	}
 	currencyCode := strings.ToUpper(strings.TrimSpace(input.GetCurrencyCode()))
 	if !validCurrencyCode(currencyCode) {
-		return nil, status.Error(codes.InvalidArgument, "account.currency_code must be a three-letter ISO 4217 code")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"account.currency_code must be a three-letter ISO 4217 code",
+		)
 	}
 	accountID := strings.TrimSpace(req.GetAccountId())
 	if accountID == "" {
 		accountID = "acc-" + randomHex(10)
 	} else if !validID(accountID) {
-		return nil, status.Error(codes.InvalidArgument, "account_id must start with a lowercase letter and contain only lowercase letters, digits or hyphens")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"account_id must start with a lowercase letter and contain only lowercase letters, digits or hyphens",
+		)
 	}
 	if err := s.users.ValidateUserName(ctx, req.GetParent()); err != nil {
 		if errors.Is(err, accountrepo.ErrUserNotFound) {
@@ -87,7 +97,10 @@ func New(repository accountrepo.Repository, users accountrepo.UserResolver) *Ser
 	return &Service{repository: repository, users: users}
 }
 
-func (s *Service) ListAccounts(ctx context.Context, req *accountsv1.ListAccountsRequest) (*accountsv1.ListAccountsResponse, error) {
+func (s *Service) ListAccounts(
+	ctx context.Context,
+	req *accountsv1.ListAccountsRequest,
+) (*accountsv1.ListAccountsResponse, error) {
 	if req == nil || !validUserName(req.GetParent()) {
 		return nil, status.Error(codes.InvalidArgument, "parent must have the form users/{user}")
 	}
@@ -120,9 +133,15 @@ func (s *Service) ListAccounts(ctx context.Context, req *accountsv1.ListAccounts
 	return response, nil
 }
 
-func (s *Service) GetAccount(ctx context.Context, req *accountsv1.GetAccountRequest) (*accountsv1.Account, error) {
+func (s *Service) GetAccount(
+	ctx context.Context,
+	req *accountsv1.GetAccountRequest,
+) (*accountsv1.Account, error) {
 	if req == nil || !validAccountName(req.GetName()) {
-		return nil, status.Error(codes.InvalidArgument, "name must have the form accounts/{account}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"name must have the form accounts/{account}",
+		)
 	}
 	account, err := s.repository.Get(ctx, req.GetName())
 	if err != nil {
@@ -134,9 +153,15 @@ func (s *Service) GetAccount(ctx context.Context, req *accountsv1.GetAccountRequ
 	return account, nil
 }
 
-func (s *Service) CloseAccount(ctx context.Context, req *accountsv1.CloseAccountRequest) (*accountsv1.Account, error) {
+func (s *Service) CloseAccount(
+	ctx context.Context,
+	req *accountsv1.CloseAccountRequest,
+) (*accountsv1.Account, error) {
 	if req == nil || !validAccountName(req.GetName()) {
-		return nil, status.Error(codes.InvalidArgument, "name must have the form accounts/{account}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"name must have the form accounts/{account}",
+		)
 	}
 	current, err := s.repository.Get(ctx, req.GetName())
 	if err != nil {
@@ -152,16 +177,28 @@ func (s *Service) CloseAccount(ctx context.Context, req *accountsv1.CloseAccount
 	return closed, nil
 }
 
-func (s *Service) SendPayment(ctx context.Context, req *accountsv1.SendPaymentRequest) (*accountsv1.Payment, error) {
+func (s *Service) SendPayment(
+	ctx context.Context,
+	req *accountsv1.SendPaymentRequest,
+) (*accountsv1.Payment, error) {
 	if req == nil || !validAccountName(req.GetParent()) {
-		return nil, status.Error(codes.InvalidArgument, "parent must have the form accounts/{account}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"parent must have the form accounts/{account}",
+		)
 	}
 	if !validBeneficiaryName(req.GetBeneficiary()) {
-		return nil, status.Error(codes.InvalidArgument, "beneficiary must have the form users/{user}/contacts/{contact}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"beneficiary must have the form users/{user}/contacts/{contact}",
+		)
 	}
 	requestID := strings.TrimSpace(req.GetRequestId())
 	if requestID == "" || len(requestID) > 128 {
-		return nil, status.Error(codes.InvalidArgument, "request_id is required and must not exceed 128 characters")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"request_id is required and must not exceed 128 characters",
+		)
 	}
 	reference := strings.TrimSpace(req.GetReference())
 	if utf8.RuneCountInString(reference) > 140 {
@@ -169,7 +206,10 @@ func (s *Service) SendPayment(ctx context.Context, req *accountsv1.SendPaymentRe
 	}
 	amount := req.GetAmount()
 	if !validPositiveMoney(amount) {
-		return nil, status.Error(codes.InvalidArgument, "amount must be positive and use a three-letter ISO 4217 currency code")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"amount must be positive and use a three-letter ISO 4217 currency code",
+		)
 	}
 	current, err := s.repository.Get(ctx, req.GetParent())
 	if err != nil {
@@ -180,15 +220,25 @@ func (s *Service) SendPayment(ctx context.Context, req *accountsv1.SendPaymentRe
 	}
 	currencyCode := strings.ToUpper(strings.TrimSpace(amount.GetCurrencyCode()))
 	if currencyCode != current.GetCurrencyCode() {
-		return nil, status.Error(codes.InvalidArgument, "amount currency must match the source account")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"amount currency must match the source account",
+		)
 	}
 	now := time.Now().UTC()
 	payment := &accountsv1.Payment{
-		Name: "payments/pay-" + randomHex(10), SourceAccount: req.GetParent(),
-		Beneficiary: req.GetBeneficiary(),
-		Amount:      &money.Money{CurrencyCode: currencyCode, Units: amount.GetUnits(), Nanos: amount.GetNanos()},
-		Reference:   reference, Status: accountsv1.PaymentStatus_PAYMENT_STATUS_COMPLETED,
-		CreateTime: timestamppb.New(now), RequestId: requestID,
+		Name:          "payments/pay-" + randomHex(10),
+		SourceAccount: req.GetParent(),
+		Beneficiary:   req.GetBeneficiary(),
+		Amount: &money.Money{
+			CurrencyCode: currencyCode,
+			Units:        amount.GetUnits(),
+			Nanos:        amount.GetNanos(),
+		},
+		Reference:  reference,
+		Status:     accountsv1.PaymentStatus_PAYMENT_STATUS_COMPLETED,
+		CreateTime: timestamppb.New(now),
+		RequestId:  requestID,
 	}
 	completed, err := s.repository.SendPayment(ctx, payment)
 	if err != nil {
@@ -197,20 +247,32 @@ func (s *Service) SendPayment(ctx context.Context, req *accountsv1.SendPaymentRe
 	return completed, nil
 }
 
-func (s *Service) DepositFunds(ctx context.Context, req *accountsv1.DepositFundsRequest) (*accountsv1.Deposit, error) {
+func (s *Service) DepositFunds(
+	ctx context.Context,
+	req *accountsv1.DepositFundsRequest,
+) (*accountsv1.Deposit, error) {
 	if req == nil || !validAccountName(req.GetParent()) {
-		return nil, status.Error(codes.InvalidArgument, "parent must have the form accounts/{account}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"parent must have the form accounts/{account}",
+		)
 	}
 	requestID := strings.TrimSpace(req.GetRequestId())
 	if requestID == "" || len(requestID) > 128 {
-		return nil, status.Error(codes.InvalidArgument, "request_id is required and must not exceed 128 characters")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"request_id is required and must not exceed 128 characters",
+		)
 	}
 	reference := strings.TrimSpace(req.GetReference())
 	if utf8.RuneCountInString(reference) > 140 {
 		return nil, status.Error(codes.InvalidArgument, "reference must not exceed 140 characters")
 	}
 	if !validPositiveMoney(req.GetAmount()) {
-		return nil, status.Error(codes.InvalidArgument, "amount must be positive and use a three-letter ISO 4217 currency code")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"amount must be positive and use a three-letter ISO 4217 currency code",
+		)
 	}
 	current, err := s.repository.Get(ctx, req.GetParent())
 	if err != nil {
@@ -225,9 +287,16 @@ func (s *Service) DepositFunds(ctx context.Context, req *accountsv1.DepositFunds
 	}
 	now := time.Now().UTC()
 	deposit := &accountsv1.Deposit{
-		Name: "deposits/dep-" + randomHex(10), Account: req.GetParent(),
-		Amount:    &money.Money{CurrencyCode: currencyCode, Units: req.GetAmount().GetUnits(), Nanos: req.GetAmount().GetNanos()},
-		Reference: reference, CreateTime: timestamppb.New(now), RequestId: requestID,
+		Name:    "deposits/dep-" + randomHex(10),
+		Account: req.GetParent(),
+		Amount: &money.Money{
+			CurrencyCode: currencyCode,
+			Units:        req.GetAmount().GetUnits(),
+			Nanos:        req.GetAmount().GetNanos(),
+		},
+		Reference:  reference,
+		CreateTime: timestamppb.New(now),
+		RequestId:  requestID,
 	}
 	completed, err := s.repository.DepositFunds(ctx, deposit)
 	if err != nil {
@@ -243,13 +312,19 @@ func (s *Service) authorizeOwner(ctx context.Context, owner string) error {
 	}
 	userName, err := s.users.ResolveUserName(ctx, claims.Subject)
 	if errors.Is(err, accountrepo.ErrUserNotFound) {
-		return status.Error(codes.PermissionDenied, "the authenticated identity has no active user profile")
+		return status.Error(
+			codes.PermissionDenied,
+			"the authenticated identity has no active user profile",
+		)
 	}
 	if err != nil {
 		return status.Error(codes.Internal, "account owner resolution failed")
 	}
 	if userName != owner {
-		return status.Error(codes.PermissionDenied, "the requested account is owned by another identity")
+		return status.Error(
+			codes.PermissionDenied,
+			"the requested account is owned by another identity",
+		)
 	}
 	return nil
 }
@@ -269,9 +344,15 @@ func repositoryError(err error) error {
 	case errors.Is(err, accountrepo.ErrAccountNotOpen):
 		return status.Error(codes.FailedPrecondition, "source account is not open")
 	case errors.Is(err, accountrepo.ErrIdempotencyConflict):
-		return status.Error(codes.AlreadyExists, "request_id was already used for different operation data")
+		return status.Error(
+			codes.AlreadyExists,
+			"request_id was already used for different operation data",
+		)
 	case errors.Is(err, accountrepo.ErrDestinationInvalid):
-		return status.Error(codes.FailedPrecondition, "internal beneficiary account cannot receive this payment")
+		return status.Error(
+			codes.FailedPrecondition,
+			"internal beneficiary account cannot receive this payment",
+		)
 	case errors.Is(err, accountrepo.ErrCurrencyMismatch):
 		return status.Error(codes.InvalidArgument, "amount currency must match the account")
 	default:
@@ -319,7 +400,8 @@ func validBeneficiaryName(value string) bool {
 }
 
 func validPositiveMoney(value *money.Money) bool {
-	if value == nil || !validCurrencyCode(strings.ToUpper(strings.TrimSpace(value.GetCurrencyCode()))) {
+	if value == nil ||
+		!validCurrencyCode(strings.ToUpper(strings.TrimSpace(value.GetCurrencyCode()))) {
 		return false
 	}
 	if value.GetUnits() < 0 || value.GetNanos() < 0 || value.GetNanos() >= 1_000_000_000 {

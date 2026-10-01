@@ -38,7 +38,11 @@ func main() {
 	)
 	defer cancel()
 
-	bankAccountServer := server.NewBankAccountServer(ctx, resolveKeycloakIssuerURL(), keycloakClientID)
+	bankAccountServer := server.NewBankAccountServer(
+		ctx,
+		resolveKeycloakIssuerURL(),
+		keycloakClientID,
+	)
 	mux := chi.NewMux()
 	mux.Mount("/", bankAccountServer.Handler())
 
@@ -46,7 +50,13 @@ func main() {
 	service.RegisterActorImplFactoryContext(actors.BankAccountServiceFactory)
 
 	go func() {
-		slog.Info("starting dapr service", "address", ":8080", "actor_type", actors.BankAccountActorType)
+		slog.Info(
+			"starting dapr service",
+			"address",
+			":8080",
+			"actor_type",
+			actors.BankAccountActorType,
+		)
 		if err := service.Start(); err != nil {
 			slog.Error("failed to start dapr service", "error", err)
 			os.Exit(1)

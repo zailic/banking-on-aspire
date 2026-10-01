@@ -9,7 +9,7 @@ Normally, start the service through Aspire so that PostgreSQL is provisioned and
 `USERSDB_URI` plus the Accounts gRPC endpoint are injected:
 
 ```bash
-aspire run --apphost ../../apphost.cs
+aspire run --apphost ../../Banking.AppHost.csproj
 ```
 
 To run only the Go process, provide a PostgreSQL URI explicitly:

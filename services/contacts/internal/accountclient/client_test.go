@@ -15,7 +15,11 @@ type accountsClientStub struct {
 	name          string
 }
 
-func (s *accountsClientStub) GetAccount(ctx context.Context, request *accountsv1.GetAccountRequest, _ ...grpc.CallOption) (*accountsv1.Account, error) {
+func (s *accountsClientStub) GetAccount(
+	ctx context.Context,
+	request *accountsv1.GetAccountRequest,
+	_ ...grpc.CallOption,
+) (*accountsv1.Account, error) {
 	md, _ := metadata.FromOutgoingContext(ctx)
 	s.authorization = md.Get("authorization")
 	s.name = request.GetName()
@@ -31,7 +35,8 @@ func TestValidateInternalAccountForwardsAuthorization(t *testing.T) {
 	if err := New(stub).ValidateInternalAccount(ctx, "accounts/checking-01"); err != nil {
 		t.Fatalf("ValidateInternalAccount() error = %v", err)
 	}
-	if stub.name != "accounts/checking-01" || len(stub.authorization) != 1 || stub.authorization[0] != "Bearer caller-token" {
+	if stub.name != "accounts/checking-01" || len(stub.authorization) != 1 ||
+		stub.authorization[0] != "Bearer caller-token" {
 		t.Fatalf("name = %q, authorization = %v", stub.name, stub.authorization)
 	}
 }

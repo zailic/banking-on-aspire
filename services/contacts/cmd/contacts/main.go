@@ -42,7 +42,11 @@ func main() {
 
 	connectionString := strings.TrimSpace(os.Getenv(usersDatabaseURIEnvironment))
 	if connectionString == "" {
-		logger.Error("users database connection string is not configured", "environment", usersDatabaseURIEnvironment)
+		logger.Error(
+			"users database connection string is not configured",
+			"environment",
+			usersDatabaseURIEnvironment,
+		)
 		os.Exit(1)
 	}
 	repository, err := contactrepo.OpenPostgres(ctx, connectionString)
@@ -52,7 +56,13 @@ func main() {
 	}
 	defer repository.Close()
 	keycloakURL := strings.TrimRight(requiredEnvironment("KEYCLOAK_HTTP"), "/")
-	verifier, err := keycloak.NewTokenVerifier(ctx, keycloakURL+"/realms/banking-on-aspire", keycloakClientID)
+	discoveryURL := keycloakURL + "/realms/banking-on-aspire"
+	verifier, err := keycloak.NewTokenVerifier(
+		ctx,
+		discoveryURL,
+		keycloakClientID,
+		os.Getenv("KEYCLOAK_ISSUER"),
+	)
 	if err != nil {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
 		os.Exit(1)
@@ -72,7 +82,9 @@ func main() {
 		logger.Error("failed to listen", "address", address, "error", err)
 		os.Exit(1)
 	}
-	server := grpc.NewServer(grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)))
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)),
+	)
 	contactsv1.RegisterContactsServiceServer(server, contactservice.New(
 		repository,
 		repository,

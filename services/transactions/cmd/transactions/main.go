@@ -44,13 +44,23 @@ func main() {
 			logger.Warn("failed to shut down OpenTelemetry", "error", err)
 		}
 	}()
-	repository, err := transactionrepo.OpenPostgres(ctx, required("TRANSACTIONSDB_URI"), required("USERSDB_URI"))
+	repository, err := transactionrepo.OpenPostgres(
+		ctx,
+		required("TRANSACTIONSDB_URI"),
+		required("USERSDB_URI"),
+	)
 	if err != nil {
 		logger.Error("failed to initialize transactions repository", "error", err)
 		os.Exit(1)
 	}
 	defer repository.Close()
-	verifier, err := keycloak.NewTokenVerifier(ctx, strings.TrimRight(required("KEYCLOAK_HTTP"), "/")+"/realms/banking-on-aspire", keycloakClientID)
+	discoveryURL := strings.TrimRight(required("KEYCLOAK_HTTP"), "/") + "/realms/banking-on-aspire"
+	verifier, err := keycloak.NewTokenVerifier(
+		ctx,
+		discoveryURL,
+		keycloakClientID,
+		os.Getenv("KEYCLOAK_ISSUER"),
+	)
 	if err != nil {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
 		os.Exit(1)

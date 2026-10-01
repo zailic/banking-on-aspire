@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Radius" Version="13.6.0-preview.1.26479.8" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.2.1-beta.532" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Banking.Aspire.Hosting.Radius.Tests" />
+  </ItemGroup>
+
+</Project>

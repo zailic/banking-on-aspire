@@ -40,7 +40,11 @@ func New(store Store, daprHTTPPort string, logger *slog.Logger) *Dispatcher {
 		store: store,
 		endpoint: "http://127.0.0.1:" + strings.TrimSpace(daprHTTPPort) +
 			"/v1.0/publish/" + url.PathEscape(pubSubName) + "/",
-		client: &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport), Timeout: 5 * time.Second}, logger: logger,
+		client: &http.Client{
+			Transport: otelhttp.NewTransport(http.DefaultTransport),
+			Timeout:   5 * time.Second,
+		},
+		logger: logger,
 	}
 }
 
@@ -70,7 +74,12 @@ func (d *Dispatcher) dispatch(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		req, err := http.NewRequestWithContext(eventCtx, http.MethodPost, d.endpoint+url.PathEscape(topic), bytes.NewReader(event.Payload))
+		req, err := http.NewRequestWithContext(
+			eventCtx,
+			http.MethodPost,
+			d.endpoint+url.PathEscape(topic),
+			bytes.NewReader(event.Payload),
+		)
 		if err != nil {
 			return fmt.Errorf("create publish request: %w", err)
 		}

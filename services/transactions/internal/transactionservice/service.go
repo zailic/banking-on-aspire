@@ -28,7 +28,10 @@ func New(repository transactionrepo.Repository) *Service {
 	return &Service{repository: repository}
 }
 
-func (s *Service) ListTransactions(ctx context.Context, req *transactionsv1.ListTransactionsRequest) (*transactionsv1.ListTransactionsResponse, error) {
+func (s *Service) ListTransactions(
+	ctx context.Context,
+	req *transactionsv1.ListTransactionsRequest,
+) (*transactionsv1.ListTransactionsResponse, error) {
 	if req == nil || !validUserName(req.GetParent()) {
 		return nil, status.Error(codes.InvalidArgument, "parent must have the form users/{user}")
 	}
@@ -41,13 +44,19 @@ func (s *Service) ListTransactions(ctx context.Context, req *transactionsv1.List
 	}
 	owner, err := s.repository.ResolveUserName(ctx, claims.Subject)
 	if errors.Is(err, transactionrepo.ErrUserNotFound) {
-		return nil, status.Error(codes.PermissionDenied, "the authenticated identity has no active user profile")
+		return nil, status.Error(
+			codes.PermissionDenied,
+			"the authenticated identity has no active user profile",
+		)
 	}
 	if err != nil {
 		return nil, status.Error(codes.Internal, "transaction owner resolution failed")
 	}
 	if owner != req.GetParent() {
-		return nil, status.Error(codes.PermissionDenied, "the requested transactions are owned by another identity")
+		return nil, status.Error(
+			codes.PermissionDenied,
+			"the requested transactions are owned by another identity",
+		)
 	}
 	offset, err := decodePageToken(req.GetPageToken())
 	if err != nil {

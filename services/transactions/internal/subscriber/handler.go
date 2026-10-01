@@ -18,7 +18,10 @@ func New(repository transactionrepo.Repository) http.Handler {
 	mux.HandleFunc("GET /dapr/subscribe", h.subscribe)
 	mux.HandleFunc("POST /events/payment-sent", h.paymentSent)
 	mux.HandleFunc("POST /events/funds-deposited", h.fundsDeposited)
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
+	mux.HandleFunc(
+		"GET /health",
+		func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) },
+	)
 	return mux
 }
 
@@ -82,16 +85,24 @@ func success(w http.ResponseWriter) {
 
 func validPaymentSent(event *eventsv1.PaymentSentEvent) bool {
 	return event.GetSchemaVersion() == 1 && strings.TrimSpace(event.GetEventId()) != "" &&
-		strings.TrimSpace(event.GetPayment()) != "" && strings.TrimSpace(event.GetSourceAccount()) != "" &&
-		strings.TrimSpace(event.GetSourceOwner()) != "" && strings.TrimSpace(event.GetBeneficiary()) != "" &&
+		strings.TrimSpace(
+			event.GetPayment(),
+		) != "" && strings.TrimSpace(event.GetSourceAccount()) != "" &&
+		strings.TrimSpace(
+			event.GetSourceOwner(),
+		) != "" && strings.TrimSpace(event.GetBeneficiary()) != "" &&
 		event.GetAmount() != nil && strings.TrimSpace(event.GetAmount().GetCurrencyCode()) != "" &&
 		event.GetOccurredTime() != nil && event.GetOccurredTime().IsValid()
 }
 
 func validFundsDeposited(event *eventsv1.FundsDepositedEvent) bool {
 	return event.GetSchemaVersion() == 1 && strings.TrimSpace(event.GetEventId()) != "" &&
-		strings.TrimSpace(event.GetDeposit()) != "" && strings.TrimSpace(event.GetAccount()) != "" &&
+		strings.TrimSpace(
+			event.GetDeposit(),
+		) != "" && strings.TrimSpace(event.GetAccount()) != "" &&
 		strings.TrimSpace(event.GetOwner()) != "" && event.GetAmount() != nil &&
-		strings.TrimSpace(event.GetAmount().GetCurrencyCode()) != "" && event.GetOccurredTime() != nil &&
+		strings.TrimSpace(
+			event.GetAmount().GetCurrencyCode(),
+		) != "" && event.GetOccurredTime() != nil &&
 		event.GetOccurredTime().IsValid()
 }

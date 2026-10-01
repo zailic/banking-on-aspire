@@ -70,9 +70,9 @@ Current ownership mapping:
 Store the smoke credentials in the AppHost's local Aspire secret store:
 
 ```bash
-aspire secret set 'SmokeAuth:Keycloak:Username' 'local-dev' --apphost apphost.cs
-aspire secret set 'SmokeAuth:Keycloak:Password' '<user-password>' --apphost apphost.cs
-aspire secret set 'SmokeAuth:Keycloak:ClientSecret' '<client-secret>' --apphost apphost.cs
+aspire secret set 'SmokeAuth:Keycloak:Username' 'local-dev' --apphost Banking.AppHost.csproj
+aspire secret set 'SmokeAuth:Keycloak:Password' '<user-password>' --apphost Banking.AppHost.csproj
+aspire secret set 'SmokeAuth:Keycloak:ClientSecret' '<client-secret>' --apphost Banking.AppHost.csproj
 ```
 
 `make smoke-auth` retrieves these values with `aspire secret get`; it does not
@@ -80,9 +80,9 @@ load credentials from `.env` files. For a manual token request, read them into
 the current shell without printing them:
 
 ```bash
-KEYCLOAK_USER=$(aspire secret get 'SmokeAuth:Keycloak:Username' --apphost apphost.cs --non-interactive)
-KEYCLOAK_PASSWORD=$(aspire secret get 'SmokeAuth:Keycloak:Password' --apphost apphost.cs --non-interactive)
-KEYCLOAK_CLIENT_SECRET=$(aspire secret get 'SmokeAuth:Keycloak:ClientSecret' --apphost apphost.cs --non-interactive)
+KEYCLOAK_USER=$(aspire secret get 'SmokeAuth:Keycloak:Username' --apphost Banking.AppHost.csproj --non-interactive)
+KEYCLOAK_PASSWORD=$(aspire secret get 'SmokeAuth:Keycloak:Password' --apphost Banking.AppHost.csproj --non-interactive)
+KEYCLOAK_CLIENT_SECRET=$(aspire secret get 'SmokeAuth:Keycloak:ClientSecret' --apphost Banking.AppHost.csproj --non-interactive)
 KEYCLOAK_BASE_URL="http://localhost:8080"
 KEYCLOAK_REALM="banking-on-aspire"
 KEYCLOAK_CLIENT_ID="banking-on-aspire-app"

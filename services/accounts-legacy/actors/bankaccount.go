@@ -45,7 +45,10 @@ func (b *BankAccountService) Close(ctx context.Context) error {
 }
 
 // Deposit implements [bank.Depositor].
-func (b *BankAccountService) Deposit(ctx context.Context, amount domain.Money) (*domain.Money, error) {
+func (b *BankAccountService) Deposit(
+	ctx context.Context,
+	amount domain.Money,
+) (*domain.Money, error) {
 	account, err := b.getAccount(ctx)
 	if err != nil {
 		return nil, err
@@ -85,7 +88,10 @@ func (b *BankAccountService) GetBalance(ctx context.Context) (*domain.Money, err
 }
 
 // Withdraw implements [bank.Withdrawer].
-func (b *BankAccountService) Withdraw(ctx context.Context, amount domain.Money) (*domain.Money, error) {
+func (b *BankAccountService) Withdraw(
+	ctx context.Context,
+	amount domain.Money,
+) (*domain.Money, error) {
 	account, err := b.getAccount(ctx)
 	if err != nil {
 		return nil, err

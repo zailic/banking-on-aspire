@@ -1,6 +1,6 @@
 {
   "appHost": {
-    "path": "apphost.cs",
+    "path": "Banking.AppHost.csproj",
     "language": "csharp"
   },
   "profiles": {

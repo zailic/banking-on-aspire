@@ -1,0 +1,13 @@
+.git
+.github
+.aspire
+.agents
+.codex
+**/bin
+**/obj
+**/.vs
+**/.vscode
+aspire-output
+artifacts
+docs
+dev

@@ -43,8 +43,17 @@ type TokenVerifier struct {
 	clientID string
 }
 
-func NewTokenVerifier(ctx context.Context, issuerURL, clientID string) (*TokenVerifier, error) {
-	provider, err := oidc.NewProvider(ctx, issuerURL)
+func NewTokenVerifier(ctx context.Context, discoveryURL, clientID string, expectedIssuerURL ...string) (*TokenVerifier, error) {
+	if len(expectedIssuerURL) > 1 {
+		return nil, errors.New("only one expected issuer URL may be configured")
+	}
+	if len(expectedIssuerURL) == 1 && strings.TrimSpace(expectedIssuerURL[0]) != "" {
+		// Discovery intentionally uses the private cluster URL, while tokens carry the
+		// explicitly configured public issuer. Never derive this value from a request.
+		ctx = oidc.InsecureIssuerURLContext(ctx, strings.TrimRight(expectedIssuerURL[0], "/"))
+	}
+
+	provider, err := oidc.NewProvider(ctx, strings.TrimRight(discoveryURL, "/"))
 	if err != nil {
 		return nil, err
 	}

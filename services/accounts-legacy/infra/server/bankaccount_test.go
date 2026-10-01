@@ -21,7 +21,11 @@ type mockTokenVerifier struct {
 	receivedRole string
 }
 
-func (m *mockTokenVerifier) VerifyWithClientRole(ctx context.Context, rawToken string, requiredRole string) (*keycloak.KeycloakClaims, error) {
+func (m *mockTokenVerifier) VerifyWithClientRole(
+	ctx context.Context,
+	rawToken string,
+	requiredRole string,
+) (*keycloak.KeycloakClaims, error) {
 	m.receivedRaw = rawToken
 	m.receivedRole = requiredRole
 	if m.err != nil {
@@ -84,9 +88,12 @@ func TestAuthorizeUnauthorizedWhenHeaderMissing(t *testing.T) {
 	}
 
 	nextCalled := false
-	h := server.authorize(roleAccountsBalanceRead, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextCalled = true
-	}))
+	h := server.authorize(
+		roleAccountsBalanceRead,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			nextCalled = true
+		}),
+	)
 
 	req := httptest.NewRequest(http.MethodGet, "/accounts/demo-account-usd/balance", nil)
 	w := httptest.NewRecorder()
@@ -109,9 +116,12 @@ func TestAuthorizeForbiddenWhenVerifierFails(t *testing.T) {
 	}
 
 	nextCalled := false
-	h := server.authorize(roleAccountsBalanceRead, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextCalled = true
-	}))
+	h := server.authorize(
+		roleAccountsBalanceRead,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			nextCalled = true
+		}),
+	)
 
 	req := httptest.NewRequest(http.MethodGet, "/accounts/demo-account-usd/balance", nil)
 	req.Header.Set("Authorization", "Bearer good.token")
@@ -139,7 +149,10 @@ func TestAuthorizeForbiddenResponseBody(t *testing.T) {
 		logger:        slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
 
-	h := server.authorize(roleAccountsBalanceRead, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	h := server.authorize(
+		roleAccountsBalanceRead,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
 	req := httptest.NewRequest(http.MethodGet, "/accounts/demo-account-usd/balance", nil)
 	req.Header.Set("Authorization", "Bearer good.token")
 	w := httptest.NewRecorder()
@@ -159,17 +172,20 @@ func TestAuthorizeSuccessAttachesClaimsAndCallsNext(t *testing.T) {
 	}
 
 	nextCalled := false
-	h := server.authorize(roleAccountsBalanceRead, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		nextCalled = true
-		claims, ok := r.Context().Value(claimsContextKey{}).(*keycloak.KeycloakClaims)
-		if !ok || claims == nil {
-			t.Fatal("expected claims in context")
-		}
-		if claims.PreferredUsername != "ionut" {
-			t.Fatalf("preferred username = %q, want %q", claims.PreferredUsername, "ionut")
-		}
-		w.WriteHeader(http.StatusOK)
-	}))
+	h := server.authorize(
+		roleAccountsBalanceRead,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			nextCalled = true
+			claims, ok := r.Context().Value(claimsContextKey{}).(*keycloak.KeycloakClaims)
+			if !ok || claims == nil {
+				t.Fatal("expected claims in context")
+			}
+			if claims.PreferredUsername != "ionut" {
+				t.Fatalf("preferred username = %q, want %q", claims.PreferredUsername, "ionut")
+			}
+			w.WriteHeader(http.StatusOK)
+		}),
+	)
 
 	req := httptest.NewRequest(http.MethodGet, "/accounts/demo-account-usd/balance", nil)
 	req.Header.Set("Authorization", "Bearer good.token")

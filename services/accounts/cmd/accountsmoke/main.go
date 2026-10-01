@@ -44,7 +44,10 @@ func main() {
 		*requestID = fmt.Sprintf("observability-%d", time.Now().UnixNano())
 	}
 
-	connection, err := grpc.NewClient(strings.TrimPrefix(*endpoint, "grpc://"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.NewClient(
+		strings.TrimPrefix(*endpoint, "grpc://"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("connect to Accounts: %v", err)
 	}
@@ -53,17 +56,31 @@ func main() {
 	traceParent := newTraceParent()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token, "traceparent", traceParent)
+	ctx = metadata.AppendToOutgoingContext(
+		ctx,
+		"authorization",
+		"Bearer "+token,
+		"traceparent",
+		traceParent,
+	)
 	client := accountsv1.NewAccountsServiceClient(connection)
 
 	switch *action {
 	case "list":
-		response, err := client.ListAccounts(ctx, &accountsv1.ListAccountsRequest{Parent: *parent, PageSize: 50})
+		response, err := client.ListAccounts(
+			ctx,
+			&accountsv1.ListAccountsRequest{Parent: *parent, PageSize: 50},
+		)
 		if err != nil {
 			log.Fatalf("list accounts: %v", err)
 		}
 		for _, account := range response.GetAccounts() {
-			fmt.Printf("%s\t%s\t%s\n", account.GetName(), account.GetCurrencyCode(), account.GetDisplayName())
+			fmt.Printf(
+				"%s\t%s\t%s\n",
+				account.GetName(),
+				account.GetCurrencyCode(),
+				account.GetDisplayName(),
+			)
 		}
 	case "deposit":
 		deposit, err := client.DepositFunds(ctx, &accountsv1.DepositFundsRequest{
@@ -116,7 +133,11 @@ func parseMoney(amount, currency string) (*money.Money, error) {
 	if err != nil || units == 0 && cents == 0 {
 		return nil, fmt.Errorf("amount must be positive")
 	}
-	return &money.Money{CurrencyCode: strings.ToUpper(strings.TrimSpace(currency)), Units: units, Nanos: int32(cents) * 10_000_000}, nil
+	return &money.Money{
+		CurrencyCode: strings.ToUpper(strings.TrimSpace(currency)),
+		Units:        units,
+		Nanos:        int32(cents) * 10_000_000,
+	}, nil
 }
 
 func newTraceParent() string {

@@ -728,3 +728,30 @@ Decision:
 Next step:
 - Define deployment-specific dashboards and alerts after selecting a durable
   telemetry backend and target environment.
+
+## Aspire 13.6 AppHost and Radius release pipeline
+
+Date: 2026-10-01
+Milestone: M5 Radius environments
+
+Change summary:
+- Replaced the single file-based AppHost with `Banking.AppHost.csproj` and
+  responsibility-focused source files under `AppHost/`.
+- Added container publication for the Go services and Banking.Web, then adapted
+  the Aspire Radius preview output to carry Dapr sidecars and pub/sub resources.
+- Split the generated Radius output into an infrastructure artifact and one
+  artifact per workload, with selective deployment steps for each service.
+- Added deployment gates for persistent PostgreSQL and Keycloak volumes,
+  Keycloak realm reconciliation, and service-specific database migrations.
+
+Decisions taken:
+- Keep the compatibility adapter fail-fast while Aspire and Radius preview
+  schemas differ, so publisher upgrades cannot silently omit Dapr configuration.
+- Require a stable PostgreSQL password in publish mode and keep deployment
+  parameters out of generated artifacts.
+- Preserve one Aspire application model for local orchestration and Radius
+  publishing while isolating preview workarounds in the extension project.
+
+Next step:
+- Validate the same release artifacts in a second Radius environment and add a
+  durable telemetry backend before marking M5 complete.

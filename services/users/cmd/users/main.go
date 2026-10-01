@@ -39,7 +39,13 @@ func main() {
 		os.Exit(1)
 	}
 	defer repository.Close()
-	verifier, err := keycloak.NewTokenVerifier(ctx, keycloakURL+"/realms/banking-on-aspire", keycloakClientID)
+	discoveryURL := keycloakURL + "/realms/banking-on-aspire"
+	verifier, err := keycloak.NewTokenVerifier(
+		ctx,
+		discoveryURL,
+		keycloakClientID,
+		os.Getenv("KEYCLOAK_ISSUER"),
+	)
 	if err != nil {
 		logger.Error("failed to initialize Keycloak verifier", "error", err)
 		os.Exit(1)
@@ -50,7 +56,9 @@ func main() {
 		logger.Error("failed to listen", "port", port, "error", err)
 		os.Exit(1)
 	}
-	server := grpc.NewServer(grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)))
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(keycloak.UnaryServerInterceptor(verifier, keycloakClientID)),
+	)
 	usersv1.RegisterUsersServiceServer(server, userservice.New(repository))
 	healthServer := health.NewServer()
 	healthv1.RegisterHealthServer(server, healthServer)

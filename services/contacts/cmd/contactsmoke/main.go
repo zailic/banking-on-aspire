@@ -19,9 +19,17 @@ import (
 func main() {
 	endpoint := flag.String("endpoint", "", "Contacts gRPC endpoint")
 	action := flag.String("action", "get", "create, get, list, update, or delete")
-	parent := flag.String("parent", "users/smoke-user", "Canonical user resource that owns the contact")
+	parent := flag.String(
+		"parent",
+		"users/smoke-user",
+		"Canonical user resource that owns the contact",
+	)
 	contactID := flag.String("contact-id", "persistence-smoke", "Contact resource ID")
-	internalAccount := flag.String("internal-account", "", "Existing internal account used by the create action")
+	internalAccount := flag.String(
+		"internal-account",
+		"",
+		"Existing internal account used by the create action",
+	)
 	flag.Parse()
 	token := strings.TrimSpace(os.Getenv("CONTACTS_SMOKE_TOKEN"))
 	if strings.TrimSpace(*endpoint) == "" {
@@ -29,7 +37,10 @@ func main() {
 	}
 
 	target := strings.TrimPrefix(*endpoint, "grpc://")
-	connection, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.NewClient(
+		target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("connect to Contacts: %v", err)
 	}
@@ -65,7 +76,12 @@ func main() {
 		if err != nil {
 			log.Fatalf("get contact: %v", err)
 		}
-		fmt.Printf("found %s display_name=%q etag=%s\n", contact.GetName(), contact.GetDisplayName(), contact.GetEtag())
+		fmt.Printf(
+			"found %s display_name=%q etag=%s\n",
+			contact.GetName(),
+			contact.GetDisplayName(),
+			contact.GetEtag(),
+		)
 	case "list":
 		response, err := client.ListContacts(ctx, &contactsv1.ListContactsRequest{Parent: *parent})
 		if err != nil {
@@ -73,7 +89,12 @@ func main() {
 		}
 		fmt.Printf("listed %d contacts\n", len(response.GetContacts()))
 		for _, contact := range response.GetContacts() {
-			fmt.Printf("- %s display_name=%q etag=%s\n", contact.GetName(), contact.GetDisplayName(), contact.GetEtag())
+			fmt.Printf(
+				"- %s display_name=%q etag=%s\n",
+				contact.GetName(),
+				contact.GetDisplayName(),
+				contact.GetEtag(),
+			)
 		}
 	case "update":
 		current, err := client.GetContact(ctx, &contactsv1.GetContactRequest{Name: name})
@@ -91,9 +112,17 @@ func main() {
 		if err != nil {
 			log.Fatalf("update contact: %v", err)
 		}
-		fmt.Printf("updated %s display_name=%q etag=%s\n", updated.GetName(), updated.GetDisplayName(), updated.GetEtag())
+		fmt.Printf(
+			"updated %s display_name=%q etag=%s\n",
+			updated.GetName(),
+			updated.GetDisplayName(),
+			updated.GetEtag(),
+		)
 	case "delete":
-		if _, err := client.DeleteContact(ctx, &contactsv1.DeleteContactRequest{Name: name}); err != nil {
+		if _, err := client.DeleteContact(
+			ctx,
+			&contactsv1.DeleteContactRequest{Name: name},
+		); err != nil {
 			log.Fatalf("delete contact: %v", err)
 		}
 		fmt.Printf("deleted %s\n", name)

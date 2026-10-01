@@ -3,3 +3,5 @@ tools/bin/
 tools/downloads/
 **/bin/
 **/obj/
+aspire-output/
+artifacts/

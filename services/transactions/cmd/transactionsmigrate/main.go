@@ -11,7 +11,11 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	repository, err := transactionrepo.OpenPostgres(context.Background(), required("TRANSACTIONSDB_URI"), required("USERSDB_URI"))
+	repository, err := transactionrepo.OpenPostgres(
+		context.Background(),
+		required("TRANSACTIONSDB_URI"),
+		required("USERSDB_URI"),
+	)
 	if err != nil {
 		logger.Error("failed to connect to transaction databases", "error", err)
 		os.Exit(1)

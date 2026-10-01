@@ -14,7 +14,11 @@ import (
 type repositoryStub struct{ user *usersv1.User }
 
 func (r *repositoryStub) Get(context.Context, string) (*usersv1.User, error) { return r.user, nil }
-func (r *repositoryStub) Resolve(_ context.Context, identity userrepo.Identity) (*usersv1.User, error) {
+
+func (r *repositoryStub) Resolve(
+	_ context.Context,
+	identity userrepo.Identity,
+) (*usersv1.User, error) {
 	r.user = &usersv1.User{Name: "users/usr-test", KeycloakSubject: identity.Subject,
 		Username: identity.Username, DisplayName: identity.DisplayName, Email: identity.Email,
 		Status: usersv1.UserStatus_USER_STATUS_ACTIVE}
@@ -25,7 +29,10 @@ func TestGetOrCreateCurrentUserUsesAuthenticatedClaims(t *testing.T) {
 	repository := &repositoryStub{}
 	service := New(repository)
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{
-		Subject: "kc-subject", PreferredUsername: "alice", Name: "Alice", Email: "alice@example.com",
+		Subject:           "kc-subject",
+		PreferredUsername: "alice",
+		Name:              "Alice",
+		Email:             "alice@example.com",
 	})
 	user, err := service.GetOrCreateCurrentUser(ctx, &usersv1.GetOrCreateCurrentUserRequest{})
 	if err != nil {
@@ -37,7 +44,9 @@ func TestGetOrCreateCurrentUserUsesAuthenticatedClaims(t *testing.T) {
 }
 
 func TestGetUserRejectsAnotherIdentity(t *testing.T) {
-	service := New(&repositoryStub{user: &usersv1.User{Name: "users/usr-test", KeycloakSubject: "owner"}})
+	service := New(
+		&repositoryStub{user: &usersv1.User{Name: "users/usr-test", KeycloakSubject: "owner"}},
+	)
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "other"})
 	_, err := service.GetUser(ctx, &usersv1.GetUserRequest{Name: "users/usr-test"})
 	if status.Code(err) != codes.PermissionDenied {

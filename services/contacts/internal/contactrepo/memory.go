@@ -29,7 +29,10 @@ func (r *MemoryRepository) List(_ context.Context, parent string) ([]*contactsv1
 			contacts = append(contacts, clone(contact))
 		}
 	}
-	sort.Slice(contacts, func(i, j int) bool { return contacts[i].GetName() < contacts[j].GetName() })
+	sort.Slice(
+		contacts,
+		func(i, j int) bool { return contacts[i].GetName() < contacts[j].GetName() },
+	)
 	return contacts, nil
 }
 
@@ -53,7 +56,11 @@ func (r *MemoryRepository) Create(_ context.Context, contact *contactsv1.Contact
 	return nil
 }
 
-func (r *MemoryRepository) Update(_ context.Context, contact *contactsv1.Contact, expectedEtag string) error {
+func (r *MemoryRepository) Update(
+	_ context.Context,
+	contact *contactsv1.Contact,
+	expectedEtag string,
+) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	current, exists := r.contacts[contact.GetName()]

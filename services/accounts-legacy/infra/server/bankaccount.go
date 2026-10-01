@@ -17,7 +17,11 @@ import (
 type claimsContextKey struct{}
 
 type tokenVerifier interface {
-	VerifyWithClientRole(ctx context.Context, rawToken string, requiredRole string) (*keycloak.KeycloakClaims, error)
+	VerifyWithClientRole(
+		ctx context.Context,
+		rawToken string,
+		requiredRole string,
+	) (*keycloak.KeycloakClaims, error)
 }
 
 var usersMap = map[string]string{

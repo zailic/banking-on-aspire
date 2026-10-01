@@ -16,12 +16,12 @@
             "password": "",
             "database": "usersdb",
             "profileName": "banking-on-aspire, usersdb (postgres)",
-            "port": "33071",
+            "port": "34347",
             "hostaddr": "127.0.0.1",
             "expiresOn": 0,
             "sshPassword": "",
             "profileSource": 0,
             "displayName": "banking-on-aspire, usersdb (postgres)"
         }
-    ]
+    ],
 }

@@ -15,7 +15,11 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	connectionString := strings.TrimSpace(os.Getenv(usersDatabaseURIEnvironment))
 	if connectionString == "" {
-		logger.Error("users database connection string is not configured", "environment", usersDatabaseURIEnvironment)
+		logger.Error(
+			"users database connection string is not configured",
+			"environment",
+			usersDatabaseURIEnvironment,
+		)
 		os.Exit(1)
 	}
 

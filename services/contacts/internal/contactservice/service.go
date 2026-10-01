@@ -33,7 +33,11 @@ type AccountValidator interface {
 	ValidateInternalAccount(context.Context, string) error
 }
 
-func New(repository contactrepo.Repository, users contactrepo.UserResolver, accounts AccountValidator) *Service {
+func New(
+	repository contactrepo.Repository,
+	users contactrepo.UserResolver,
+	accounts AccountValidator,
+) *Service {
 	if repository == nil {
 		panic("contacts repository is required")
 	}
@@ -46,7 +50,10 @@ func New(repository contactrepo.Repository, users contactrepo.UserResolver, acco
 	return &Service{repository: repository, users: users, accounts: accounts}
 }
 
-func (s *Service) ListContacts(ctx context.Context, req *contactsv1.ListContactsRequest) (*contactsv1.ListContactsResponse, error) {
+func (s *Service) ListContacts(
+	ctx context.Context,
+	req *contactsv1.ListContactsRequest,
+) (*contactsv1.ListContactsResponse, error) {
 	if req == nil || !validParent(req.GetParent()) {
 		return nil, status.Error(codes.InvalidArgument, "parent must have the form users/{user}")
 	}
@@ -84,9 +91,15 @@ func (s *Service) ListContacts(ctx context.Context, req *contactsv1.ListContacts
 	return result, nil
 }
 
-func (s *Service) GetContact(ctx context.Context, req *contactsv1.GetContactRequest) (*contactsv1.Contact, error) {
+func (s *Service) GetContact(
+	ctx context.Context,
+	req *contactsv1.GetContactRequest,
+) (*contactsv1.Contact, error) {
 	if req == nil || !validContactName(req.GetName()) {
-		return nil, status.Error(codes.InvalidArgument, "name must have the form users/{user}/contacts/{contact}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"name must have the form users/{user}/contacts/{contact}",
+		)
 	}
 	if err := s.authorizeParent(ctx, contactParent(req.GetName())); err != nil {
 		return nil, err
@@ -98,12 +111,18 @@ func (s *Service) GetContact(ctx context.Context, req *contactsv1.GetContactRequ
 	return contact, nil
 }
 
-func (s *Service) CreateContact(ctx context.Context, req *contactsv1.CreateContactRequest) (*contactsv1.Contact, error) {
+func (s *Service) CreateContact(
+	ctx context.Context,
+	req *contactsv1.CreateContactRequest,
+) (*contactsv1.Contact, error) {
 	if req == nil || !validParent(req.GetParent()) {
 		return nil, status.Error(codes.InvalidArgument, "parent must have the form users/{user}")
 	}
 	if !validID(req.GetContactId()) {
-		return nil, status.Error(codes.InvalidArgument, "contact_id must start with a letter and contain only lowercase letters, digits, or hyphens")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"contact_id must start with a letter and contain only lowercase letters, digits, or hyphens",
+		)
 	}
 	if err := validateContact(req.GetContact()); err != nil {
 		return nil, err
@@ -128,9 +147,15 @@ func (s *Service) CreateContact(ctx context.Context, req *contactsv1.CreateConta
 	return contact, nil
 }
 
-func (s *Service) UpdateContact(ctx context.Context, req *contactsv1.UpdateContactRequest) (*contactsv1.Contact, error) {
+func (s *Service) UpdateContact(
+	ctx context.Context,
+	req *contactsv1.UpdateContactRequest,
+) (*contactsv1.Contact, error) {
 	if req == nil || req.GetContact() == nil || !validContactName(req.GetContact().GetName()) {
-		return nil, status.Error(codes.InvalidArgument, "contact.name must have the form users/{user}/contacts/{contact}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"contact.name must have the form users/{user}/contacts/{contact}",
+		)
 	}
 	if req.GetUpdateMask() == nil || len(req.GetUpdateMask().GetPaths()) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "update_mask is required")
@@ -183,9 +208,15 @@ func (s *Service) validateInternalAccount(ctx context.Context, contact *contacts
 		case codes.NotFound:
 			return status.Error(codes.InvalidArgument, "internal account does not exist")
 		case codes.PermissionDenied:
-			return status.Error(codes.InvalidArgument, "internal account is not available to the authenticated user")
+			return status.Error(
+				codes.InvalidArgument,
+				"internal account is not available to the authenticated user",
+			)
 		case codes.Unauthenticated:
-			return status.Error(codes.Unauthenticated, "account validation requires an authenticated identity")
+			return status.Error(
+				codes.Unauthenticated,
+				"account validation requires an authenticated identity",
+			)
 		default:
 			return status.Error(codes.Unavailable, "internal account could not be validated")
 		}
@@ -193,9 +224,15 @@ func (s *Service) validateInternalAccount(ctx context.Context, contact *contacts
 	return nil
 }
 
-func (s *Service) DeleteContact(ctx context.Context, req *contactsv1.DeleteContactRequest) (*emptypb.Empty, error) {
+func (s *Service) DeleteContact(
+	ctx context.Context,
+	req *contactsv1.DeleteContactRequest,
+) (*emptypb.Empty, error) {
 	if req == nil || !validContactName(req.GetName()) {
-		return nil, status.Error(codes.InvalidArgument, "name must have the form users/{user}/contacts/{contact}")
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"name must have the form users/{user}/contacts/{contact}",
+		)
 	}
 	if err := s.authorizeParent(ctx, contactParent(req.GetName())); err != nil {
 		return nil, err
@@ -213,13 +250,19 @@ func (s *Service) authorizeParent(ctx context.Context, parent string) error {
 	}
 	userName, err := s.users.ResolveUserName(ctx, claims.Subject)
 	if errors.Is(err, contactrepo.ErrUserNotFound) {
-		return status.Error(codes.PermissionDenied, "the authenticated identity has no active user profile")
+		return status.Error(
+			codes.PermissionDenied,
+			"the authenticated identity has no active user profile",
+		)
 	}
 	if err != nil {
 		return status.Error(codes.Internal, "contact owner resolution failed")
 	}
 	if userName != parent {
-		return status.Error(codes.PermissionDenied, "the requested contacts are owned by another identity")
+		return status.Error(
+			codes.PermissionDenied,
+			"the requested contacts are owned by another identity",
+		)
 	}
 	return nil
 }
@@ -247,11 +290,19 @@ func validateContact(contact *contactsv1.Contact) error {
 	switch destination := contact.GetDestination().(type) {
 	case *contactsv1.Contact_InternalAccount:
 		if !validAccountName(destination.InternalAccount) {
-			return status.Error(codes.InvalidArgument, "internal_account must have the form accounts/{account}")
+			return status.Error(
+				codes.InvalidArgument,
+				"internal_account must have the form accounts/{account}",
+			)
 		}
 	case *contactsv1.Contact_ExternalAccount:
-		if destination.ExternalAccount == nil || strings.TrimSpace(destination.ExternalAccount.GetRoutingNumber()) == "" || strings.TrimSpace(destination.ExternalAccount.GetAccountNumber()) == "" {
-			return status.Error(codes.InvalidArgument, "external_account requires routing_number and account_number")
+		if destination.ExternalAccount == nil ||
+			strings.TrimSpace(destination.ExternalAccount.GetRoutingNumber()) == "" ||
+			strings.TrimSpace(destination.ExternalAccount.GetAccountNumber()) == "" {
+			return status.Error(
+				codes.InvalidArgument,
+				"external_account requires routing_number and account_number",
+			)
 		}
 	default:
 		return status.Error(codes.InvalidArgument, "exactly one contact destination is required")
@@ -266,7 +317,8 @@ func validParent(value string) bool {
 
 func validContactName(value string) bool {
 	parts := strings.Split(value, "/")
-	return len(parts) == 4 && parts[0] == "users" && parts[1] != "" && parts[2] == "contacts" && parts[3] != ""
+	return len(parts) == 4 && parts[0] == "users" && parts[1] != "" && parts[2] == "contacts" &&
+		parts[3] != ""
 }
 
 func contactParent(name string) string {

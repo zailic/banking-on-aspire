@@ -1,0 +1,30 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>apphost-c01e816d80a38939986e406ec1edb3381d6e0a1359169506497e27fb276cc473</UserSecretsId>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);ASPIRECOMPUTE003;ASPIREPIPELINES003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AppHost/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="frontend/Banking.Web/Banking.Web.csproj" />
+    <ProjectReference Include="extensions/Banking.Aspire.Hosting.Radius/Banking.Aspire.Hosting.Radius.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.6.0-preview.1.26479.8" />
+    <PackageReference Include="Aspire.Hosting.Radius" Version="13.6.0-preview.1.26479.8" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.6.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.6.0" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.2.1-beta.532" />
+  </ItemGroup>
+</Project>

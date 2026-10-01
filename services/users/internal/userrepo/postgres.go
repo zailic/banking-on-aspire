@@ -55,7 +55,10 @@ func (r *PostgresRepository) Get(ctx context.Context, name string) (*usersv1.Use
 	return user, err
 }
 
-func (r *PostgresRepository) Resolve(ctx context.Context, identity Identity) (*usersv1.User, error) {
+func (r *PostgresRepository) Resolve(
+	ctx context.Context,
+	identity Identity,
+) (*usersv1.User, error) {
 	now := time.Now().UTC()
 	user, err := scanUser(r.pool.QueryRow(ctx, `
 		WITH resolved AS (

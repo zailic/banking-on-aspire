@@ -36,7 +36,10 @@ func TestDispatchRetriesUnpublishedEventAndPropagatesTraceContext(t *testing.T) 
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 	const traceParent = "00-01020300000000000000000000000000-0405060000000000-01"
 	store := &retryStore{event: accountrepo.OutboxEvent{
-		ID: "event-1", Type: fundsDepositedEventType, Payload: []byte(`{"data":"test"}`), TraceParent: traceParent,
+		ID:          "event-1",
+		Type:        fundsDepositedEventType,
+		Payload:     []byte(`{"data":"test"}`),
+		TraceParent: traceParent,
 	}}
 	requests := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -53,8 +56,13 @@ func TestDispatchRetriesUnpublishedEventAndPropagatesTraceContext(t *testing.T) 
 	defer server.Close()
 
 	dispatcher := &Dispatcher{
-		store: store, endpoint: server.URL + "/", logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-		client: &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport), Timeout: time.Second},
+		store:    store,
+		endpoint: server.URL + "/",
+		logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+		client: &http.Client{
+			Transport: otelhttp.NewTransport(http.DefaultTransport),
+			Timeout:   time.Second,
+		},
 	}
 	if err := dispatcher.dispatch(context.Background()); err == nil {
 		t.Fatal("first dispatch succeeded, want transient failure")

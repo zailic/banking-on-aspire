@@ -14,9 +14,9 @@ done
 read_secret() {
   local key="$1"
   local value
-  if ! value="$(aspire secret get "$key" --apphost apphost.cs --non-interactive 2>/dev/null)"; then
+  if ! value="$(aspire secret get "$key" --apphost Banking.AppHost.csproj --non-interactive 2>/dev/null)"; then
     echo "Aspire secret '$key' is required; configure it with:" >&2
-    echo "  aspire secret set '$key' '<value>' --apphost apphost.cs" >&2
+    echo "  aspire secret set '$key' '<value>' --apphost Banking.AppHost.csproj" >&2
     exit 1
   fi
   if [[ -z "$value" ]]; then

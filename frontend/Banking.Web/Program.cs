@@ -35,7 +35,13 @@ builder.Services
     {
         var keycloakBaseUrl = builder.Configuration["Authentication:KeycloakBaseUrl"]
             ?? throw new InvalidOperationException("Authentication:KeycloakBaseUrl is required.");
-        options.Authority = $"{keycloakBaseUrl.TrimEnd('/')}/realms/banking-on-aspire";
+        var keycloakIssuerBaseUrl = builder.Configuration["Authentication:KeycloakIssuerBaseUrl"]
+            ?? keycloakBaseUrl;
+        options.Authority = $"{keycloakIssuerBaseUrl.TrimEnd('/')}/realms/banking-on-aspire";
+        options.MetadataAddress =
+            $"{keycloakBaseUrl.TrimEnd('/')}/realms/banking-on-aspire/.well-known/openid-configuration";
+        options.RequireHttpsMetadata = Uri.TryCreate(keycloakBaseUrl, UriKind.Absolute, out var keycloakUri) &&
+                                       keycloakUri.Scheme == Uri.UriSchemeHttps;
         options.ClientId = "banking-on-aspire-app";
         options.ClientSecret = builder.Configuration["Authentication:ClientSecret"]
             ?? throw new InvalidOperationException("Authentication:ClientSecret is required.");

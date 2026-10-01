@@ -45,7 +45,9 @@ func TestContactsLifecycle(t *testing.T) {
 		ContactId: "electric-company",
 		Contact: &contactsv1.Contact{
 			DisplayName: "Electric Company",
-			Destination: &contactsv1.Contact_InternalAccount{InternalAccount: "accounts/utility-001"},
+			Destination: &contactsv1.Contact_InternalAccount{
+				InternalAccount: "accounts/utility-001",
+			},
 		},
 	})
 	if err != nil {
@@ -85,7 +87,10 @@ func TestContactsLifecycle(t *testing.T) {
 		t.Fatalf("ListContacts() contacts = %v", listed.GetContacts())
 	}
 
-	if _, err := client.DeleteContact(ctx, &contactsv1.DeleteContactRequest{Name: created.GetName(), Etag: updated.GetEtag()}); err != nil {
+	if _, err := client.DeleteContact(
+		ctx,
+		&contactsv1.DeleteContactRequest{Name: created.GetName(), Etag: updated.GetEtag()},
+	); err != nil {
 		t.Fatalf("DeleteContact() error = %v", err)
 	}
 	_, err = client.GetContact(ctx, &contactsv1.GetContactRequest{Name: created.GetName()})
@@ -139,11 +144,17 @@ func TestContactsRejectAnotherUsersResources(t *testing.T) {
 	}
 	tests := map[string]func() error{
 		"list": func() error {
-			_, err := client.ListContacts(context.Background(), &contactsv1.ListContactsRequest{Parent: "users/bob"})
+			_, err := client.ListContacts(
+				context.Background(),
+				&contactsv1.ListContactsRequest{Parent: "users/bob"},
+			)
 			return err
 		},
 		"get": func() error {
-			_, err := client.GetContact(context.Background(), &contactsv1.GetContactRequest{Name: validContact.GetName()})
+			_, err := client.GetContact(
+				context.Background(),
+				&contactsv1.GetContactRequest{Name: validContact.GetName()},
+			)
 			return err
 		},
 		"create": func() error {
@@ -154,12 +165,16 @@ func TestContactsRejectAnotherUsersResources(t *testing.T) {
 		},
 		"update": func() error {
 			_, err := client.UpdateContact(context.Background(), &contactsv1.UpdateContactRequest{
-				Contact: validContact, UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"display_name"}},
+				Contact:    validContact,
+				UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"display_name"}},
 			})
 			return err
 		},
 		"delete": func() error {
-			_, err := client.DeleteContact(context.Background(), &contactsv1.DeleteContactRequest{Name: validContact.GetName()})
+			_, err := client.DeleteContact(
+				context.Background(),
+				&contactsv1.DeleteContactRequest{Name: validContact.GetName()},
+			)
 			return err
 		},
 	}
@@ -173,15 +188,26 @@ func TestContactsRejectAnotherUsersResources(t *testing.T) {
 }
 
 func TestContactsRequireAuthenticatedIdentity(t *testing.T) {
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, &accountValidatorStub{})
-	_, err := service.ListContacts(context.Background(), &contactsv1.ListContactsRequest{Parent: "users/alice"})
+	service := contactservice.New(
+		contactrepo.NewMemory(),
+		userResolverStub{userName: "users/alice"},
+		&accountValidatorStub{},
+	)
+	_, err := service.ListContacts(
+		context.Background(),
+		&contactsv1.ListContactsRequest{Parent: "users/alice"},
+	)
 	if status.Code(err) != codes.Unauthenticated {
 		t.Fatalf("code = %v, want %v", status.Code(err), codes.Unauthenticated)
 	}
 }
 
 func TestContactsRejectIdentityWithoutActiveProfile(t *testing.T) {
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{err: contactrepo.ErrUserNotFound}, &accountValidatorStub{})
+	service := contactservice.New(
+		contactrepo.NewMemory(),
+		userResolverStub{err: contactrepo.ErrUserNotFound},
+		&accountValidatorStub{},
+	)
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "unknown-subject"})
 	_, err := service.ListContacts(ctx, &contactsv1.ListContactsRequest{Parent: "users/alice"})
 	if status.Code(err) != codes.PermissionDenied {
@@ -231,24 +257,46 @@ func newTestClient(t *testing.T) contactsv1.ContactsServiceClient {
 
 func TestCreateContactValidatesInternalAccount(t *testing.T) {
 	validator := &accountValidatorStub{err: status.Error(codes.NotFound, "missing")}
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, validator)
+	service := contactservice.New(
+		contactrepo.NewMemory(),
+		userResolverStub{userName: "users/alice"},
+		validator,
+	)
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "alice-subject"})
 	_, err := service.CreateContact(ctx, &contactsv1.CreateContactRequest{
-		Parent: "users/alice", ContactId: "missing-account",
-		Contact: &contactsv1.Contact{DisplayName: "Missing", Destination: &contactsv1.Contact_InternalAccount{InternalAccount: "accounts/missing"}},
+		Parent:    "users/alice",
+		ContactId: "missing-account",
+		Contact: &contactsv1.Contact{
+			DisplayName: "Missing",
+			Destination: &contactsv1.Contact_InternalAccount{InternalAccount: "accounts/missing"},
+		},
 	})
-	if status.Code(err) != codes.InvalidArgument || len(validator.calls) != 1 || validator.calls[0] != "accounts/missing" {
+	if status.Code(err) != codes.InvalidArgument || len(validator.calls) != 1 ||
+		validator.calls[0] != "accounts/missing" {
 		t.Fatalf("code = %v, calls = %v, error = %v", status.Code(err), validator.calls, err)
 	}
 }
 
 func TestCreateExternalContactDoesNotCallAccounts(t *testing.T) {
 	validator := &accountValidatorStub{err: status.Error(codes.Unavailable, "must not be called")}
-	service := contactservice.New(contactrepo.NewMemory(), userResolverStub{userName: "users/alice"}, validator)
+	service := contactservice.New(
+		contactrepo.NewMemory(),
+		userResolverStub{userName: "users/alice"},
+		validator,
+	)
 	ctx := keycloak.WithClaims(context.Background(), &keycloak.Claims{Subject: "alice-subject"})
 	_, err := service.CreateContact(ctx, &contactsv1.CreateContactRequest{
-		Parent: "users/alice", ContactId: "external",
-		Contact: &contactsv1.Contact{DisplayName: "External", Destination: &contactsv1.Contact_ExternalAccount{ExternalAccount: &contactsv1.ExternalBankAccount{RoutingNumber: "123", AccountNumber: "456"}}},
+		Parent:    "users/alice",
+		ContactId: "external",
+		Contact: &contactsv1.Contact{
+			DisplayName: "External",
+			Destination: &contactsv1.Contact_ExternalAccount{
+				ExternalAccount: &contactsv1.ExternalBankAccount{
+					RoutingNumber: "123",
+					AccountNumber: "456",
+				},
+			},
+		},
 	})
 	if err != nil || len(validator.calls) != 0 {
 		t.Fatalf("error = %v, calls = %v", err, validator.calls)

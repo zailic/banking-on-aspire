@@ -62,7 +62,10 @@ func (r *PostgresRepository) ResolveUserName(ctx context.Context, subject string
 	return "users/" + userID, nil
 }
 
-func (r *PostgresRepository) List(ctx context.Context, parent string) ([]*contactsv1.Contact, error) {
+func (r *PostgresRepository) List(
+	ctx context.Context,
+	parent string,
+) ([]*contactsv1.Contact, error) {
 	userID := strings.TrimPrefix(parent, "users/")
 	rows, err := r.pool.Query(ctx, `
 		SELECT contact_id, display_name, destination_type, internal_account,
@@ -127,7 +130,11 @@ func (r *PostgresRepository) Create(ctx context.Context, contact *contactsv1.Con
 	return nil
 }
 
-func (r *PostgresRepository) Update(ctx context.Context, contact *contactsv1.Contact, expectedEtag string) error {
+func (r *PostgresRepository) Update(
+	ctx context.Context,
+	contact *contactsv1.Contact,
+	expectedEtag string,
+) error {
 	row, err := contactRow(contact)
 	if err != nil {
 		return err
@@ -172,7 +179,10 @@ func (r *PostgresRepository) Delete(ctx context.Context, name, expectedEtag stri
 	return r.missingOrConflict(ctx, userID, contactID)
 }
 
-func (r *PostgresRepository) missingOrConflict(ctx context.Context, userID, contactID string) error {
+func (r *PostgresRepository) missingOrConflict(
+	ctx context.Context,
+	userID, contactID string,
+) error {
 	var exists bool
 	if err := r.pool.QueryRow(ctx, `
 		SELECT EXISTS (
@@ -210,12 +220,16 @@ func scanContact(userID string, scanner rowScanner) (*contactsv1.Contact, error)
 		Etag:        etag,
 	}
 	if destinationType == "internal" {
-		contact.Destination = &contactsv1.Contact_InternalAccount{InternalAccount: valueOrEmpty(internalAccount)}
+		contact.Destination = &contactsv1.Contact_InternalAccount{
+			InternalAccount: valueOrEmpty(internalAccount),
+		}
 	} else {
-		contact.Destination = &contactsv1.Contact_ExternalAccount{ExternalAccount: &contactsv1.ExternalBankAccount{
-			RoutingNumber: valueOrEmpty(routingNumber),
-			AccountNumber: valueOrEmpty(accountNumber),
-		}}
+		contact.Destination = &contactsv1.Contact_ExternalAccount{
+			ExternalAccount: &contactsv1.ExternalBankAccount{
+				RoutingNumber: valueOrEmpty(routingNumber),
+				AccountNumber: valueOrEmpty(accountNumber),
+			},
+		}
 	}
 	return contact, nil
 }
@@ -230,8 +244,13 @@ type databaseRow struct {
 func contactRow(contact *contactsv1.Contact) (databaseRow, error) {
 	userID, contactID := resourceIDs(contact.GetName())
 	row := databaseRow{
-		userID: userID, contactID: contactID, displayName: contact.GetDisplayName(),
-		createdAt: contact.GetCreateTime().AsTime(), updatedAt: contact.GetUpdateTime().AsTime(), etag: contact.GetEtag(),
+		userID:      userID,
+		contactID:   contactID,
+		displayName: contact.GetDisplayName(),
+		createdAt: contact.GetCreateTime().
+			AsTime(),
+		updatedAt: contact.GetUpdateTime().AsTime(),
+		etag:      contact.GetEtag(),
 	}
 	switch destination := contact.GetDestination().(type) {
 	case *contactsv1.Contact_InternalAccount:

@@ -165,7 +165,7 @@ else
             else
             {
                 <div class="activity-list" role="list" aria-label="Recent transactions">
-                    @foreach (var transaction in _dashboard.Transactions.Take(3))
+                    @foreach (var transaction in _dashboard.Transactions.Take(_dashboard.Accounts.Count))
                     {
                         <div class="activity-item" role="listitem">
                             <div class="activity-direction @DirectionClass(transaction)">

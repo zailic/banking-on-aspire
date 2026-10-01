@@ -37,12 +37,18 @@ func (s *Service) GetUser(ctx context.Context, req *usersv1.GetUserRequest) (*us
 		return nil, repositoryError(err)
 	}
 	if user.GetKeycloakSubject() != claims.Subject {
-		return nil, status.Error(codes.PermissionDenied, "the requested profile is owned by another identity")
+		return nil, status.Error(
+			codes.PermissionDenied,
+			"the requested profile is owned by another identity",
+		)
 	}
 	return user, nil
 }
 
-func (s *Service) GetOrCreateCurrentUser(ctx context.Context, _ *usersv1.GetOrCreateCurrentUserRequest) (*usersv1.User, error) {
+func (s *Service) GetOrCreateCurrentUser(
+	ctx context.Context,
+	_ *usersv1.GetOrCreateCurrentUserRequest,
+) (*usersv1.User, error) {
 	claims, ok := keycloak.ClaimsFromContext(ctx)
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "authenticated identity is required")
