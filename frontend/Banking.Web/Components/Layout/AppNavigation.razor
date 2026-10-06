@@ -9,7 +9,12 @@
                           IconActive="OverviewActiveIcon()"
                           Text="Overview"
                           Tooltip="Overview" />
-        <FluentAppBarItem Href="/#beneficiaries"
+        <FluentAppBarItem Href="/transactions"
+                          IconRest="TransactionsIcon()"
+                          IconActive="TransactionsActiveIcon()"
+                          Text="Transactions"
+                          Tooltip="Transactions" />
+        <FluentAppBarItem Href="/contacts"
                           IconRest="BeneficiariesIcon()"
                           IconActive="BeneficiariesActiveIcon()"
                           Text="Contacts"
@@ -20,6 +25,8 @@
 @code {
     private static Icon OverviewIcon() => new Icons.Regular.Size20.Home();
     private static Icon OverviewActiveIcon() => new Icons.Filled.Size20.Home();
+    private static Icon TransactionsIcon() => new Icons.Regular.Size20.ArrowTrendingLines();
+    private static Icon TransactionsActiveIcon() => new Icons.Filled.Size20.ArrowTrendingLines();
     private static Icon BeneficiariesIcon() => new Icons.Regular.Size20.People();
     private static Icon BeneficiariesActiveIcon() => new Icons.Filled.Size20.People();
     private static Icon ProfileIcon() => new Icons.Regular.Size20.Person();

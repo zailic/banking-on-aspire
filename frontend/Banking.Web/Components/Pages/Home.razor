@@ -145,12 +145,15 @@ else
                     <h2>Recent activity</h2>
                     <p>Your latest transactions and transfers</p>
                 </div>
-                @if (_dashboard.Transactions.Count > 0)
-                {
-                    <span class="panel-count" aria-label="@($"{_dashboard.Transactions.Count} recent transactions")">
-                        @_dashboard.Transactions.Count
-                    </span>
-                }
+                <div class="panel-heading-actions">
+                    @if (_dashboard.Transactions.Count > 0)
+                    {
+                        <span class="panel-count" aria-label="@($"{_dashboard.Transactions.Count} recent transactions")">
+                            @_dashboard.Transactions.Count
+                        </span>
+                    }
+                    <FluentButton Appearance="ButtonAppearance.Subtle" Href="/transactions">View all</FluentButton>
+                </div>
             </div>
             @if (_dashboard.Transactions.Count == 0)
             {
@@ -198,6 +201,7 @@ else
                             @_dashboard.Contacts.Count
                         </span>
                     }
+                    <FluentButton Appearance="ButtonAppearance.Subtle" Href="/contacts">View all</FluentButton>
                     <FluentButton Appearance="ButtonAppearance.Subtle" IconStart="@AddIcon()"
                                   OnClick="OpenContactDialogAsync">Add</FluentButton>
                 </div>

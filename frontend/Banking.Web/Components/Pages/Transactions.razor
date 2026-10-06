@@ -1,0 +1,414 @@
+@page "/transactions"
+@attribute [Authorize]
+@inject BankingDashboardService DashboardService
+@inject IDialogService DialogService
+
+<PageTitle>Transactions · Banking on Aspire</PageTitle>
+
+@if (_error is not null)
+{
+    <FluentMessageBar Intent="MessageBarIntent.Error">
+        @_error
+        @if (_reauthenticationRequired)
+        {
+            <a class="message-action" href="/authentication/login?returnUrl=/transactions">Sign in again</a>
+        }
+    </FluentMessageBar>
+}
+else if (_transactions is null)
+{
+    <div class="loading"><FluentSpinner /> Loading your transactions…</div>
+}
+else
+{
+    <div class="transactions-page">
+        <FluentStack Class="transactions-toolbar" VerticalAlignment="VerticalAlignment.Center">
+            <strong>@FilteredRows.Count() transactions</strong>
+            <FluentSpacer />
+            <AuthorizeView Policy="AccountsDeposit">
+                <Authorized>
+                    <FluentButton Appearance="ButtonAppearance.Primary"
+                                  IconStart="@(new Icons.Regular.Size20.ArrowDownload())"
+                                  Disabled="@(OpenAccounts.Count == 0)"
+                                  OnClick="OpenDepositDialogAsync">
+                        Add funds
+                    </FluentButton>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="PaymentsSend">
+                <Authorized>
+                    <FluentButton Appearance="ButtonAppearance.Primary"
+                                  IconStart="@(new Icons.Regular.Size20.Send())"
+                                  Disabled="@(!CanSendPayment)"
+                                  OnClick="OpenPaymentDialogAsync">
+                        Send payment
+                    </FluentButton>
+                </Authorized>
+            </AuthorizeView>
+        </FluentStack>
+
+        <div class="transactions-grid-container">
+            <FluentDataGrid Items="@FilteredRows"
+                        Virtualize="true"
+                        ItemSize="44"
+                        OverscanCount="5"
+                        Class="transactions-data-grid"
+                        DisplayMode="DataGridDisplayMode.Table"
+                        GenerateHeader="DataGridGeneratedHeaderType.Sticky"
+                        ShowHover="true"
+                        HeaderCellAsButtonWithMenu="true"
+                        AutoFit="true">
+            <ChildContent>
+                <TemplateColumn Title="Type"
+                                Align="DataGridCellAlignment.Center"
+                                Tooltip="true"
+                                Filtered="@(_direction != "all")">
+                    <ColumnOptions>
+                        <FluentSelect TOption="Direction" TValue="string"
+                                      Label="Direction"
+                                      Placeholder="Select direction"
+                                      Items="@_directionOptions"
+                                      OptionText="@(direction => direction.label)"
+                                      OptionValue="@(direction => direction.code)"
+                                      @bind-Value="@_direction" />
+                    </ColumnOptions>
+                    <ChildContent>
+                        <div class="activity-direction @DirectionClass(context.Transaction)"
+                             title="@context.Direction">
+                            <FluentIcon Value="@DirectionIcon(context.Transaction)" />
+                        </div>
+                    </ChildContent>
+                </TemplateColumn>
+                <PropertyColumn Property="@(row => row.Reference)"
+                                Title="Reference"
+                                Sortable="true"
+                                Filtered="@(!string.IsNullOrWhiteSpace(_search))">
+                    <ColumnOptions>
+                        <FluentTextInput Label="Reference"
+                                         Placeholder="Filter references"
+                                         @bind-Value="@_search" />
+                    </ColumnOptions>
+                </PropertyColumn>
+                <PropertyColumn Property="@(row => row.Account)"
+                                Title="Account"
+                                Sortable="true"
+                                Filtered="@(!string.IsNullOrEmpty(_account))">
+                    <ColumnOptions>
+                        <FluentSelect TOption="string" TValue="string"
+                                      Label="Account"
+                                      Items="@AccountOptions"
+                                      OptionText="@(account => string.IsNullOrEmpty(account) ? "All accounts" : AccountLabel(account))"
+                                      OptionValue="@(account => account)"
+                                      @bind-Value="@_account" />
+                    </ColumnOptions>
+                </PropertyColumn>
+                <PropertyColumn Property="@(row => row.Beneficiary)"
+                                Title="Beneficiary"
+                                Sortable="true"
+                                Filtered="@(!string.IsNullOrWhiteSpace(_counterparty))">
+                    <ColumnOptions>
+                        <FluentSelect TOption="string" TValue="string"
+                                      Label="Counterparty"
+                                      Items="@CounterpartyOptions"
+                                      OptionText="@(counterparty => string.IsNullOrEmpty(counterparty) ? "All counterparties" : CounterpartyLabel(counterparty))"
+                                      OptionValue="@(counterparty => counterparty)"
+                                      @bind-Value="@_counterparty" />
+                    </ColumnOptions>
+                </PropertyColumn>
+                <PropertyColumn Property="@(row => row.CreatedAt)"
+                                Title="Date"
+                                Format="dd MMM yyyy, HH:mm"
+                                Sortable="true"
+                                Filtered="@(_from is not null || _to is not null)">
+                    <ColumnOptions>
+                        <FluentStack Orientation="Orientation.Vertical" VerticalGap="12px">
+                            <FluentDatePicker TValue="DateTime?"
+                                              Label="From"
+                                              Placeholder="Start date"
+                                              @bind-Value="@_from" />
+                            <FluentDatePicker TValue="DateTime?"
+                                              Label="To"
+                                              Placeholder="End date"
+                                              @bind-Value="@_to" />
+                        </FluentStack>
+                    </ColumnOptions>
+                </PropertyColumn>
+                <TemplateColumn Title="Amount" Align="DataGridCellAlignment.End" SortBy="@_amountSort">
+                    <strong class="grid-amount @DirectionClass(context.Transaction)">@TransactionAmount(context.Transaction)</strong>
+                </TemplateColumn>
+            </ChildContent>
+            <EmptyContent>
+                <div class="transactions-empty">
+                    <div class="empty-icon"><FluentIcon Value="@ActivityIcon()" /></div>
+                    <strong>@(_transactions.Count == 0 ? "No transactions yet" : "No matching transactions")</strong>
+                    <span>@(_transactions.Count == 0
+                        ? "Your completed payments will appear here."
+                        : "Try changing or clearing the current filters.")</span>
+                </div>
+            </EmptyContent>
+            </FluentDataGrid>
+        </div>
+    </div>
+}
+
+@code {
+    record Direction(string code, string label);
+    private IReadOnlyList<Transaction>? _transactions;
+    private IReadOnlyList<Account> _accounts = [];
+    private IReadOnlyList<Contact> _contacts = [];
+    private IReadOnlyDictionary<string, string> _accountNames = new Dictionary<string, string>();
+    private IReadOnlyDictionary<string, string> _counterpartyNames = new Dictionary<string, string>();
+    private string? _error;
+    private bool _reauthenticationRequired;
+    private string _search = "";
+    private string _direction = "all";
+    private string _account = "";
+    private string _counterparty = "";
+    private DateTime? _from;
+    private DateTime? _to;
+    private readonly List<Direction> _directionOptions = new()
+    {
+        new Direction("all", "All directions"),
+        new Direction("credit", "Money In"),
+        new Direction("debit", "Money Out")
+    };
+    private IQueryable<TransactionGridRow> FilteredRows => (_transactions ?? [])
+        .Where(MatchesSearch)
+        .Where(MatchesDirection)
+        .Where(transaction => string.IsNullOrEmpty(_account) || transaction.Account == _account)
+        .Where(MatchesBeneficiary)
+        .Where(MatchesDate)
+        .Select(transaction => new TransactionGridRow(
+            transaction,
+            TransactionTitle(transaction),
+            DirectionLabel(transaction),
+            AccountLabel(transaction.Account),
+            CounterpartyLabel(transaction.Counterparty),
+            TransactionDateTime(transaction) ?? DateTime.MinValue))
+        .AsQueryable();
+
+    private IEnumerable<string> Accounts => (_transactions ?? [])
+        .Select(transaction => transaction.Account)
+        .Where(account => !string.IsNullOrWhiteSpace(account))
+        .Distinct(StringComparer.Ordinal)
+        .Order(StringComparer.Ordinal);
+
+    private IEnumerable<string> Counterparties => (_transactions ?? [])
+        .Select(transaction => transaction.Counterparty)
+        .Where(beneficiary => !string.IsNullOrWhiteSpace(beneficiary))
+        .Distinct(StringComparer.Ordinal)
+        .Order(StringComparer.Ordinal);
+
+
+    private IEnumerable<string> AccountOptions => ["", .. Accounts];
+
+    private IEnumerable<string> CounterpartyOptions => ["", .. Counterparties];
+
+    private IReadOnlyList<Account> OpenAccounts => _accounts
+        .Where(account => account.Status == AccountStatus.Open)
+        .ToArray();
+
+    private bool CanSendPayment => OpenAccounts.Count > 0 && _contacts.Count > 0;
+
+    private GridSort<TransactionGridRow> _amountSort = GridSort<TransactionGridRow>
+        .ByDescending(row => TransactionAmountValue(row.Transaction));
+    protected override async Task OnInitializedAsync() => await LoadTransactionsAsync();
+
+    private async Task LoadTransactionsAsync()
+    {
+        try
+        {
+            var history = await DashboardService.LoadTransactionsAsync();
+            _accounts = history.Accounts;
+            _contacts = history.Contacts;
+            _accountNames = history.AccountNames;
+            _counterpartyNames = history.BeneficiaryNames;
+            _transactions = history.Transactions;
+        }
+        catch (Grpc.Core.RpcException exception)
+        {
+            _reauthenticationRequired = exception.StatusCode == Grpc.Core.StatusCode.Unauthenticated;
+            _error = _reauthenticationRequired
+                ? "Your session has expired. Sign in again to view your transactions."
+                : "We couldn't load your transactions right now. Please try again.";
+        }
+        catch
+        {
+            _error = "We couldn't load your transactions right now. Please try again.";
+        }
+    }
+
+    private async Task OpenDepositDialogAsync()
+    {
+        _error = null;
+        _reauthenticationRequired = false;
+        var accounts = OpenAccounts
+            .Select(account => new PaymentAccountOption(
+                account.Name,
+                $"{account.DisplayName} · {AvailableBalance(account)}",
+                account.CurrencyCode))
+            .ToArray();
+        if (accounts.Length == 0) return;
+
+        var model = new DepositFundsCommand
+        {
+            Account = accounts[0].Name,
+            CurrencyCode = accounts[0].CurrencyCode
+        };
+        var result = await DialogService.ShowDialogAsync<DepositFundsDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+            options.Header.Title = "Add funds";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Parameters.Add(nameof(DepositFundsDialog.Model), model);
+            options.Parameters.Add(nameof(DepositFundsDialog.Accounts), accounts);
+            options.Header.CloseAction.OnClickAsync = async dialog => await dialog.CloseAsync(DialogResult.Cancel());
+        });
+
+        if (!result.Cancelled && result.Value is Deposit)
+        {
+            await Task.Delay(300);
+            await LoadTransactionsAsync();
+        }
+    }
+
+    private async Task OpenPaymentDialogAsync()
+    {
+        _error = null;
+        _reauthenticationRequired = false;
+        var accounts = OpenAccounts
+            .Select(account => new PaymentAccountOption(
+                account.Name,
+                $"{account.DisplayName} · {AvailableBalance(account)}",
+                account.CurrencyCode))
+            .ToArray();
+        var beneficiaries = _contacts
+            .Select(contact => new PaymentBeneficiaryOption(
+                contact.Name,
+                $"{contact.DisplayName} · {Destination(contact)}"))
+            .ToArray();
+        if (accounts.Length == 0 || beneficiaries.Length == 0) return;
+
+        var model = new SendPaymentCommand
+        {
+            SourceAccount = accounts[0].Name,
+            Beneficiary = beneficiaries[0].Name,
+            CurrencyCode = accounts[0].CurrencyCode
+        };
+        var result = await DialogService.ShowDialogAsync<SendPaymentDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+            options.Header.Title = "Send payment";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Parameters.Add(nameof(SendPaymentDialog.Model), model);
+            options.Parameters.Add(nameof(SendPaymentDialog.Accounts), accounts);
+            options.Parameters.Add(nameof(SendPaymentDialog.Beneficiaries), beneficiaries);
+            options.Header.CloseAction.OnClickAsync = async dialog => await dialog.CloseAsync(DialogResult.Cancel());
+        });
+
+        if (!result.Cancelled && result.Value is Payment)
+        {
+            await Task.Delay(300);
+            await LoadTransactionsAsync();
+        }
+    }
+
+    private bool MatchesSearch(Transaction transaction)
+    {
+        if (string.IsNullOrWhiteSpace(_search)) return true;
+        return transaction.Reference.Contains(_search, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesBeneficiary(Transaction transaction)
+    {
+        if (string.IsNullOrWhiteSpace(_counterparty)) return true;
+        return transaction.Counterparty.Contains(_counterparty, StringComparison.OrdinalIgnoreCase)
+            || CounterpartyLabel(transaction.Counterparty).Contains(_counterparty, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesDirection(Transaction transaction) => _direction switch
+    {
+        "credit" => transaction.Direction == TransactionDirection.Credit,
+        "debit" => transaction.Direction == TransactionDirection.Debit,
+        _ => true
+    };
+
+    private bool MatchesDate(Transaction transaction)
+    {
+        var date = TransactionDateTime(transaction)?.Date;
+        if (date is null) return _from is null && _to is null;
+        if (_from is not null && date < _from.Value.Date) return false;
+        if (_to is not null && date > _to.Value.Date) return false;
+        return true;
+    }
+
+    private static DateTime? TransactionDateTime(Transaction transaction) => transaction.CreateTime?.ToDateTime().ToLocalTime();
+    private static string TransactionTitle(Transaction transaction) => string.IsNullOrWhiteSpace(transaction.Reference)
+        ? DirectionLabel(transaction)
+        : transaction.Reference;
+    private static string DirectionLabel(Transaction transaction) => transaction.Direction == TransactionDirection.Credit
+        ? "Incoming payment"
+        : "Outgoing payment";
+    private string CounterpartyLabel(string counterparty)
+    {
+        if (string.IsNullOrWhiteSpace(counterparty)) return "—";
+        return _counterpartyNames.TryGetValue(counterparty, out var displayName)
+            ? displayName
+            : counterparty.Split('/').Last();
+    }
+    private string AccountLabel(string account)
+    {
+        if (string.IsNullOrWhiteSpace(account)) return "Unknown account";
+        return _accountNames.TryGetValue(account, out var displayName)
+            ? displayName
+            : account.Split('/').Last();
+    }
+    private static string Destination(Contact contact) => contact.DestinationCase switch
+    {
+        Contact.DestinationOneofCase.InternalAccount => contact.InternalAccount,
+        Contact.DestinationOneofCase.ExternalAccount =>
+            $"{contact.ExternalAccount.RoutingNumber} · ••••{contact.ExternalAccount.AccountNumber[^Math.Min(4, contact.ExternalAccount.AccountNumber.Length)..]}",
+        _ => "Destination unavailable"
+    };
+    private static string AvailableBalance(Account account)
+    {
+        if (account.AvailableBalance is null) return $"0.00 {account.CurrencyCode}";
+        var amount = account.AvailableBalance.Units + account.AvailableBalance.Nanos / 1_000_000_000m;
+        var currency = string.IsNullOrWhiteSpace(account.AvailableBalance.CurrencyCode)
+            ? account.CurrencyCode
+            : account.AvailableBalance.CurrencyCode;
+        return $"{amount:N2} {currency}";
+    }
+    private static string TransactionAmount(Transaction transaction)
+    {
+        var money = transaction.Amount;
+        var amount = TransactionAmountValue(transaction);
+        return $"{(transaction.Direction == TransactionDirection.Credit ? "+" : "−")}{amount:N2} {money?.CurrencyCode}";
+    }
+    private static decimal TransactionAmountValue(Transaction transaction)
+    {
+        var money = transaction.Amount;
+        return money is null
+            ? 0m
+            : (money.Units * 1_000_000_000m + money.Nanos) / 1_000_000_000m;
+    }
+    private static string DirectionClass(Transaction transaction) => transaction.Direction == TransactionDirection.Credit ? "credit" : "debit";
+    private static Icon DirectionIcon(Transaction transaction) => transaction.Direction == TransactionDirection.Credit
+        ? new Icons.Regular.Size16.ArrowDown()
+        : new Icons.Regular.Size16.ArrowUp();
+    private static Icon ActivityIcon() => new Icons.Regular.Size24.ArrowTrendingLines();
+
+    private sealed record TransactionGridRow(
+        Transaction Transaction,
+        string Reference,
+        string Direction,
+        string Account,
+        string Beneficiary,
+        DateTime CreatedAt);
+}

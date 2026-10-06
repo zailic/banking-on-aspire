@@ -1,0 +1,215 @@
+@page "/contacts"
+@attribute [Authorize]
+@inject BankingDashboardService DashboardService
+@inject IDialogService DialogService
+
+<PageTitle>Contacts · Banking on Aspire</PageTitle>
+
+@if (_error is not null)
+{
+    <FluentMessageBar Intent="MessageBarIntent.Error">
+        @_error
+        @if (_reauthenticationRequired)
+        {
+            <a class="message-action" href="/authentication/login?returnUrl=/contacts">Sign in again</a>
+        }
+    </FluentMessageBar>
+}
+else if (_contacts is null)
+{
+    <div class="loading"><FluentSpinner /> Loading your beneficiaries…</div>
+}
+else
+{
+    <div class="contacts-page">
+        <FluentStack Class="contacts-toolbar" VerticalAlignment="VerticalAlignment.Center">
+            <strong>@FilteredRows.Count() beneficiaries</strong>
+            <FluentSpacer />
+            <FluentButton Appearance="ButtonAppearance.Primary"
+                          IconStart="@(new Icons.Regular.Size20.Add())"
+                          OnClick="OpenContactDialogAsync">
+                Add beneficiary
+            </FluentButton>
+        </FluentStack>
+
+        <div class="contacts-grid-container">
+            <FluentDataGrid Items="@FilteredRows"
+                            Virtualize="true"
+                            ItemSize="44"
+                            OverscanCount="5"
+                            Class="contacts-data-grid"
+                            DisplayMode="DataGridDisplayMode.Table"
+                            GenerateHeader="DataGridGeneratedHeaderType.Sticky"
+                            ShowHover="true"
+                            HeaderCellAsButtonWithMenu="true"
+                            AutoFit="true">
+                <ChildContent>
+                    <PropertyColumn Property="@(row => row.DisplayName)"
+                                    Title="Name"
+                                    Sortable="true"
+                                    Filtered="@(!string.IsNullOrWhiteSpace(_name))">
+                        <ColumnOptions>
+                            <FluentTextInput Label="Name"
+                                             Placeholder="Filter names"
+                                             @bind-Value="@_name" />
+                        </ColumnOptions>
+                    </PropertyColumn>
+                    <PropertyColumn Property="@(row => row.Type)"
+                                    Title="Type"
+                                    Sortable="true"
+                                    Filtered="@(_type != "all")">
+                        <ColumnOptions>
+                            <FluentSelect TOption="ContactTypeOption" TValue="string"
+                                          Label="Type"
+                                          Items="@_typeOptions"
+                                          OptionText="@(option => option.Label)"
+                                          OptionValue="@(option => option.Value)"
+                                          @bind-Value="@_type" />
+                        </ColumnOptions>
+                    </PropertyColumn>
+                    <PropertyColumn Property="@(row => row.Destination)"
+                                    Title="Destination"
+                                    Sortable="true"
+                                    Filtered="@(!string.IsNullOrWhiteSpace(_destination))">
+                        <ColumnOptions>
+                            <FluentTextInput Label="Destination"
+                                             Placeholder="Filter destinations"
+                                             @bind-Value="@_destination" />
+                        </ColumnOptions>
+                    </PropertyColumn>
+                    <PropertyColumn Property="@(row => row.CreatedAt)"
+                                    Title="Created"
+                                    Format="dd MMM yyyy, HH:mm"
+                                    Sortable="true"
+                                    Filtered="@(_from is not null || _to is not null)">
+                        <ColumnOptions>
+                            <FluentStack Orientation="Orientation.Vertical" VerticalGap="12px">
+                                <FluentDatePicker TValue="DateTime?" Label="From" @bind-Value="@_from" />
+                                <FluentDatePicker TValue="DateTime?" Label="To" @bind-Value="@_to" />
+                            </FluentStack>
+                        </ColumnOptions>
+                    </PropertyColumn>
+                </ChildContent>
+                <EmptyContent>
+                    <div class="contacts-empty">
+                        <FluentIcon Value="@(new Icons.Regular.Size24.People())" />
+                        <strong>@(_contacts.Count == 0 ? "No beneficiaries saved" : "No matching beneficiaries")</strong>
+                        <span>@(_contacts.Count == 0
+                            ? "Add a beneficiary to prepare your next payment."
+                            : "Try changing the current filters.")</span>
+                    </div>
+                </EmptyContent>
+            </FluentDataGrid>
+        </div>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<Contact>? _contacts;
+    private string? _error;
+    private bool _reauthenticationRequired;
+    private string _name = "";
+    private string _type = "all";
+    private string _destination = "";
+    private DateTime? _from;
+    private DateTime? _to;
+
+    private readonly ContactTypeOption[] _typeOptions =
+    [
+        new("all", "All types"),
+        new("internal", "Internal account"),
+        new("external", "External bank account")
+    ];
+
+    private IQueryable<ContactGridRow> FilteredRows => (_contacts ?? [])
+        .Where(MatchesName)
+        .Where(MatchesType)
+        .Where(MatchesDestination)
+        .Where(MatchesDate)
+        .Select(contact => new ContactGridRow(
+            contact.DisplayName,
+            ContactType(contact),
+            Destination(contact),
+            contact.CreateTime?.ToDateTime().ToLocalTime() ?? DateTime.MinValue))
+        .AsQueryable();
+
+    protected override async Task OnInitializedAsync() => await LoadContactsAsync();
+
+    private async Task LoadContactsAsync()
+    {
+        try
+        {
+            _contacts = await DashboardService.LoadContactsAsync();
+        }
+        catch (Grpc.Core.RpcException exception)
+        {
+            _reauthenticationRequired = exception.StatusCode == Grpc.Core.StatusCode.Unauthenticated;
+            _error = _reauthenticationRequired
+                ? "Your session has expired. Sign in again to view your beneficiaries."
+                : "We couldn't load your beneficiaries right now. Please try again.";
+        }
+        catch (Exception exception)
+        {
+            _error = $"We couldn't load your beneficiaries: {exception.Message}";
+        }
+    }
+
+    private async Task OpenContactDialogAsync()
+    {
+        _error = null;
+        _reauthenticationRequired = false;
+        var model = new CreateContactCommand();
+        var result = await DialogService.ShowDialogAsync<AddContactDialog>(options =>
+        {
+            options.Modal = true;
+            options.Size = DialogSize.Medium;
+            options.Header.Title = "Add beneficiary";
+            options.Header.CloseAction.Visible = true;
+            options.Footer.PrimaryAction.Visible = false;
+            options.Footer.SecondaryAction.Visible = false;
+            options.Parameters.Add(nameof(AddContactDialog.Model), model);
+            options.Header.CloseAction.OnClickAsync = async dialog => await dialog.CloseAsync(DialogResult.Cancel());
+        });
+
+        if (!result.Cancelled && result.Value is Contact)
+        {
+            await LoadContactsAsync();
+        }
+    }
+
+    private bool MatchesName(Contact contact) => string.IsNullOrWhiteSpace(_name)
+        || contact.DisplayName.Contains(_name, StringComparison.OrdinalIgnoreCase);
+    private bool MatchesType(Contact contact) => _type switch
+    {
+        "internal" => contact.DestinationCase == Contact.DestinationOneofCase.InternalAccount,
+        "external" => contact.DestinationCase == Contact.DestinationOneofCase.ExternalAccount,
+        _ => true
+    };
+    private bool MatchesDestination(Contact contact) => string.IsNullOrWhiteSpace(_destination)
+        || Destination(contact).Contains(_destination, StringComparison.OrdinalIgnoreCase);
+    private bool MatchesDate(Contact contact)
+    {
+        var date = contact.CreateTime?.ToDateTime().ToLocalTime().Date;
+        if (date is null) return _from is null && _to is null;
+        if (_from is not null && date < _from.Value.Date) return false;
+        if (_to is not null && date > _to.Value.Date) return false;
+        return true;
+    }
+
+    private static string ContactType(Contact contact) => contact.DestinationCase switch
+    {
+        Contact.DestinationOneofCase.InternalAccount => "Internal",
+        Contact.DestinationOneofCase.ExternalAccount => "External",
+        _ => "Unknown"
+    };
+    private static string Destination(Contact contact) => contact.DestinationCase switch
+    {
+        Contact.DestinationOneofCase.InternalAccount => contact.InternalAccount,
+        Contact.DestinationOneofCase.ExternalAccount =>
+            $"{contact.ExternalAccount.RoutingNumber} · ••••{contact.ExternalAccount.AccountNumber[^Math.Min(4, contact.ExternalAccount.AccountNumber.Length)..]}",
+        _ => "Destination unavailable"
+    };
+
+    private sealed record ContactTypeOption(string Value, string Label);
+    private sealed record ContactGridRow(string DisplayName, string Type, string Destination, DateTime CreatedAt);
+}

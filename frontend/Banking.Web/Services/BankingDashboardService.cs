@@ -59,6 +59,134 @@ public sealed class BankingDashboardService(
             [.. transactionsResponse.Transactions]);
     }
 
+    public async Task<TransactionHistory> LoadTransactionsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var usersChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:UsersUrl"));
+        var users = new UsersService.UsersServiceClient(usersChannel);
+        var user = await ExecuteAuthenticatedAsync(
+            headers => users.GetOrCreateCurrentUserAsync(
+                new GetOrCreateCurrentUserRequest(), headers, cancellationToken: cancellationToken).ResponseAsync,
+            cancellationToken);
+
+        using var accountsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:AccountsUrl"));
+        var accountsClient = new AccountsService.AccountsServiceClient(accountsChannel);
+        var accounts = new List<Account>();
+        var accountNames = new Dictionary<string, string>(StringComparer.Ordinal);
+        var accountsPageToken = "";
+
+        do
+        {
+            var response = await ExecuteAuthenticatedAsync(
+                headers => accountsClient.ListAccountsAsync(
+                    new ListAccountsRequest
+                    {
+                        Parent = user.Name,
+                        PageSize = 100,
+                        PageToken = accountsPageToken
+                    },
+                    headers,
+                    cancellationToken: cancellationToken).ResponseAsync,
+                cancellationToken);
+
+            foreach (var account in response.Accounts)
+            {
+                accounts.Add(account);
+                accountNames[account.Name] = account.DisplayName;
+            }
+            accountsPageToken = response.NextPageToken;
+        } while (!string.IsNullOrEmpty(accountsPageToken));
+
+        using var contactsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:ContactsUrl"));
+        var contactsClient = new ContactsService.ContactsServiceClient(contactsChannel);
+        var contacts = new List<Contact>();
+        var beneficiaryNames = new Dictionary<string, string>(StringComparer.Ordinal);
+        var contactsPageToken = "";
+
+        do
+        {
+            var response = await ExecuteAuthenticatedAsync(
+                headers => contactsClient.ListContactsAsync(
+                    new ListContactsRequest
+                    {
+                        Parent = user.Name,
+                        PageSize = 100,
+                        PageToken = contactsPageToken
+                    },
+                    headers,
+                    cancellationToken: cancellationToken).ResponseAsync,
+                cancellationToken);
+
+            foreach (var contact in response.Contacts)
+            {
+                contacts.Add(contact);
+                beneficiaryNames[contact.Name] = contact.DisplayName;
+            }
+            contactsPageToken = response.NextPageToken;
+        } while (!string.IsNullOrEmpty(contactsPageToken));
+
+        using var transactionsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:TransactionsUrl"));
+        var transactionsClient = new TransactionsService.TransactionsServiceClient(transactionsChannel);
+        var transactions = new List<Transaction>();
+        var pageToken = "";
+
+        do
+        {
+            var response = await ExecuteAuthenticatedAsync(
+                headers => transactionsClient.ListTransactionsAsync(
+                    new ListTransactionsRequest
+                    {
+                        Parent = user.Name,
+                        PageSize = 100,
+                        PageToken = pageToken
+                    },
+                    headers,
+                    cancellationToken: cancellationToken).ResponseAsync,
+                cancellationToken);
+
+            transactions.AddRange(response.Transactions);
+            pageToken = response.NextPageToken;
+        } while (!string.IsNullOrEmpty(pageToken));
+
+        return new TransactionHistory(transactions, accounts, contacts, accountNames, beneficiaryNames);
+    }
+
+    public async Task<IReadOnlyList<Contact>> LoadContactsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var usersChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:UsersUrl"));
+        var users = new UsersService.UsersServiceClient(usersChannel);
+        var user = await ExecuteAuthenticatedAsync(
+            headers => users.GetOrCreateCurrentUserAsync(
+                new GetOrCreateCurrentUserRequest(), headers, cancellationToken: cancellationToken).ResponseAsync,
+            cancellationToken);
+
+        using var contactsChannel = GrpcChannel.ForAddress(GetGrpcAddress("Backend:ContactsUrl"));
+        var contactsClient = new ContactsService.ContactsServiceClient(contactsChannel);
+        var contacts = new List<Contact>();
+        var pageToken = "";
+
+        do
+        {
+            var response = await ExecuteAuthenticatedAsync(
+                headers => contactsClient.ListContactsAsync(
+                    new ListContactsRequest
+                    {
+                        Parent = user.Name,
+                        PageSize = 100,
+                        PageToken = pageToken
+                    },
+                    headers,
+                    cancellationToken: cancellationToken).ResponseAsync,
+                cancellationToken);
+
+            contacts.AddRange(response.Contacts);
+            pageToken = response.NextPageToken;
+        } while (!string.IsNullOrEmpty(pageToken));
+
+        return contacts;
+    }
+
     public async Task<Contact> CreateContactAsync(
         CreateContactCommand command,
         CancellationToken cancellationToken = default)
@@ -269,6 +397,13 @@ public sealed record BankingDashboard(
     IReadOnlyList<Account> Accounts,
     IReadOnlyList<Contact> Contacts,
     IReadOnlyList<Transaction> Transactions);
+
+public sealed record TransactionHistory(
+    IReadOnlyList<Transaction> Transactions,
+    IReadOnlyList<Account> Accounts,
+    IReadOnlyList<Contact> Contacts,
+    IReadOnlyDictionary<string, string> AccountNames,
+    IReadOnlyDictionary<string, string> BeneficiaryNames);
 
 public enum ContactDestinationType
 {

@@ -445,6 +445,29 @@ dd {
 .panel-empty span { max-width: 300px; color: var(--colorNeutralForeground3); font-size: 11px; line-height: 1.45; }
 .contact-type, .status-badge { display: inline-flex; width: fit-content; padding: 3px 8px; border-radius: 999px; color: var(--colorBrandForeground1); background: var(--colorBrandBackground2); font-size: 10px; font-weight: 600; }
 
+.shell:has(.transactions-page, .contacts-page) { width: 100%; max-width: none; padding: 8px; }
+.content-region:has(.transactions-page, .contacts-page) { overflow: hidden; scrollbar-gutter: auto; }
+.transactions-page { width: 100%; height: calc(100dvh - 68px); min-height: 320px; display: flex; flex-direction: column; overflow: hidden; }
+.transactions-toolbar { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; gap: 8px; border-bottom: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground1); }
+.transactions-grid-container { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
+.transactions-data-grid { width: 100%; background: var(--colorNeutralBackground1); }
+.transactions-data-grid::part(row) { border-bottom: 1px solid var(--colorNeutralStroke2); }
+.transactions-data-grid .activity-direction { margin-inline: auto; }
+.transactions-data-grid th.amount-column { vertical-align: middle; }
+.grid-amount { display: block; width: 100%; font-size: 12px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.grid-amount.debit { color: var(--colorPaletteRedForeground1); }
+.grid-amount.credit { color: var(--colorPaletteGreenForeground1); }
+.transactions-empty { min-height: 240px; padding: 32px; display: grid; place-items: center; align-content: center; gap: 7px; text-align: center; }
+.transactions-empty strong { margin-top: 6px; font-size: 14px; }
+.transactions-empty span { color: var(--colorNeutralForeground3); font-size: 12px; }
+.contacts-page { width: 100%; height: calc(100dvh - 68px); min-height: 320px; display: flex; flex-direction: column; overflow: hidden; }
+.contacts-toolbar { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; border-bottom: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground1); }
+.contacts-grid-container { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
+.contacts-data-grid { width: 100%; background: var(--colorNeutralBackground1); }
+.contacts-empty { min-height: 240px; padding: 32px; display: grid; place-items: center; align-content: center; gap: 7px; text-align: center; }
+.contacts-empty strong { margin-top: 6px; font-size: 14px; }
+.contacts-empty span { color: var(--colorNeutralForeground3); font-size: 12px; }
+
 @media (max-width: 760px) {
 
     .app-heading-context,
@@ -474,4 +497,5 @@ dd {
         align-items: flex-start;
         flex-direction: column;
     }
+
 }
