@@ -23,7 +23,6 @@ else
 {
     <div class="transactions-page">
         <FluentStack Class="transactions-toolbar" VerticalAlignment="VerticalAlignment.Center">
-            <strong>@FilteredRows.Count() transactions</strong>
             <FluentSpacer />
             <AuthorizeView Policy="AccountsDeposit">
                 <Authorized>
@@ -103,7 +102,7 @@ else
                     </ColumnOptions>
                 </PropertyColumn>
                 <PropertyColumn Property="@(row => row.Beneficiary)"
-                                Title="Beneficiary"
+                                Title="Counterparty"
                                 Sortable="true"
                                 Filtered="@(!string.IsNullOrWhiteSpace(_counterparty))">
                     <ColumnOptions>
@@ -148,6 +147,10 @@ else
             </EmptyContent>
             </FluentDataGrid>
         </div>
+
+        <FluentStack Class="transactions-footer" VerticalAlignment="VerticalAlignment.Center">
+            <strong>@FilteredRows.Count() transactions</strong>
+        </FluentStack>
     </div>
 }
 

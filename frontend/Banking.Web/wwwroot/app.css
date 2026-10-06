@@ -449,6 +449,7 @@ dd {
 .content-region:has(.transactions-page, .contacts-page) { overflow: hidden; scrollbar-gutter: auto; }
 .transactions-page { width: 100%; height: calc(100dvh - 68px); min-height: 320px; display: flex; flex-direction: column; overflow: hidden; }
 .transactions-toolbar { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; gap: 8px; border-bottom: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground1); }
+.transactions-footer { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; border-top: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground4); }
 .transactions-grid-container { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
 .transactions-data-grid { width: 100%; background: var(--colorNeutralBackground1); }
 .transactions-data-grid::part(row) { border-bottom: 1px solid var(--colorNeutralStroke2); }
@@ -462,6 +463,7 @@ dd {
 .transactions-empty span { color: var(--colorNeutralForeground3); font-size: 12px; }
 .contacts-page { width: 100%; height: calc(100dvh - 68px); min-height: 320px; display: flex; flex-direction: column; overflow: hidden; }
 .contacts-toolbar { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; border-bottom: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground1); }
+.contacts-footer { flex: 0 0 auto; min-height: 44px; padding: 4px 8px; border-top: 1px solid var(--colorNeutralStroke2); background: var(--colorNeutralBackground4); }
 .contacts-grid-container { min-height: 0; flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; }
 .contacts-data-grid { width: 100%; background: var(--colorNeutralBackground1); }
 .contacts-empty { min-height: 240px; padding: 32px; display: grid; place-items: center; align-content: center; gap: 7px; text-align: center; }

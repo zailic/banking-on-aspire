@@ -23,7 +23,6 @@ else
 {
     <div class="contacts-page">
         <FluentStack Class="contacts-toolbar" VerticalAlignment="VerticalAlignment.Center">
-            <strong>@FilteredRows.Count() beneficiaries</strong>
             <FluentSpacer />
             <FluentButton Appearance="ButtonAppearance.Primary"
                           IconStart="@(new Icons.Regular.Size20.Add())"
@@ -101,6 +100,10 @@ else
                 </EmptyContent>
             </FluentDataGrid>
         </div>
+
+        <FluentStack Class="contacts-footer" VerticalAlignment="VerticalAlignment.Center">
+            <strong>@FilteredRows.Count() beneficiaries</strong>
+        </FluentStack>
     </div>
 }
 
