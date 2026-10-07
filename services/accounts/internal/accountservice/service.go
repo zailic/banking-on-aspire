@@ -12,9 +12,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
-	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
-	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
+	accountsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	"github.com/zailic/banking-on-aspire/services/accounts/internal/accountrepo"
 	"google.golang.org/genproto/googleapis/type/money"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

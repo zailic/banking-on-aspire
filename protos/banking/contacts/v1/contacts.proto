@@ -11,7 +11,7 @@ import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "Banking.Contracts.Contacts.V1";
-option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1;contactsv1";
+option go_package = "github.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1;contactsv1";
 // Identifies the user resource owned by the Users service.
 option (google.api.resource_definition) = {
   type: "banking-on-aspire.dev/User"

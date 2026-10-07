@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
-	transactionsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1"
+	eventsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1"
+	transactionsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/transactions/v1"
 	"google.golang.org/genproto/googleapis/type/money"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"

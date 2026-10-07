@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"dev.local/banking-on-aspire/services/contacts/internal/contactrepo"
+	"github.com/zailic/banking-on-aspire/services/contacts/internal/contactrepo"
 )
 
 const usersDatabaseURIEnvironment = "USERSDB_URI"

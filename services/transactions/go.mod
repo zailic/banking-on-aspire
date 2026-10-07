@@ -1,10 +1,10 @@
-module dev.local/banking-on-aspire/services/transactions
+module github.com/zailic/banking-on-aspire/services/transactions
 
 go 1.26.5
 
 require (
-	dev.local/banking-on-aspire/platform v0.0.0
 	github.com/jackc/pgx/v5 v5.10.0
+	github.com/zailic/banking-on-aspire/platform v0.0.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.69.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0
 	google.golang.org/genproto v0.0.0-20260819154853-08b0e4226688
@@ -42,4 +42,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260818201246-1b0934165a6f // indirect
 )
 
-replace dev.local/banking-on-aspire/platform => ../../platform
+replace github.com/zailic/banking-on-aspire/platform => ../../platform

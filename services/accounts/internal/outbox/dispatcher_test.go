@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"dev.local/banking-on-aspire/services/accounts/internal/accountrepo"
+	"github.com/zailic/banking-on-aspire/services/accounts/internal/accountrepo"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"

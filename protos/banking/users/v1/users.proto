@@ -9,7 +9,7 @@ import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "Banking.Contracts.Users.V1";
-option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1;usersv1";
+option go_package = "github.com/zailic/banking-on-aspire/platform/gen/go/banking/users/v1;usersv1";
 
 // Manages application profiles linked to authenticated Keycloak identities.
 service UsersService {

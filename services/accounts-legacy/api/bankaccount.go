@@ -4,7 +4,7 @@ package api
 import (
 	"context"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/domain"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/domain"
 )
 
 const BankAccountActorType = "BankAccount"

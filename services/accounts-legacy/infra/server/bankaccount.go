@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/domain"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/domain"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
-	api "dev.local/banking-on-aspire/services/accounts-legacy/api"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
+	api "github.com/zailic/banking-on-aspire/services/accounts-legacy/api"
 	"github.com/dapr/go-sdk/client"
 )
 

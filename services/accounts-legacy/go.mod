@@ -1,13 +1,13 @@
-module dev.local/banking-on-aspire/services/accounts-legacy
+module github.com/zailic/banking-on-aspire/services/accounts-legacy
 
 go 1.26.5
 
 require (
-	dev.local/banking-on-aspire/platform v0.0.0
 	github.com/dapr/go-sdk v1.15.0
+	github.com/zailic/banking-on-aspire/platform v0.0.0
 )
 
-replace dev.local/banking-on-aspire/platform => ../../platform
+replace github.com/zailic/banking-on-aspire/platform => ../../platform
 
 require golang.org/x/oauth2 v0.36.0 // indirect
 

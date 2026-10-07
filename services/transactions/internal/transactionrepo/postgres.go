@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
-	transactionsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1"
+	eventsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1"
+	transactionsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/transactions/v1"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/genproto/googleapis/type/money"

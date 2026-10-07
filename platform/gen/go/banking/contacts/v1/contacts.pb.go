@@ -7,7 +7,7 @@
 package contactsv1
 
 import (
-	_ "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1"
+	_ "github.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -608,9 +608,9 @@ const file_banking_contacts_v1_contacts_proto_rawDesc = "" +
 	"\rUpdateContact\x12).banking.contacts.v1.UpdateContactRequest\x1a\x1c.banking.contacts.v1.Contact\"J\xc2\xf3\x18\x10\n" +
 	"\x0econtacts.write\x82\xd3\xe4\x93\x020:\acontact2%/v1/{contact.name=users/*/contacts/*}\x12\x8d\x01\n" +
 	"\rDeleteContact\x12).banking.contacts.v1.DeleteContactRequest\x1a\x16.google.protobuf.Empty\"9\xc2\xf3\x18\x10\n" +
-	"\x0econtacts.write\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/{name=users/*/contacts/*}B\xcf\x01\xeaA*\n" +
+	"\x0econtacts.write\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/{name=users/*/contacts/*}B\xd7\x01\xeaA*\n" +
 	"\x1abanking-on-aspire.dev/User\x12\fusers/{user}\xeaA3\n" +
-	"\x1dbanking-on-aspire.dev/Account\x12\x12accounts/{account}ZJdev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1;contactsv1\xaa\x02\x1dBanking.Contracts.Contacts.V1b\x06proto3"
+	"\x1dbanking-on-aspire.dev/Account\x12\x12accounts/{account}ZRgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1;contactsv1\xaa\x02\x1dBanking.Contracts.Contacts.V1b\x06proto3"
 
 var (
 	file_banking_contacts_v1_contacts_proto_rawDescOnce sync.Once

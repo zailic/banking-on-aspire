@@ -7,7 +7,7 @@
 package accountsv1
 
 import (
-	_ "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1"
+	_ "github.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	money "google.golang.org/genproto/googleapis/type/money"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1059,9 +1059,9 @@ const file_banking_accounts_v1_accounts_proto_rawDesc = "" +
 	"\vSendPayment\x12'.banking.accounts.v1.SendPaymentRequest\x1a\x1c.banking.accounts.v1.Payment\">\xc2\xf3\x18\x0f\n" +
 	"\rpayments.send\x82\xd3\xe4\x93\x02%:\x01*\" /v1/{parent=accounts/*}/payments\x12\x99\x01\n" +
 	"\fDepositFunds\x12(.banking.accounts.v1.DepositFundsRequest\x1a\x1c.banking.accounts.v1.Deposit\"A\xc2\xf3\x18\x12\n" +
-	"\x10accounts.deposit\x82\xd3\xe4\x93\x02%:\x01*\" /v1/{parent=accounts/*}/depositsB\xdc\x01\xeaA*\n" +
+	"\x10accounts.deposit\x82\xd3\xe4\x93\x02%:\x01*\" /v1/{parent=accounts/*}/depositsB\xe4\x01\xeaA*\n" +
 	"\x1abanking-on-aspire.dev/User\x12\fusers/{user}\xeaA@\n" +
-	"\x1dbanking-on-aspire.dev/Contact\x12\x1fusers/{user}/contacts/{contact}ZJdev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1\xaa\x02\x1dBanking.Contracts.Accounts.V1b\x06proto3"
+	"\x1dbanking-on-aspire.dev/Contact\x12\x1fusers/{user}/contacts/{contact}ZRgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1\xaa\x02\x1dBanking.Contracts.Accounts.V1b\x06proto3"
 
 var (
 	file_banking_accounts_v1_accounts_proto_rawDescOnce sync.Once

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
 )
 
 type mockTokenVerifier struct {

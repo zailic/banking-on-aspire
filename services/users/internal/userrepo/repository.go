@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	usersv1 "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1"
+	usersv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/users/v1"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	contactsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	contactsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1"
 	"google.golang.org/protobuf/proto"
 )
 

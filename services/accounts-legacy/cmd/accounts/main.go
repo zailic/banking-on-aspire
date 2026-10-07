@@ -9,8 +9,8 @@ import (
 	"strings"
 	"syscall"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/actors"
-	"dev.local/banking-on-aspire/services/accounts-legacy/infra/server"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/actors"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/infra/server"
 	daprd "github.com/dapr/go-sdk/service/http"
 	"github.com/go-chi/chi/v5"
 )

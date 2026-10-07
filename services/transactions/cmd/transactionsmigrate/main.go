@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"dev.local/banking-on-aspire/services/transactions/internal/transactionrepo"
+	"github.com/zailic/banking-on-aspire/services/transactions/internal/transactionrepo"
 )
 
 func main() {

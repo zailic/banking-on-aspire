@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
-	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
-	"dev.local/banking-on-aspire/platform/observability"
+	accountsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	eventsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1"
+	"github.com/zailic/banking-on-aspire/platform/observability"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

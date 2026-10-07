@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
-	usersv1 "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1"
-	"dev.local/banking-on-aspire/services/users/internal/userrepo"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
+	usersv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/users/v1"
+	"github.com/zailic/banking-on-aspire/services/users/internal/userrepo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

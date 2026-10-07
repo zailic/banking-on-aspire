@@ -10,7 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "google/type/money.proto";
 
 option csharp_namespace = "Banking.Contracts.Accounts.V1";
-option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1";
+option go_package = "github.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1;accountsv1";
 // Identifies the user resource owned by the Users service.
 option (google.api.resource_definition) = {
   type: "banking-on-aspire.dev/User"

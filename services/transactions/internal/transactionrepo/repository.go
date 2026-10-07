@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
-	transactionsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1"
+	eventsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1"
+	transactionsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/transactions/v1"
 )
 
 var ErrUserNotFound = errors.New("user identity not found")

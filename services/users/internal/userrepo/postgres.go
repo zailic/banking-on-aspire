@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	usersv1 "dev.local/banking-on-aspire/platform/gen/go/banking/users/v1"
+	usersv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/users/v1"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

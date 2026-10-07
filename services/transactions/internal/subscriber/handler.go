@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	eventsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1"
-	"dev.local/banking-on-aspire/services/transactions/internal/transactionrepo"
+	eventsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1"
+	"github.com/zailic/banking-on-aspire/services/transactions/internal/transactionrepo"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 

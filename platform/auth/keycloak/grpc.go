@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	authv1 "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1"
+	authv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

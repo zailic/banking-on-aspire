@@ -21,7 +21,7 @@ Users also uses the shared gRPC interceptor and claims context.
 `gen/go` and `gen/csharp` are generated from the definitions in `../protos`.
 Do not edit generated files by hand.
 
-- Go consumers import packages from the `dev.local/banking-on-aspire/platform`
+- Go consumers import packages from the `github.com/zailic/banking-on-aspire/platform`
   module.
 - .NET consumers reference
   `dotnet/Banking.Contracts/Banking.Contracts.csproj`.

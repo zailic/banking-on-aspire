@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "google/type/money.proto";
 
 option csharp_namespace = "Banking.Contracts.Events.V1";
-option go_package = "dev.local/banking-on-aspire/platform/gen/go/banking/events/v1;eventsv1";
+option go_package = "github.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1;eventsv1";
 
 // Immutable integration event emitted after a payment commits.
 message PaymentSentEvent {

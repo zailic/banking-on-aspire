@@ -43,9 +43,10 @@ namespace Banking.Contracts.Events.V1 {
             "ZXIYBSABKAlSBW93bmVyEioKBmFtb3VudBgGIAEoCzISLmdvb2dsZS50eXBl",
             "Lk1vbmV5UgZhbW91bnQSHAoJcmVmZXJlbmNlGAcgASgJUglyZWZlcmVuY2US",
             "PwoNb2NjdXJyZWRfdGltZRgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1l",
-            "c3RhbXBSDG9jY3VycmVkVGltZUJmWkZkZXYubG9jYWwvYmFua2luZy1vbi1h",
-            "c3BpcmUvcGxhdGZvcm0vZ2VuL2dvL2JhbmtpbmcvZXZlbnRzL3YxO2V2ZW50",
-            "c3YxqgIbQmFua2luZy5Db250cmFjdHMuRXZlbnRzLlYxYgZwcm90bzM="));
+            "c3RhbXBSDG9jY3VycmVkVGltZUJuWk5naXRodWIuY29tL3phaWxpYy9iYW5r",
+            "aW5nLW9uLWFzcGlyZS9wbGF0Zm9ybS9nZW4vZ28vYmFua2luZy9ldmVudHMv",
+            "djE7ZXZlbnRzdjGqAhtCYW5raW5nLkNvbnRyYWN0cy5FdmVudHMuVjFiBnBy",
+            "b3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, global::Google.Type.MoneyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

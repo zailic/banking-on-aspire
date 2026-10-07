@@ -284,7 +284,7 @@ const file_banking_events_v1_payment_events_proto_rawDesc = "" +
 	"\x05owner\x18\x05 \x01(\tR\x05owner\x12*\n" +
 	"\x06amount\x18\x06 \x01(\v2\x12.google.type.MoneyR\x06amount\x12\x1c\n" +
 	"\treference\x18\a \x01(\tR\treference\x12?\n" +
-	"\roccurred_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\foccurredTimeBfZFdev.local/banking-on-aspire/platform/gen/go/banking/events/v1;eventsv1\xaa\x02\x1bBanking.Contracts.Events.V1b\x06proto3"
+	"\roccurred_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\foccurredTimeBnZNgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/events/v1;eventsv1\xaa\x02\x1bBanking.Contracts.Events.V1b\x06proto3"
 
 var (
 	file_banking_events_v1_payment_events_proto_rawDescOnce sync.Once

@@ -56,12 +56,12 @@ namespace Banking.Contracts.Transactions.V1 {
             "dGlvbnMudjEuTGlzdFRyYW5zYWN0aW9uc1JlcXVlc3QaMS5iYW5raW5nLnRy",
             "YW5zYWN0aW9ucy52MS5MaXN0VHJhbnNhY3Rpb25zUmVzcG9uc2UiQMLzGBMK",
             "EXRyYW5zYWN0aW9ucy5yZWFkgtPkkwIjEiEvdjEve3BhcmVudD11c2Vycy8q",
-            "fS90cmFuc2FjdGlvbnNC2wFaUmRldi5sb2NhbC9iYW5raW5nLW9uLWFzcGly",
-            "ZS9wbGF0Zm9ybS9nZW4vZ28vYmFua2luZy90cmFuc2FjdGlvbnMvdjE7dHJh",
-            "bnNhY3Rpb25zdjGqAiFCYW5raW5nLkNvbnRyYWN0cy5UcmFuc2FjdGlvbnMu",
-            "VjHqQSoKGmJhbmtpbmctb24tYXNwaXJlLmRldi9Vc2VyEgx1c2Vycy97dXNl",
-            "cn3qQTMKHWJhbmtpbmctb24tYXNwaXJlLmRldi9BY2NvdW50EhJhY2NvdW50",
-            "cy97YWNjb3VudH1iBnByb3RvMw=="));
+            "fS90cmFuc2FjdGlvbnNC4wFaWmdpdGh1Yi5jb20vemFpbGljL2Jhbmtpbmct",
+            "b24tYXNwaXJlL3BsYXRmb3JtL2dlbi9nby9iYW5raW5nL3RyYW5zYWN0aW9u",
+            "cy92MTt0cmFuc2FjdGlvbnN2MaoCIUJhbmtpbmcuQ29udHJhY3RzLlRyYW5z",
+            "YWN0aW9ucy5WMepBKgoaYmFua2luZy1vbi1hc3BpcmUuZGV2L1VzZXISDHVz",
+            "ZXJzL3t1c2VyfepBMwodYmFua2luZy1vbi1hc3BpcmUuZGV2L0FjY291bnQS",
+            "EmFjY291bnRzL3thY2NvdW50fWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Banking.Contracts.Auth.V1.AuthorizationReflection.Descriptor, global::Google.Api.AnnotationsReflection.Descriptor, global::Google.Api.FieldBehaviorReflection.Descriptor, global::Google.Api.ResourceReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, global::Google.Type.MoneyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Banking.Contracts.Transactions.V1.TransactionDirection), }, null, new pbr::GeneratedClrTypeInfo[] {

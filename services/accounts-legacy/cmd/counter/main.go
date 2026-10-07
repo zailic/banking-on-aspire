@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/actors"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/actors"
 	daprd "github.com/dapr/go-sdk/service/http"
 )
 

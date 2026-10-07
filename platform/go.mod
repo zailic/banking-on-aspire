@@ -1,4 +1,4 @@
-module dev.local/banking-on-aspire/platform
+module github.com/zailic/banking-on-aspire/platform
 
 go 1.26.5
 

@@ -7,7 +7,7 @@
 package transactionsv1
 
 import (
-	_ "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1"
+	_ "github.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	money "google.golang.org/genproto/googleapis/type/money"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -327,9 +327,9 @@ const file_banking_transactions_v1_transactions_proto_rawDesc = "" +
 	"\x1cTRANSACTION_DIRECTION_CREDIT\x10\x022\xd1\x01\n" +
 	"\x13TransactionsService\x12\xb9\x01\n" +
 	"\x10ListTransactions\x120.banking.transactions.v1.ListTransactionsRequest\x1a1.banking.transactions.v1.ListTransactionsResponse\"@\xc2\xf3\x18\x13\n" +
-	"\x11transactions.read\x82\xd3\xe4\x93\x02#\x12!/v1/{parent=users/*}/transactionsB\xdb\x01\xeaA*\n" +
+	"\x11transactions.read\x82\xd3\xe4\x93\x02#\x12!/v1/{parent=users/*}/transactionsB\xe3\x01\xeaA*\n" +
 	"\x1abanking-on-aspire.dev/User\x12\fusers/{user}\xeaA3\n" +
-	"\x1dbanking-on-aspire.dev/Account\x12\x12accounts/{account}ZRdev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1;transactionsv1\xaa\x02!Banking.Contracts.Transactions.V1b\x06proto3"
+	"\x1dbanking-on-aspire.dev/Account\x12\x12accounts/{account}ZZgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/transactions/v1;transactionsv1\xaa\x02!Banking.Contracts.Transactions.V1b\x06proto3"
 
 var (
 	file_banking_transactions_v1_transactions_proto_rawDescOnce sync.Once

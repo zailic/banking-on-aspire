@@ -5,8 +5,8 @@ This repository, banking-on-aspire, becomes a progressive lab for distributed sy
 
 Naming note:
 - The repository name is banking-on-aspire.
-- The accounts Go module path is dev.local/banking-on-aspire/services/accounts.
-- The preserved actor implementation uses dev.local/banking-on-aspire/services/accounts-legacy.
+- The accounts Go module path is github.com/zailic/banking-on-aspire/services/accounts.
+- The preserved actor implementation uses github.com/zailic/banking-on-aspire/services/accounts-legacy.
 - Default Keycloak realm URL in code is /realms/banking-on-aspire.
 
 Primary technologies:

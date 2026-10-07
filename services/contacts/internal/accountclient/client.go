@@ -3,7 +3,7 @@ package accountclient
 import (
 	"context"
 
-	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	accountsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	"google.golang.org/grpc/metadata"
 )
 

@@ -50,10 +50,10 @@ namespace Banking.Contracts.Users.V1 {
             "ZXRPckNyZWF0ZUN1cnJlbnRVc2VyEi8uYmFua2luZy51c2Vycy52MS5HZXRP",
             "ckNyZWF0ZUN1cnJlbnRVc2VyUmVxdWVzdBoWLmJhbmtpbmcudXNlcnMudjEu",
             "VXNlciJQwvMYKQoTdXNlcnMucHJvZmlsZS53cml0ZQoSdXNlcnMucHJvZmls",
-            "ZS5yZWFkgtPkkwIdIhgvdjEvdXNlcnM6cmVzb2x2ZUN1cnJlbnQ6ASpCY1pE",
-            "ZGV2LmxvY2FsL2Jhbmtpbmctb24tYXNwaXJlL3BsYXRmb3JtL2dlbi9nby9i",
-            "YW5raW5nL3VzZXJzL3YxO3VzZXJzdjGqAhpCYW5raW5nLkNvbnRyYWN0cy5V",
-            "c2Vycy5WMWIGcHJvdG8z"));
+            "ZS5yZWFkgtPkkwIdIhgvdjEvdXNlcnM6cmVzb2x2ZUN1cnJlbnQ6ASpCa1pM",
+            "Z2l0aHViLmNvbS96YWlsaWMvYmFua2luZy1vbi1hc3BpcmUvcGxhdGZvcm0v",
+            "Z2VuL2dvL2JhbmtpbmcvdXNlcnMvdjE7dXNlcnN2MaoCGkJhbmtpbmcuQ29u",
+            "dHJhY3RzLlVzZXJzLlYxYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Banking.Contracts.Auth.V1.AuthorizationReflection.Descriptor, global::Google.Api.AnnotationsReflection.Descriptor, global::Google.Api.FieldBehaviorReflection.Descriptor, global::Google.Api.ResourceReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Banking.Contracts.Users.V1.UserStatus), }, null, new pbr::GeneratedClrTypeInfo[] {

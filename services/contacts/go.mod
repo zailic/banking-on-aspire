@@ -1,10 +1,10 @@
-module dev.local/banking-on-aspire/services/contacts
+module github.com/zailic/banking-on-aspire/services/contacts
 
 go 1.26.5
 
 require (
-	dev.local/banking-on-aspire/platform v0.0.0
 	github.com/jackc/pgx/v5 v5.10.0
+	github.com/zailic/banking-on-aspire/platform v0.0.0
 	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12
 )
@@ -27,4 +27,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260818201246-1b0934165a6f // indirect
 )
 
-replace dev.local/banking-on-aspire/platform => ../../platform
+replace github.com/zailic/banking-on-aspire/platform => ../../platform

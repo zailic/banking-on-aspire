@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	accountsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/accounts/v1"
+	accountsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/accounts/v1"
 	"google.golang.org/genproto/googleapis/type/money"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

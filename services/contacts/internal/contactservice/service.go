@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
-	contactsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
-	"dev.local/banking-on-aspire/services/contacts/internal/contactrepo"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
+	contactsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	"github.com/zailic/banking-on-aspire/services/contacts/internal/contactrepo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"

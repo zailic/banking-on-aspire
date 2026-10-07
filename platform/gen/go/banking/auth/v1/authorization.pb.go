@@ -106,7 +106,7 @@ const file_banking_auth_v1_authorization_proto_rawDesc = "" +
 	"\x13AuthorizationPolicy\x121\n" +
 	"\x14required_permissions\x18\x01 \x03(\tR\x13requiredPermissions\x123\n" +
 	"\x15allow_unauthenticated\x18\x02 \x01(\bR\x14allowUnauthenticated:l\n" +
-	"\rauthorization\x12\x1e.google.protobuf.MethodOptions\x18\xb8\x8e\x03 \x01(\v2$.banking.auth.v1.AuthorizationPolicyR\rauthorizationB`ZBdev.local/banking-on-aspire/platform/gen/go/banking/auth/v1;authv1\xaa\x02\x19Banking.Contracts.Auth.V1b\x06proto3"
+	"\rauthorization\x12\x1e.google.protobuf.MethodOptions\x18\xb8\x8e\x03 \x01(\v2$.banking.auth.v1.AuthorizationPolicyR\rauthorizationBhZJgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1;authv1\xaa\x02\x19Banking.Contracts.Auth.V1b\x06proto3"
 
 var (
 	file_banking_auth_v1_authorization_proto_rawDescOnce sync.Once

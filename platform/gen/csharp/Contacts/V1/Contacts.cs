@@ -78,12 +78,12 @@ namespace Banking.Contracts.Contacts.V1 {
             "Lm5hbWU9dXNlcnMvKi9jb250YWN0cy8qfToHY29udGFjdBKNAQoNRGVsZXRl",
             "Q29udGFjdBIpLmJhbmtpbmcuY29udGFjdHMudjEuRGVsZXRlQ29udGFjdFJl",
             "cXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkiOcLzGBAKDmNvbnRhY3Rz",
-            "LndyaXRlgtPkkwIfKh0vdjEve25hbWU9dXNlcnMvKi9jb250YWN0cy8qfULP",
-            "AVpKZGV2LmxvY2FsL2Jhbmtpbmctb24tYXNwaXJlL3BsYXRmb3JtL2dlbi9n",
-            "by9iYW5raW5nL2NvbnRhY3RzL3YxO2NvbnRhY3RzdjGqAh1CYW5raW5nLkNv",
-            "bnRyYWN0cy5Db250YWN0cy5WMepBKgoaYmFua2luZy1vbi1hc3BpcmUuZGV2",
-            "L1VzZXISDHVzZXJzL3t1c2VyfepBMwodYmFua2luZy1vbi1hc3BpcmUuZGV2",
-            "L0FjY291bnQSEmFjY291bnRzL3thY2NvdW50fWIGcHJvdG8z"));
+            "LndyaXRlgtPkkwIfKh0vdjEve25hbWU9dXNlcnMvKi9jb250YWN0cy8qfULX",
+            "AVpSZ2l0aHViLmNvbS96YWlsaWMvYmFua2luZy1vbi1hc3BpcmUvcGxhdGZv",
+            "cm0vZ2VuL2dvL2JhbmtpbmcvY29udGFjdHMvdjE7Y29udGFjdHN2MaoCHUJh",
+            "bmtpbmcuQ29udHJhY3RzLkNvbnRhY3RzLlYx6kEqChpiYW5raW5nLW9uLWFz",
+            "cGlyZS5kZXYvVXNlchIMdXNlcnMve3VzZXJ96kEzCh1iYW5raW5nLW9uLWFz",
+            "cGlyZS5kZXYvQWNjb3VudBISYWNjb3VudHMve2FjY291bnR9YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Banking.Contracts.Auth.V1.AuthorizationReflection.Descriptor, global::Google.Api.AnnotationsReflection.Descriptor, global::Google.Api.FieldBehaviorReflection.Descriptor, global::Google.Api.ResourceReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.FieldMaskReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

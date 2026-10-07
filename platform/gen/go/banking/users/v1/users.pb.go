@@ -7,7 +7,7 @@
 package usersv1
 
 import (
-	_ "dev.local/banking-on-aspire/platform/gen/go/banking/auth/v1"
+	_ "github.com/zailic/banking-on-aspire/platform/gen/go/banking/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -315,7 +315,7 @@ const file_banking_users_v1_users_proto_rawDesc = "" +
 	"\x12users.profile.read\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/{name=users/*}\x12\xb3\x01\n" +
 	"\x16GetOrCreateCurrentUser\x12/.banking.users.v1.GetOrCreateCurrentUserRequest\x1a\x16.banking.users.v1.User\"P\xc2\xf3\x18)\n" +
 	"\x13users.profile.write\n" +
-	"\x12users.profile.read\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/users:resolveCurrentBcZDdev.local/banking-on-aspire/platform/gen/go/banking/users/v1;usersv1\xaa\x02\x1aBanking.Contracts.Users.V1b\x06proto3"
+	"\x12users.profile.read\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/users:resolveCurrentBkZLgithub.com/zailic/banking-on-aspire/platform/gen/go/banking/users/v1;usersv1\xaa\x02\x1aBanking.Contracts.Users.V1b\x06proto3"
 
 var (
 	file_banking_users_v1_users_proto_rawDescOnce sync.Once

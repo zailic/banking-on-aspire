@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"dev.local/banking-on-aspire/platform/auth/keycloak"
-	transactionsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/transactions/v1"
-	"dev.local/banking-on-aspire/services/transactions/internal/transactionrepo"
+	"github.com/zailic/banking-on-aspire/platform/auth/keycloak"
+	transactionsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/transactions/v1"
+	"github.com/zailic/banking-on-aspire/services/transactions/internal/transactionrepo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

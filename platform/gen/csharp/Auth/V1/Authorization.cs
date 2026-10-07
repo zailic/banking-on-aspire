@@ -31,9 +31,9 @@ namespace Banking.Contracts.Auth.V1 {
             "dGljYXRlZBgCIAEoCFIUYWxsb3dVbmF1dGhlbnRpY2F0ZWQ6bAoNYXV0aG9y",
             "aXphdGlvbhIeLmdvb2dsZS5wcm90b2J1Zi5NZXRob2RPcHRpb25zGLiOAyAB",
             "KAsyJC5iYW5raW5nLmF1dGgudjEuQXV0aG9yaXphdGlvblBvbGljeVINYXV0",
-            "aG9yaXphdGlvbkJgWkJkZXYubG9jYWwvYmFua2luZy1vbi1hc3BpcmUvcGxh",
-            "dGZvcm0vZ2VuL2dvL2JhbmtpbmcvYXV0aC92MTthdXRodjGqAhlCYW5raW5n",
-            "LkNvbnRyYWN0cy5BdXRoLlYxYgZwcm90bzM="));
+            "aG9yaXphdGlvbkJoWkpnaXRodWIuY29tL3phaWxpYy9iYW5raW5nLW9uLWFz",
+            "cGlyZS9wbGF0Zm9ybS9nZW4vZ28vYmFua2luZy9hdXRoL3YxO2F1dGh2MaoC",
+            "GUJhbmtpbmcuQ29udHJhY3RzLkF1dGguVjFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.Reflection.DescriptorReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pb::Extension[] { AuthorizationExtensions.Authorization }, new pbr::GeneratedClrTypeInfo[] {

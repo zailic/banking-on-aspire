@@ -9,7 +9,7 @@ import (
 
 	"time"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/api"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/api"
 	"github.com/dapr/go-sdk/actor"
 	dapr "github.com/dapr/go-sdk/client"
 )

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	contactsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	contactsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"

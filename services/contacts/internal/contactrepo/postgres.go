@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	contactsv1 "dev.local/banking-on-aspire/platform/gen/go/banking/contacts/v1"
+	contactsv1 "github.com/zailic/banking-on-aspire/platform/gen/go/banking/contacts/v1"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"

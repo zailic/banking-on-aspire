@@ -4,8 +4,8 @@ package actors
 import (
 	"context"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/domain"
-	"dev.local/banking-on-aspire/services/accounts-legacy/domain/bank"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/domain"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/domain/bank"
 	"github.com/dapr/go-sdk/actor"
 	dapr "github.com/dapr/go-sdk/client"
 )

@@ -4,7 +4,7 @@ package bank
 import (
 	"context"
 
-	"dev.local/banking-on-aspire/services/accounts-legacy/domain"
+	"github.com/zailic/banking-on-aspire/services/accounts-legacy/domain"
 )
 
 type AccountStatus string
