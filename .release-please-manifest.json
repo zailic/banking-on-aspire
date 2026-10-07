@@ -1,8 +1,8 @@
 {
-  "services/accounts": "0.1.0",
-  "services/contacts": "0.1.0",
-  "services/transactions": "0.1.0",
-  "services/users": "0.1.0",
-  "frontend/Banking.Web": "0.1.0",
-  "protos": "0.1.0"
+  "services/accounts": "0.2.0",
+  "services/contacts": "0.2.0",
+  "services/transactions": "0.2.0",
+  "services/users": "0.2.0",
+  "frontend/Banking.Web": "0.2.0",
+  "protos": "0.2.0"
 }
