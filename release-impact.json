@@ -1,0 +1,57 @@
+{
+  "$schema": "./release-impact.schema.json",
+  "components": {
+    "accounts": {
+      "marker": "services/accounts/.release-impact/shared.sha256",
+      "inputs": [
+        "platform/go.mod",
+        "platform/go.sum",
+        "platform/auth",
+        "platform/observability",
+        "platform/gen/go",
+        "protos"
+      ]
+    },
+    "contacts": {
+      "marker": "services/contacts/.release-impact/shared.sha256",
+      "inputs": [
+        "platform/go.mod",
+        "platform/go.sum",
+        "platform/auth",
+        "platform/observability",
+        "platform/gen/go",
+        "protos"
+      ]
+    },
+    "transactions": {
+      "marker": "services/transactions/.release-impact/shared.sha256",
+      "inputs": [
+        "platform/go.mod",
+        "platform/go.sum",
+        "platform/auth",
+        "platform/observability",
+        "platform/gen/go",
+        "protos"
+      ]
+    },
+    "users": {
+      "marker": "services/users/.release-impact/shared.sha256",
+      "inputs": [
+        "platform/go.mod",
+        "platform/go.sum",
+        "platform/auth",
+        "platform/observability",
+        "platform/gen/go",
+        "protos"
+      ]
+    },
+    "banking-web": {
+      "marker": "frontend/Banking.Web/.release-impact/shared.sha256",
+      "inputs": [
+        "platform/dotnet",
+        "platform/gen/csharp",
+        "protos"
+      ]
+    }
+  }
+}

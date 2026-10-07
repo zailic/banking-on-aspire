@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "separate-pull-requests": false,
+  "packages": {
+    "services/accounts": {
+      "component": "accounts"
+    },
+    "services/contacts": {
+      "component": "contacts"
+    },
+    "services/transactions": {
+      "component": "transactions"
+    },
+    "services/users": {
+      "component": "users"
+    },
+    "frontend/Banking.Web": {
+      "component": "banking-web"
+    },
+    "protos": {
+      "component": "contracts"
+    }
+  }
+}

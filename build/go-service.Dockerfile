@@ -2,6 +2,8 @@ FROM golang:1.26.5-alpine AS build
 
 ARG SERVICE
 ARG COMMAND
+ARG VERSION=0.0.0-dev
+ARG VCS_REF=unknown
 
 WORKDIR /src
 
@@ -20,6 +22,12 @@ RUN cd services/${SERVICE} && \
     ./cmd/${COMMAND}
 
 FROM alpine:3.22
+
+ARG VERSION=0.0.0-dev
+ARG VCS_REF=unknown
+
+LABEL org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.revision=$VCS_REF
 
 RUN apk add --no-cache ca-certificates && \
     addgroup -S -g 65532 app && \

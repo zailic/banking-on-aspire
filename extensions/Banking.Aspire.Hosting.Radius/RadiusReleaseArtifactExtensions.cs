@@ -83,7 +83,7 @@ public static class RadiusReleaseArtifactExtensions
                 {
                     await File.WriteAllTextAsync(
                         Path.Combine(servicesDirectory, $"{name}.bicep"),
-                        AddReleaseTagParameter(bicep, name),
+                        AddImageTagParameter(bicep, name),
                         context.CancellationToken);
                 }
 
@@ -98,14 +98,15 @@ public static class RadiusReleaseArtifactExtensions
         return radius;
     }
 
-    private static string AddReleaseTagParameter(string bicep, string workloadName)
+    internal static string AddImageTagParameter(string bicep, string workloadName)
     {
+        var parameterName = $"{ToBicepIdentifier(workloadName)}_image_tag";
         var image = new Regex(
             $"(?m)(image:\\s*'[^']*/{Regex.Escape(workloadName)}):latest(')",
             RegexOptions.CultureInvariant);
         var tagged = image.Replace(
             bicep,
-            match => $"{match.Groups[1].Value}:${{release_tag}}{match.Groups[2].Value}");
+            match => $"{match.Groups[1].Value}:${{{parameterName}}}{match.Groups[2].Value}");
         if (string.Equals(tagged, bicep, StringComparison.Ordinal))
         {
             throw new InvalidOperationException(
@@ -114,9 +115,12 @@ public static class RadiusReleaseArtifactExtensions
 
         return tagged.Replace(
             "extension radius",
-            "extension radius\n\nparam release_tag string",
+            $"extension radius\n\nparam {parameterName} string",
             StringComparison.Ordinal);
     }
+
+    private static string ToBicepIdentifier(string value) =>
+        Regex.Replace(value, "[^A-Za-z0-9_]", "_", RegexOptions.CultureInvariant);
 
     private static void ReplaceRadiusDeploymentStep<T>(
         IResourceBuilder<T> radius,

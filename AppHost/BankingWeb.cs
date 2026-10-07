@@ -8,9 +8,8 @@ internal static class BankingWeb
         var bankingWeb = builder.AddProject<Projects.Banking_Web>("banking-web")
             .WithContainerRegistry(infrastructure.LocalRegistry)
             .PublishAsDockerFile(container => container
-                .WithDockerfile(".", "frontend/Banking.Web/Dockerfile")
-                .WithImageRegistry("localhost:5001"))
-            .WithRemoteImageTag(infrastructure.ReleaseTag)
+                .WithDockerfile(".", "frontend/Banking.Web/Dockerfile"))
+            .WithRemoteImageTag(infrastructure.ReleaseVersions.BankingWeb)
             .WithHttpsEndpoint(port: 7443, name: "https")
             .WithExternalHttpEndpoints()
             .WithEnvironment("Authentication__KeycloakBaseUrl", infrastructure.Keycloak.GetEndpoint("http"))

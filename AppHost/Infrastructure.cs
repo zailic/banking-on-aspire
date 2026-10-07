@@ -6,7 +6,7 @@ using CommunityToolkit.Aspire.Hosting.Dapr;
 internal sealed record BankingInfrastructure(
     IResourceBuilder<RadiusEnvironmentResource> Radius,
     IResourceBuilder<ContainerRegistryResource> LocalRegistry,
-    string ReleaseTag,
+    BankingReleaseVersions ReleaseVersions,
     IResourceBuilder<ParameterResource> BankingWebClientSecret,
     IResourceBuilder<ParameterResource> PostgresPassword,
     IResourceBuilder<KeycloakResource> Keycloak,
@@ -21,13 +21,18 @@ internal static class Infrastructure
         this IDistributedApplicationBuilder builder)
     {
         var radius = builder.AddRadiusEnvironment("radius");
-        var localRegistry = builder.AddContainerRegistry("local-registry", "localhost:5001");
-        var releaseTag = Environment.GetEnvironmentVariable("BANKING_RELEASE_TAG");
-        if (string.IsNullOrWhiteSpace(releaseTag))
-        {
-            releaseTag = $"aspire-deploy-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
-        }
-        builder.AddParameter("release-tag", releaseTag, publishValueAsDefault: true);
+        var registryEndpoint = builder.AddParameter(
+            "registry-endpoint", "localhost:5001", publishValueAsDefault: true);
+        var registryRepository = builder.AddParameter(
+            "registry-repository", "banking-on-aspire", publishValueAsDefault: true);
+        var localRegistry = builder.AddContainerRegistry(
+            "local-registry", registryEndpoint, registryRepository);
+        var releaseVersions = BankingReleaseVersions.FromEnvironment();
+        builder.AddParameter("accounts-image-tag", releaseVersions.Accounts, publishValueAsDefault: true);
+        builder.AddParameter("transactions-image-tag", releaseVersions.Transactions, publishValueAsDefault: true);
+        builder.AddParameter("contacts-image-tag", releaseVersions.Contacts, publishValueAsDefault: true);
+        builder.AddParameter("users-image-tag", releaseVersions.Users, publishValueAsDefault: true);
+        builder.AddParameter("banking-web-image-tag", releaseVersions.BankingWeb, publishValueAsDefault: true);
 
         if (builder.ExecutionContext.IsPublishMode &&
             string.IsNullOrWhiteSpace(builder.Configuration["Parameters:postgres-password"]))
@@ -89,7 +94,7 @@ internal static class Infrastructure
         return new BankingInfrastructure(
             radius,
             localRegistry,
-            releaseTag,
+            releaseVersions,
             bankingWebClientSecret,
             postgresPassword,
             keycloak,

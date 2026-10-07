@@ -21,9 +21,8 @@ internal static class BankingServices
             .PublishAsDockerFile(container => container
                 .WithDockerfile(".", "build/go-service.Dockerfile")
                 .WithBuildArg("SERVICE", "accounts")
-                .WithBuildArg("COMMAND", "accounts")
-                .WithImageRegistry("localhost:5001"))
-            .WithRemoteImageTag(infrastructure.ReleaseTag)
+                .WithBuildArg("COMMAND", "accounts"))
+            .WithRemoteImageTag(infrastructure.ReleaseVersions.Accounts)
             .WithOtlpExporter(OtlpProtocol.Grpc)
             .WithEnvironment("ACCOUNTS_PORT", "8085")
             .WithEndpoint(targetPort: 8085, scheme: "grpc", name: "grpc", isExternal: true)
@@ -49,9 +48,8 @@ internal static class BankingServices
             .PublishAsDockerFile(container => container
                 .WithDockerfile(".", "build/go-service.Dockerfile")
                 .WithBuildArg("SERVICE", "transactions")
-                .WithBuildArg("COMMAND", "transactions")
-                .WithImageRegistry("localhost:5001"))
-            .WithRemoteImageTag(infrastructure.ReleaseTag)
+                .WithBuildArg("COMMAND", "transactions"))
+            .WithRemoteImageTag(infrastructure.ReleaseVersions.Transactions)
             .WithOtlpExporter(OtlpProtocol.Grpc)
             .WithEnvironment("TRANSACTIONS_HTTP_PORT", "8086")
             .WithEnvironment("TRANSACTIONS_GRPC_PORT", "8087")
@@ -78,9 +76,8 @@ internal static class BankingServices
             .PublishAsDockerFile(container => container
                 .WithDockerfile(".", "build/go-service.Dockerfile")
                 .WithBuildArg("SERVICE", "contacts")
-                .WithBuildArg("COMMAND", "contacts")
-                .WithImageRegistry("localhost:5001"))
-            .WithRemoteImageTag(infrastructure.ReleaseTag)
+                .WithBuildArg("COMMAND", "contacts"))
+            .WithRemoteImageTag(infrastructure.ReleaseVersions.Contacts)
             .WithEnvironment("CONTACTS_PORT", "8083")
             .WithEnvironment("ACCOUNTS_GRPC", accounts.GetEndpoint("grpc"))
             .WithEndpoint(targetPort: 8083, scheme: "grpc", name: "grpc", isExternal: true)
@@ -104,9 +101,8 @@ internal static class BankingServices
             .PublishAsDockerFile(container => container
                 .WithDockerfile(".", "build/go-service.Dockerfile")
                 .WithBuildArg("SERVICE", "users")
-                .WithBuildArg("COMMAND", "users")
-                .WithImageRegistry("localhost:5001"))
-            .WithRemoteImageTag(infrastructure.ReleaseTag)
+                .WithBuildArg("COMMAND", "users"))
+            .WithRemoteImageTag(infrastructure.ReleaseVersions.Users)
             .WithEnvironment("USERS_PORT", "8084")
             .WithEndpoint(targetPort: 8084, scheme: "grpc", name: "grpc", isExternal: true)
             .WithDaprSidecar(sidecar => sidecar.WithOptions(new DaprSidecarOptions

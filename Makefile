@@ -5,7 +5,7 @@ GO_PACKAGES := ./platform/... ./services/accounts/... ./services/accounts-legacy
 GO_MOD_DIRS := $(shell find . -type f -name 'go.mod' -exec dirname {} \; | sort)
 GO_FILES := $(shell find platform services -type f -name '*.go')
 
-.PHONY: help tools tools-clean tools-versions proto proto-format proto-lint proto-build proto-check go-format go-format-check go-lint test check smoke-auth
+.PHONY: help tools tools-clean tools-versions proto proto-format proto-lint proto-build proto-check go-format go-format-check go-lint release-impact release-impact-check test check smoke-auth
 
 help:
 	@printf '%s\n' \
@@ -16,6 +16,8 @@ help:
 		'make go-format      Format all Go source files' \
 		'make go-format-check Check Go source formatting without changing files' \
 		'make go-lint        Run go vet for all Go workspace packages' \
+		'make release-impact Update deployable-component fingerprints for shared inputs' \
+		'make release-impact-check Check that shared-input fingerprints are current' \
 		'make test           Run all Go tests in the workspace' \
 		'make smoke-auth     Run the Keycloak/RBAC/ownership integration gate' \
 		'make check          Run all formatting, linting, contract, and test checks'
@@ -60,6 +62,12 @@ go-format-check:
 go-lint:
 	@go vet $(GO_PACKAGES)
 
+release-impact:
+	@./scripts/release-impact.sh --write
+
+release-impact-check:
+	@./scripts/release-impact.sh --check
+
 go-mod-tidy: $(GO_MOD_DIRS:%=go-mod-tidy/%)
 go-mod-tidy/%: DIR=$*
 go-mod-tidy/%:
@@ -70,7 +78,7 @@ go-mod-tidy/%:
 test:
 	@go test $(GO_PACKAGES)
 
-check: proto-check go-format-check go-lint test
+check: proto-check go-format-check go-lint release-impact-check test
 
 smoke-auth:
 	@./scripts/smoke-auth.sh

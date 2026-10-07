@@ -1,5 +1,7 @@
 ARG DOTNET_SDK_VERSION=10.0.401
 ARG DOTNET_RUNTIME_VERSION=10.0.12
+ARG VERSION=0.0.0-dev
+ARG VCS_REF=unknown
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION} AS build
 
@@ -23,6 +25,12 @@ RUN dotnet publish frontend/Banking.Web/Banking.Web.csproj \
 RUN test -f /app/publish/wwwroot/_framework/blazor.web.js
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_RUNTIME_VERSION}
+
+ARG VERSION=0.0.0-dev
+ARG VCS_REF=unknown
+
+LABEL org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.revision=$VCS_REF
 
 WORKDIR /app
 COPY --from=build /app/publish .

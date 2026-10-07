@@ -90,4 +90,29 @@ public sealed class RadiusBicepDaprPostProcessorTests
         Assert.Contains("local-dev/pubsubbrokers:latest", result);
         Assert.DoesNotContain("local-dev/daprpubsubbrokers:latest", result);
     }
+
+    [Fact]
+    public void AddImageTagParameterUsesAWorkloadSpecificParameter()
+    {
+        const string input = """
+            extension radius
+
+            resource web 'Radius.Compute/containers@2025-08-01-preview' = {
+              name: 'banking-web'
+              properties: {
+                containers: {
+                  web: {
+                    image: 'localhost:5001/banking-web:latest'
+                  }
+                }
+              }
+            }
+            """;
+
+        var result = RadiusReleaseArtifactExtensions.AddImageTagParameter(input, "banking-web");
+
+        Assert.Contains("param banking_web_image_tag string", result);
+        Assert.Contains("image: 'localhost:5001/banking-web:${banking_web_image_tag}'", result);
+        Assert.DoesNotContain("release_tag", result);
+    }
 }

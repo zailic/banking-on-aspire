@@ -1,0 +1,24 @@
+name: Release impact
+
+on:
+  pull_request:
+    paths:
+      - platform/**
+      - protos/**
+      - release-impact.json
+      - release-impact.schema.json
+      - scripts/release-impact.sh
+      - services/*/.release-impact/**
+      - frontend/Banking.Web/.release-impact/**
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate shared release impact
+        run: ./scripts/release-impact.sh --check
