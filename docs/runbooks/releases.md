@@ -30,6 +30,10 @@ Because the markers live under component paths, Release Please includes the affe
 components in its next release. The graph is intentionally conservative; update it when
 a shared package is split or a consumer stops depending on it.
 
+Only Protobuf sources and Buf configuration participate in consumer fingerprints.
+Release metadata such as `protos/version.txt` and `protos/CHANGELOG.md` is deliberately
+excluded, otherwise a Release Please PR would recursively invalidate every consumer.
+
 The Conventional Commit type of the shared change is also applied to the affected
 consumers. Use `fix(platform)` for an internal compatible change, `feat(platform)` when
 the consumers gain externally observable capability, and a breaking-change marker only

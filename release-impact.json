@@ -9,7 +9,10 @@
         "platform/auth",
         "platform/observability",
         "platform/gen/go",
-        "protos"
+        "protos/banking",
+        "protos/buf.yaml",
+        "protos/buf.gen.yaml",
+        "protos/buf.lock"
       ]
     },
     "contacts": {
@@ -20,7 +23,10 @@
         "platform/auth",
         "platform/observability",
         "platform/gen/go",
-        "protos"
+        "protos/banking",
+        "protos/buf.yaml",
+        "protos/buf.gen.yaml",
+        "protos/buf.lock"
       ]
     },
     "transactions": {
@@ -31,7 +37,10 @@
         "platform/auth",
         "platform/observability",
         "platform/gen/go",
-        "protos"
+        "protos/banking",
+        "protos/buf.yaml",
+        "protos/buf.gen.yaml",
+        "protos/buf.lock"
       ]
     },
     "users": {
@@ -42,7 +51,10 @@
         "platform/auth",
         "platform/observability",
         "platform/gen/go",
-        "protos"
+        "protos/banking",
+        "protos/buf.yaml",
+        "protos/buf.gen.yaml",
+        "protos/buf.lock"
       ]
     },
     "banking-web": {
@@ -50,7 +62,10 @@
       "inputs": [
         "platform/dotnet",
         "platform/gen/csharp",
-        "protos"
+        "protos/banking",
+        "protos/buf.yaml",
+        "protos/buf.gen.yaml",
+        "protos/buf.lock"
       ]
     }
   }
